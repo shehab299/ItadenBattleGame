@@ -1,7 +1,7 @@
 ;AUTHOR : SHEHAB KHALED
 
 ;---------------------------------------
-.MODEL SMALL
+.MODEL HUGE
 .STACK 32
 
 ;---------------------------------------
@@ -70,88 +70,45 @@ startBtn_file_size equ startBtn_height * startBtn_width
 startBtn_file db startBtn_file_size dup(?)
 
 ;Exit FILE
-
 exitBtn_width equ 70
-
 exitBtn_height equ 16
-
 exitBtn_file_name db '/bin/Exit.bin', 0
-
 exitBtn_file_handle dw ?
-
 exitBtn_file_size equ exitBtn_height * exitBtn_width
-
 exitBtn_file db exitBtn_file_size dup(?)
 
 ;Ward FILE
-
 ward_width equ 71
-
 ward_height equ 66
-
 ward_file_name db '/bin/ward.bin', 0
-
 ward_file_handle dw ?
-
 ward_file_size equ ward_height * ward_width
-
 ward_file db ward_file_size dup(?)
 
 ;Samer FILE
-
 samer_width equ 65
-
 samer_height equ 59
-
 samer_file_name db '/bin/samer.bin', 0
-
 samer_file_handle dw ?
-
 samer_file_size equ samer_height * samer_width
-
 samer_file db samer_file_size dup(?)
 
 ;mays FILE
-
 mays_width equ 60
-
 mays_height equ 58
-
 mays_file_name db '/bin/mays.bin', 0
-
 mays_file_handle dw ?
-
 mays_file_size equ mays_height * mays_width
-
 mays_file db mays_file_size dup(?)
 
 ;bassam FILE
-
 bassam_width equ 65
-
 bassam_height equ 62
-
 bassam_file_name db '/bin/bassam.bin', 0
-
 bassam_file_handle dw ?
-
 bassam_file_size equ bassam_height * bassam_width
-
 bassam_file db bassam_file_size dup(?)
 
-; ;choose character FILE
-
-; choose_width equ 272
-
-; choose_height equ 47
-
-; choose_file_name db '/bin/Choose.bin', 0
-
-; choose_file_handle dw ?
-
-; choose_file_size equ choose_height * choose_width
-
-; choose_file db choose_file_size dup(?)
 
 ;ELSE THINGS
 
@@ -169,6 +126,45 @@ VIDEO_MODE_BX EQU 0101h
 .code
 
 include drawing.inc
+
+
+    setBackgroundColor PROC NEAR
+        mov cx, 0           ;Column
+        mov dx, 0           ;Row
+        mov al, 42H         ;Pixel color
+        mov ah, 0ch         ;Draw Pixel Command
+        Horizontal: int 10h
+        INC CX
+        CMP CX, SCREEN_WIDTH
+        JNZ Horizontal
+
+        MOV CX, 0
+        INC DX
+        CMP DX, SCREEN_HEIGHT
+        JNZ Horizontal
+        RET
+    setBackgroundColor ENDP
+
+    drawLogo PROC
+        MOV DX, offset first_file_name
+        MOV DI, offset first_file_handle
+        call openFile
+
+        MOV CX, first_file_size
+        MOV DX, offset first_file
+        MOV BX, [first_file_handle]
+        call ReadFileToMemory
+
+        MOV SI, offset first_file
+        MOV [START_ROW], 31
+        MOV [START_COLUMN], 469
+        MOV [AUX_IMAGE_HEIGHT], first_image_height
+        MOV [AUX_IMAGE_WIDTH], first_image_width
+        CALL drawImage
+        RET
+    drawLogo ENDP
+
+
 
 MAIN PROC FAR
     MOV AX, @DATA
@@ -260,11 +256,6 @@ MAIN PROC FAR
 
     CALL drawLogo
     ; CALL chooseCharacter
-    CALL drawWard
-    CALL drawSamer
-    CALL drawMays
-    CALL drawBassam
-
     MOV AH, 0
     INT 16h
 
@@ -272,138 +263,6 @@ MAIN PROC FAR
     RET
 
 MAIN ENDP
-
-    setBackgroundColor PROC NEAR
-        mov cx, 0           ;Column
-        mov dx, 0           ;Row
-        mov al, 42H         ;Pixel color
-        mov ah, 0ch         ;Draw Pixel Command
-        Horizontal: int 10h
-        INC CX
-        CMP CX, SCREEN_WIDTH
-        JNZ Horizontal
-
-        MOV CX, 0
-        INC DX
-        CMP DX, SCREEN_HEIGHT
-        JNZ Horizontal
-        RET
-    setBackgroundColor ENDP
-
-    drawWard PROC
-        MOV DX, offset ward_file_name
-        MOV DI, offset ward_file_handle
-        call openFile
-
-        MOV CX, ward_file_size
-        MOV DX, offset ward_file
-        MOV BX, [ward_file_handle]
-        call ReadFileToMemory
-
-        MOV SI, offset ward_file
-        MOV [START_ROW], 170
-        MOV [START_COLUMN], 160
-        MOV [AUX_IMAGE_HEIGHT], ward_height
-        MOV [AUX_IMAGE_WIDTH], ward_width
-        CALL drawImage
-        RET
-    drawWard ENDP
-
-    drawSamer PROC
-        MOV DX, offset samer_file_name
-        MOV DI, offset samer_file_handle
-        call openFile
-
-        MOV CX, samer_file_size
-        MOV DX, offset samer_file
-        MOV BX, [samer_file_handle]
-        call ReadFileToMemory
-
-        MOV SI, offset samer_file
-        MOV [START_ROW], 250
-        MOV [START_COLUMN], 168
-        MOV [AUX_IMAGE_HEIGHT], samer_height
-        MOV [AUX_IMAGE_WIDTH], samer_width
-        CALL drawImage
-        RET
-    drawSamer ENDP
-
-    drawMays PROC
-        MOV DX, offset mays_file_name
-        MOV DI, offset mays_file_handle
-        call openFile
-
-        MOV CX, mays_file_size
-        MOV DX, offset mays_file
-        MOV BX, [mays_file_handle]
-        call ReadFileToMemory
-
-        MOV SI, offset mays_file
-        MOV [START_ROW], 321
-        MOV [START_COLUMN], 168
-        MOV [AUX_IMAGE_HEIGHT], mays_height
-        MOV [AUX_IMAGE_WIDTH], mays_width
-        CALL drawImage
-        RET
-    drawMays ENDP
-
-    drawBassam PROC
-        MOV DX, offset bassam_file_name
-        MOV DI, offset bassam_file_handle
-        call openFile
-
-        MOV CX, bassam_file_size
-        MOV DX, offset bassam_file
-        MOV BX, [bassam_file_handle]
-        call ReadFileToMemory
-
-        MOV SI, offset bassam_file
-        MOV [START_ROW], 387
-        MOV [START_COLUMN], 168
-        MOV [AUX_IMAGE_HEIGHT], bassam_height
-        MOV [AUX_IMAGE_WIDTH], bassam_width
-        CALL drawImage
-
-        RET
-    drawBassam ENDP
-
-    drawLogo PROC
-        MOV DX, offset first_file_name
-        MOV DI, offset first_file_handle
-        call openFile
-
-        MOV CX, first_file_size
-        MOV DX, offset first_file
-        MOV BX, [first_file_handle]
-        call ReadFileToMemory
-
-        MOV SI, offset first_file
-        MOV [START_ROW], 31
-        MOV [START_COLUMN], 469
-        MOV [AUX_IMAGE_HEIGHT], first_image_height
-        MOV [AUX_IMAGE_WIDTH], first_image_width
-        CALL drawImage
-        RET
-    drawLogo ENDP
-
-    ; chooseCharacter PROC
-    ;     MOV DX, offset choose_file_name
-    ;     MOV DI, offset choose_file_handle
-    ;     call openFile
-
-    ;     MOV CX, choose_file_size
-    ;     MOV DX, offset choose_file
-    ;     MOV BX, [choose_file_handle]
-    ;     call ReadFileToMemory
-
-    ;     MOV SI, offset choose_file
-    ;     MOV [START_ROW], 52
-    ;     MOV [START_COLUMN], 172
-    ;     MOV [AUX_IMAGE_HEIGHT], choose_height
-    ;     MOV [AUX_IMAGE_WIDTH], choose_width
-    ;     CALL drawImage
-    ;     RET
-    ; chooseCharacter ENDP
 
 
 END MAIN
