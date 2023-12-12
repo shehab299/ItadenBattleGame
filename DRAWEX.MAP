@@ -1,9 +1,0 @@
-
- Start  Stop   Length Name               Class
-
- 00000H 001A2H 001A3H DRAWEX_TEXT        CODE
- 001B0H 0FC7EH 0FACFH _DATA              DATA
- 0FC80H 0FC9FH 00020H STACK              STACK
-
-Program entry point at 0000:009E
-

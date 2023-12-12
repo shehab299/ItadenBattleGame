@@ -10,6 +10,9 @@
 
 ;AUX VARIABLES
 
+file_buffer db 20000 dup(?)
+file_handle dw ?
+
 AUX_IMAGE_WIDTH dw ?
 AUX_IMAGE_HEIGHT dw ? 
 START_ROW dw ?
@@ -22,11 +25,11 @@ first_image_height equ 42
 
 first_file_name db './bin/LogoS.bin', 0
 
-first_file_handle dw ?
+; first_file_handle dw ?
 
 first_file_size equ first_image_height * first_image_width
 
-first_file db first_file_size dup(?)
+; first_file db first_file_size dup(?)
 
 
 
@@ -37,11 +40,11 @@ owl_height equ 167
 
 owl_file_name db '/bin/owl.bin', 0
 
-owl_file_handle dw ?
+; owl_file_handle dw ?
 
 owl_file_size equ owl_height * owl_width
 
-owl_file db owl_file_size dup(?)
+; owl_file db owl_file_size dup(?)
 
 ;HeroText FILE
 
@@ -50,11 +53,11 @@ hey_height equ 45
 
 hey_file_name db '/bin/Hey.bin', 0
 
-hey_file_handle dw ?
+; hey_file_handle dw ?
 
 hey_file_size equ hey_height * hey_width
 
-hey_file db hey_file_size dup(?)
+; hey_file db hey_file_size dup(?)
 
 ;Start FILE
 
@@ -63,19 +66,19 @@ startBtn_height equ 18
 
 startBtn_file_name db '/bin/Start.bin', 0
 
-startBtn_file_handle dw ?
+; startBtn_file_handle dw ?
 
 startBtn_file_size equ startBtn_height * startBtn_width
 
-startBtn_file db startBtn_file_size dup(?)
+; startBtn_file db startBtn_file_size dup(?)
 
 ;Exit FILE
 exitBtn_width equ 70
 exitBtn_height equ 16
 exitBtn_file_name db '/bin/Exit.bin', 0
-exitBtn_file_handle dw ?
+; exitBtn_file_handle dw ?
 exitBtn_file_size equ exitBtn_height * exitBtn_width
-exitBtn_file db exitBtn_file_size dup(?)
+; exitBtn_file db exitBtn_file_size dup(?)
 
 ;Ward FILE
 ward_width equ 71
@@ -83,39 +86,37 @@ ward_height equ 66
 ward_file_name db '/bin/ward.bin', 0
 ward_file_handle dw ?
 ward_file_size equ ward_height * ward_width
-ward_file db ward_file_size dup(?)
+; ward_file db ward_file_size dup(?)
 
 ;Samer FILE
 samer_width equ 65
 samer_height equ 59
 samer_file_name db '/bin/samer.bin', 0
-samer_file_handle dw ?
+; samer_file_handle dw ?
 samer_file_size equ samer_height * samer_width
-samer_file db samer_file_size dup(?)
+; samer_file db samer_file_size dup(?)
 
 ;mays FILE
 mays_width equ 60
 mays_height equ 58
 mays_file_name db '/bin/mays.bin', 0
-mays_file_handle dw ?
+; mays_file_handle dw ?
 mays_file_size equ mays_height * mays_width
-mays_file db mays_file_size dup(?)
+; mays_file db mays_file_size dup(?)
 
 ;bassam FILE
 bassam_width equ 65
 bassam_height equ 62
 bassam_file_name db '/bin/bassam.bin', 0
-bassam_file_handle dw ?
+; bassam_file_handle dw ?
 bassam_file_size equ bassam_height * bassam_width
-bassam_file db bassam_file_size dup(?)
+; bassam_file db bassam_file_size dup(?)
 
 
 ;ELSE THINGS
 
 errtext db "Error", 10, "$"
 
-IMAGE_HEIGHT equ 68
-IMAGE_WIDTH equ 60
 
 SCREEN_WIDTH equ 640
 SCREEN_HEIGHT equ 480
@@ -147,15 +148,15 @@ include drawing.inc
 
     drawLogo PROC
         MOV DX, offset first_file_name
-        MOV DI, offset first_file_handle
+        MOV DI, offset file_handle
         call openFile
 
         MOV CX, first_file_size
-        MOV DX, offset first_file
-        MOV BX, [first_file_handle]
+        MOV DX, offset file_buffer
+        MOV BX, [file_handle]
         call ReadFileToMemory
 
-        MOV SI, offset first_file
+        MOV SI, offset file_buffer
         MOV [START_ROW], 31
         MOV [START_COLUMN], 469
         MOV [AUX_IMAGE_HEIGHT], first_image_height
@@ -181,15 +182,15 @@ MAIN PROC FAR
 
 
     MOV DX, offset owl_file_name
-    MOV DI, offset owl_file_handle
+    MOV DI, offset file_handle
     call openFile
 
     MOV CX, owl_file_size
-    MOV DX, offset owl_file
-    MOV BX, [owl_file_handle]
+    MOV DX, offset file_buffer
+    MOV BX, [file_handle]
     call ReadFileToMemory
 
-    MOV SI, offset owl_file
+    MOV SI, offset file_buffer
     MOV [START_ROW], 91
     MOV [START_COLUMN], 265
     MOV [AUX_IMAGE_HEIGHT], owl_height
@@ -198,15 +199,15 @@ MAIN PROC FAR
 
 
     MOV DX, offset hey_file_name
-    MOV DI, offset hey_file_handle
+    MOV DI, offset file_handle
     call openFile
 
     MOV CX, hey_file_size
-    MOV DX, offset hey_file
-    MOV BX, [hey_file_handle]
+    MOV DX, offset file_buffer
+    MOV BX, [file_handle]
     call ReadFileToMemory
 
-    MOV SI, offset hey_file
+    MOV SI, offset file_buffer
     MOV [START_ROW], 275
     MOV [START_COLUMN], 101
     MOV [AUX_IMAGE_HEIGHT], hey_height
@@ -214,15 +215,15 @@ MAIN PROC FAR
     CALL drawImage
 
     MOV DX, offset startBtn_file_name
-    MOV DI, offset startBtn_file_handle
+    MOV DI, offset file_handle
     call openFile
 
     MOV CX, startBtn_file_size
-    MOV DX, offset startBtn_file
-    MOV BX, [startBtn_file_handle]
+    MOV DX, offset file_buffer
+    MOV BX, [file_handle]
     call ReadFileToMemory
 
-    MOV SI, offset startBtn_file
+    MOV SI, offset file_buffer
     MOV [START_ROW], 437
     MOV [START_COLUMN], 499
     MOV [AUX_IMAGE_HEIGHT], startBtn_height
@@ -231,15 +232,15 @@ MAIN PROC FAR
 
 
     MOV DX, offset exitBtn_file_name
-    MOV DI, offset exitBtn_file_handle
+    MOV DI, offset file_handle
     call openFile
 
     MOV CX, exitBtn_file_size
-    MOV DX, offset exitBtn_file
-    MOV BX, [exitBtn_file_handle]
+    MOV DX, offset file_buffer
+    MOV BX, [file_handle]
     call ReadFileToMemory
 
-    MOV SI, offset exitBtn_file
+    MOV SI, offset file_buffer
     MOV [START_ROW], 437
     MOV [START_COLUMN], 34
     MOV [AUX_IMAGE_HEIGHT], exitBtn_height
