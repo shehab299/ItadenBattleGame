@@ -22,14 +22,14 @@ TASM *.ASM
 :: LINKING (IMPORTANT)
 echo "=================================="
 echo "Linking"
-TLINK main.obj+gen.obj
+TLINK chooseCh.obj+UI.obj
 
 :: YOU HAVE TO SPECIFY THE FILES MANULAAY TILL NOW
 :: YOU CAN'T SAY TLINK *.OBJ 
 :: IF YOU FOUND ANOTHER WAY LET US KNOW
 
 :: Run
-main.EXE
+chooseCh.EXE
 
 :: Clean files Silently you can remove this part
 :: completely if you want it is not required

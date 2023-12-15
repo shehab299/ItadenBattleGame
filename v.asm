@@ -1,28 +1,24 @@
 ;AUTHOR : SHEHAB KHALED & JPASSICA
 ;---------------------------------------
-
-PUBLIC generate
-
 .MODEL SMALL
 .STACK 32
 
 ;---------------------------------------
 .DATA
 
+
 ; GRID VARS
 
 x DW 0 
 y DW 0
 
-color db 0eh
+color db 0bh
 
 SCREEN_WIDTH EQU 640
 SCREEN_HEIGHT EQU 480
 
-GRID_WIDTH EQU 10
-GRID_HEIGHT EQU 10
-
-START_COLUMN DW ?
+GRID_WIDTH EQU 8
+GRID_HEIGHT EQU 8
 
 CELL_W EQU SCREEN_WIDTH/GRID_WIDTH
 CELL_H EQU SCREEN_HEIGHT/GRID_HEIGHT
@@ -42,8 +38,8 @@ continueRight db 0 ;bool
 forceDirectionChange db 0 ;bool
 
 ; Array used to mark grid cells as visited
-; index as (x * GRID_WIDTH + y)
-visited db (GRID_HEIGHT * GRID_WIDTH) dup (0)
+; index as (y * GRID_HEIGHT + x)
+visited dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
 
 ; index to use for marking visited
 currIndex dw 0
@@ -51,26 +47,44 @@ currIndex dw 0
 probingIndex dw 0
 ; ASSUMING INDEX COULD NOT BE GREATER THAN 64K
 
+x_probe db 0
+y_probe db 0
+
+VIDEO_MODE    EQU 4F02h                          
+VIDEO_MODE_BX EQU 0101h       
+START_COLUMN DW ?
+
 ;---------------------------------------
 .code
 
-generate PROC FAR
+MAIN PROC FAR
+    MOV AX,@DATA
+    MOV DS,AX
+
+
+    mov ax,VIDEO_MODE
+    mov bx,VIDEO_MODE_BX
+    int 10h
+    
+    ;generatePath:
+
         ;initialize
         call genRand
         mov ax,RandNum
         mov y,0
-        mov x,ax
+        mov x,0
 
         generatePath:
+        ;main subroutine
 
         cmp y, GRID_HEIGHT
-        jz exitGEN
+        jge exit
 
             call checkCurrentDirections
             call chooseDirection
 
             cmp y,GRID_HEIGHT
-            jz continue_generatePath
+            jge continue_generatePath
                 call updateMap
             
             continue_generatePath:
@@ -81,14 +95,34 @@ generate PROC FAR
 
         jmp generatePath
 
-        exitGEN:
-            RET
+    exit: 
 
-generate ENDP
+    ;waits for keystroke without stopping exec
+    MOV AH,0
+    INT 16H
+
+    ;terminates program and rets control to os
+    MOV AH,4CH
+    INT 21H
+
+MAIN ENDP
+
 
 genRand PROC ;;CHANGES AX CX
 
     PUSH AX CX
+
+    mov cx,60000
+    loop1:
+    loop loop1
+
+    mov cx,60000
+    loop2:
+    loop loop2
+
+    ;mov cx,60000
+    ;loop3:
+    ;loop loop3
 
     mov AH, 2Ch
     int 21h
@@ -107,38 +141,57 @@ genRand PROC ;;CHANGES AX CX
     RET
 genRand ENDP
 
-writeProbingIndex PROC 
-    ;VISITED  x * grid-width + y
-    ; al = +-y?
-    ; ah = +-x
-    push ax
-
-    call setCurrIndex ;now currIndex is set
+writeProbingIndex proc 
+    call setCurrIndex 
 
     mov ax,currIndex
     mov probingIndex,ax
 
-    pop ax
-    push ax 
+    ; ----- x - probe -----
+    cmp x_probe,0
+    jz skip_x_probe
+        
+        ;either 1 or -1 
+        cmp x_probe,1 
+        jnz neg_x_probe
 
-    mov ah,0
+            ; + 1
+            add probingIndex,1
+            jmp skip_x_probe
 
-    add probingIndex,ax
+        neg_x_probe:
 
-    pop ax
+            ; - 1
+            sub probingIndex,1
 
-    mov bl,GRID_WIDTH
-    mov al,ah 
-    mov ah,0 
-    mul bl 
-    
-    add probingIndex,ax 
+    skip_x_probe:
+
+    ; ----- y - probe -----
+    cmp y_probe,0
+    jz skip_y_probe
+        
+        ;either 1 or -1 
+        cmp y_probe,1 
+        jnz neg_y_probe
+
+            ; + 1 * GRID_HEIGHT
+            add probingIndex, GRID_HEIGHT
+            jmp skip_y_probe
+
+        neg_y_probe:
+
+            ; - 1 * GRID_HEIGHT
+            sub probingIndex, GRID_HEIGHT
+
+    skip_y_probe:
+
     ;now probingIndex is ready
 
     mov si,offset visited
     add si,probingIndex
+    add si,probingIndex
 
-    cmp byte ptr [si],01h
+    cmp [si],1
     jz writeProbing_true
 
         ;writeProbing_false 
@@ -148,7 +201,7 @@ writeProbingIndex PROC
     writeProbing_true:
         mov ax,1
         ret
-writeProbingIndex ENDP
+writeProbingIndex endp 
 
 changeDirection proc   
     mov Threshold,3
@@ -159,9 +212,8 @@ changeDirection proc
     jnz continue_block1_cd
         cmp currDirection,2 ;LEFT
         jnz continue_block1_cd
-            ; set probes 
-            cmp x,2
-            jc continue_block1_cd
+            cmp x,1
+            jle continue_block1_cd
 
                 jmp block1_cd_if
 
@@ -171,24 +223,24 @@ changeDirection proc
             cmp currDirection,3 ;RIGHT
             jnz block2_cd
                 cmp x,GRID_WIDTH -2
-                jnc block2_cd
+                jge block2_cd
 
     block1_cd_if:
         cmp y,1
-        jc block2_cd
+        jl block2_cd
             ;set scalars
-            mov al,0
-            mov ah,-1
+            mov x_probe,0
+            mov y_probe,-1
             call writeProbingIndex
             cmp ax,0
             jnz block2_cd
-                mov al,-1
-                mov ah,-1
+                mov x_probe,-1
+                mov y_probe,-1
                 call writeProbingIndex
                 cmp ax,0
                 jnz block2_cd
-                    mov al,1
-                    mov ah,-1
+                    mov x_probe,1
+                    mov y_probe,-1
                     call writeProbingIndex
                     cmp ax,0
                     jnz block2_cd 
@@ -229,10 +281,10 @@ changeDirection proc
         cmp continueRight,1
         jz block4_cd_if1
 
-        cmp x,2
-        jc block4_cd_else1out
+        cmp x,1
+        jle block4_cd_else1out
             cmp x,GRID_WIDTH - 2
-            jnc block4_cd_else1out
+            jge block4_cd_else1out
 
         block4_cd_if1:
             cmp continueLeft,1
@@ -245,8 +297,8 @@ changeDirection proc
             
             block4_cd_if2:
                 ; set probes 
-                mov al,-1
-                mov ah,0
+                mov x_probe,-1
+                mov y_probe,0
                 call writeProbingIndex 
                 cmp ax,0
                 jnz block5_cd ; i believe this is where control flow heads
@@ -266,8 +318,8 @@ changeDirection proc
 
             block4_cd_else_if1:
                 ;set probes 
-                mov al,1
-                mov ah,0
+                mov x_probe,1
+                mov y_probe,0
                 call writeProbingIndex
                 cmp ax,0
                 jnz block5_cd
@@ -284,15 +336,15 @@ changeDirection proc
                     jmp block5_cd
 
         block4_cd_else1out:
-            cmp x,2
-            jc block4_cd_else2out
+            cmp x,1
+            jle block4_cd_else2out
                 ;char?
                 mov currDirection,2 ;LEFT
                 jmp block5_cd
 
         block4_cd_else2out:
             cmp x,GRID_WIDTH - 2
-            jnc block5_cd
+            jge block5_cd
                 ;char?
                 mov currDirection,3 ;RIGHT
         
@@ -319,10 +371,10 @@ checkCurrentDirections PROC
     cmp currDirection,2 ;LEFT
     jnz continue_block2_ccd
         cmp x,1 
-        jc continue_block2_ccd
+        jl continue_block2_ccd
             ; setting probing scalars
-            mov al,-1 
-            mov ah,0
+            mov x_probe,-1 
+            mov y_probe,0
             call writeProbingIndex ;result in ax
             cmp ax,0
             jnz continue_block2_ccd
@@ -334,10 +386,10 @@ checkCurrentDirections PROC
         cmp currDirection,3 ;RIGHT
         jnz continue_block3_ccd
             cmp x,GRID_WIDTH - 1
-            jnc continue_block3_ccd
+            jge continue_block3_ccd
                 ; setting probing scalars 
-                mov al,1
-                mov ah,0
+                mov x_probe,1
+                mov y_probe,0
                 call writeProbingIndex ;result in ax
                 cmp ax,0
                 jnz continue_block3_ccd
@@ -349,10 +401,10 @@ checkCurrentDirections PROC
         cmp currDirection,0 ;UP
         jnz continue_block4_ccd
             cmp y,1
-            jc continue_block4_ccd
+            jl continue_block4_ccd
                 ; setting probing scalars
-                mov al,0
-                mov ah,-1 ; probe y -1 
+                mov x_probe,0
+                mov y_probe,-1 ; probe y -1 
                 call writeProbingIndex
                 cmp ax,0
                 jnz continue_block4_ccd
@@ -362,8 +414,8 @@ checkCurrentDirections PROC
                         cmp continueLeft,1
                         jnz continue_block3_continue_ccd
                             ; set probes
-                            mov al,-1
-                            mov ah,-1
+                            mov x_probe,-1
+                            mov y_probe,-1
                             call writeProbingIndex
                             cmp ax,0
                             jnz continue_block3_continue_ccd
@@ -374,8 +426,8 @@ checkCurrentDirections PROC
                         cmp continueRight,1
                         jnz continue_block3_else
                             ; set probes
-                            mov al,1
-                            mov ah,-1
+                            mov x_probe,1
+                            mov y_probe,-1
                             call writeProbingIndex
                             cmp ax,0
                             jnz continue_block3_else
@@ -399,6 +451,25 @@ checkCurrentDirections PROC
     exit_ccd:
     ret
 checkCurrentDirections ENDP
+
+
+drawGrid PROC ;;CHANGES CX
+
+    MOV CX,GRID_HEIGHT
+    LOOPY:
+        PUSH CX
+        MOV CX,GRID_WIDTH
+        LOOPX:
+            call drawSquare
+            INC color
+            ADD x,CELL_W
+        LOOP LOOPX
+        MOV x,0
+        ADD y,CELL_H
+        POP CX
+    LOOP LOOPY
+drawGrid ENDP
+
 
 drawSquare proc
     PUSH DI BX CX
@@ -427,6 +498,7 @@ drawSquare proc
     MOV ES,AX
 
     MOV AH,0CH    
+    inc color
     DRAW_PIXELS:
         MOV AL,color
         INT 10H
@@ -450,22 +522,22 @@ updateVisited proc
 
     mov si,offset visited
     add si,currIndex
-    mov byte ptr [si],1h
+    add si,currIndex
+    mov [si],1
 
     ret
 updateVisited endp
 
-; sets currIndex = x * grid-width + y
+; sets currIndex = y * grid-height + x
 setCurrIndex proc 
-    mov ax,y 
-    mov currIndex,0 
+    mov ax,x 
+    mov currIndex,0
     add currIndex,ax
 
-    mov ax,x
-    mov bx,GRID_WIDTH
-    mul bx ;dx ax = ax (x) * grid-width
+    mov ax,y 
+    mov bx,GRID_HEIGHT
+    mul bx ;assume dx empty
 
-    ;ASSUMING DX IS EMPTY AND AX HAS IT ALL
     add currIndex,ax
     ret
 setCurrIndex endp
@@ -473,7 +545,7 @@ setCurrIndex endp
 chooseDirection proc    
     ; if AND block
     cmp currCount,3 ;if less than
-    jnc chooseDirection_else
+    jge chooseDirection_else
         cmp forceDirectionChange,0
         jnz chooseDirection_else
             inc currCount
@@ -491,7 +563,7 @@ chooseDirection proc
         jz chooseDirection_innerBlock
 
         cmp currCount,7
-        jnc chooseDirection_innerBlock
+        jge chooseDirection_innerBlock
 
         jmp chooseDirection_skipInnerBlock
 
@@ -546,4 +618,4 @@ updateMap proc
 updateMap endp 
 
 
-END generate
+END MAIN

@@ -12,19 +12,27 @@ powercnt    db      1       ;number of powerups on screen
 firpower    db      0      ;first player powerups
 secpower    db      0
 USEPWR      DB      0
-USEPWR2      DB      0
+USEPWR2     DB      0
 
 powerrow    dw      50
 powercol    dw      50
 
 starttime   db      0
 endtime     db      0
+counter     db      0
+duration    equ     5
 
 
 TIME_AUX DB 0
 
+PreX    DW  0
+PreY    DW  0
+
 squareX DW 0
 squareY DW 0
+
+PreX2   DW  0
+PreY2   DW  30
 
 squareX2 DW 0
 squareY2 DW 30
@@ -64,7 +72,6 @@ VIDEO_MODE_BX EQU 0101h
 
 SCREEN_HEIGHT EQU 480
 SCREEN_WIDTH  EQU 640
-
 
 .CODE
 
@@ -109,10 +116,12 @@ MAIN    PROC    FAR
     ;If it is different, draw and move
     MOV TIME_AUX, DL
 
-    call setBackgroundColor
+    ; call setBackgroundColor
     call moveSquares
     CALL VALIDATE
     CALL VALIDATE2
+
+    CALL ClearSqr
 
     CALL PowerUps
     CALL CheckEndPower
@@ -220,32 +229,76 @@ PowerUps ENDP
 
 
 CheckEndPower PROC
+
     MOV AH,2CH  
     INT 21H  
+
     CMP USEPWR,1
     JNE CHECKSEC
 
-    CMP endtime,DH
-    JNC CHECKSEC
-    ; JNZ CHECKSEC
+    cmp dh,starttime
+    jz CHECKSEC
 
-    DEC USEPWR
+    mov starttime,dh
+
+
+    inc counter
+    cmp counter,duration
+    JNZ CHECKSEC
+
+    mov counter,0
     MOV speed1,2
     INC powercnt
+    DEC USEPWR
+
     CALL RANDPOS
-    JMP ENDD
 
     CHECKSEC:
     CMP USEPWR2,1
     JNE ENDD
-    CMP endtime,DH
-    JNC ENDD
-    ; JNZ ENDD
 
-    DEC USEPWR2
+    cmp dh,starttime
+    jz ENDD
+    mov starttime,dh
+
+    
+    inc counter
+    cmp counter,duration
+    JNZ ENDD
+
     MOV speed2,2
     INC powercnt
+    DEC USEPWR2
+
+    
     CALL RANDPOS
+
+
+
+    ; CMP USEPWR,1
+    ; JNE CHECKSEC
+
+    ; CMP endtime,DH
+    ; JNC CHECKSEC
+    ; ; JNZ CHECKSEC
+
+    ; DEC USEPWR
+    ; MOV speed1,2
+    ; INC powercnt
+    ; CALL RANDPOS
+    ; JMP ENDD
+
+    ; CHECKSEC:
+    ; CMP USEPWR2,1
+    ; JNE ENDD
+    ; CMP endtime,DH
+    ; JNC ENDD
+    ; ; JNZ ENDD
+
+    ; DEC USEPWR2
+    ; MOV speed2,2
+    ; INC powercnt
+    ; CALL RANDPOS
 
 
     ENDD:
@@ -311,10 +364,54 @@ CheckEndPower PROC
         RET
     drawSquares ENDP
 
+    ClearSqr PROC
+        mov cx, PreY         ;Column
+        mov dx, PreX         ;Row
+        mov al,0H             ;Pixel color
+        mov ah,0ch              ;Draw Pixel Command
+        Horizontall: int 10h
+        INC CX
+        MOV BX, CX
+        SUB BX, PreY
+        CMP BX, squareLength
+        JNZ Horizontall
+
+        MOV CX, PreY
+        INC DX
+        MOV BX, DX
+        SUB BX, PreX
+        CMP BX, squareLength
+        JNZ Horizontall
+
+        ;Draw square2
+        mov cx, PreY2        ;Column
+        mov dx, PreX2        ;Row
+        mov al,0H            ;Pixel color
+        mov ah,0ch              ;Draw Pixel Command
+        Horizontal22: int 10h
+        INC CX
+        MOV BX, CX
+        SUB BX, PreY2
+        CMP BX, squareLength
+        JNZ Horizontal22
+
+        MOV CX, PreY2
+        INC DX
+        MOV BX, DX
+        SUB BX, PreX2
+        CMP BX, squareLength
+        JNZ Horizontal22
+        RET
+        ClearSqr ENDP
+
     ;Move Squares
     moveSquares PROC
 
         MOV AX,speed1
+        MOV BX,squareX
+        MOV PreX,BX
+        MOV BX,squareY
+        MOV PreY,BX
 
         checkUp:    
         ;if 'w' is pressed, move up
@@ -359,6 +456,11 @@ CheckEndPower PROC
 
         check_car2_movement:
         MOV AX,speed2
+        MOV BX,squareX2
+        MOV PreX2,BX
+        MOV BX,squareY2
+        MOV PreY2,BX
+
         ;if 'upArrow' is pressed, move up
         CMP [KeyList + upArrow], 1
         JNE checkDown2
