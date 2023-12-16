@@ -16,7 +16,7 @@ drawImage PROC FAR ; SI => Offset File ;START_ROW => y ;START_COLUMN => X ;AUX_I
 
     MOV AH,0CH    
     DRAW_PIXELS_:
-        MOV AL,BYTE PTR [SI]
+        MOV AL,04H                           ;BYTE PTR [SI]
         INC SI
         CMP AL,250
         JE SKIP_

@@ -89,7 +89,7 @@ Generate proc
         ;initialize
         call genRand
         mov ax,RandNum
-        mov y,ax
+        mov y,0
         mov x,0
 
         ; the currIndex should keep up with values of x & y
@@ -499,6 +499,7 @@ drawSquare proc
     MOV ES,AX
 
     MOV AH,0CH    
+    ; inc color
     DRAW_PIXELS:
         MOV AL,color
         INT 10H

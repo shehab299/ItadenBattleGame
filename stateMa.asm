@@ -94,11 +94,15 @@ Down_Right_and equ 8
 Down_Left_and equ 32
 
 START_COLUMN DW ?
-
+IN_PATH DB 0
 ;VALIDATIONS
 
 AUX_X DW ?
 AUX_Y DW ?
+AUX_DIR db 4
+
+
+
 
 ;---------------------------------------
 .code
@@ -293,12 +297,25 @@ MAIN PROC FAR
     call loadRedCar
     call Generate
 
-    ;INITALIZING POSITIONS
-    MOV Y_POS,CELL_H/2
-    MOV X_POS,CELL_W/2
+    call drawPath
+    MOV AH,0DH
+    MOV BH,0
+    MOV CX,0
+    MOV DX,0
+    INT 10H
 
-    MOV AUX_X,CELL_H/2
-    MOV AUX_Y,CELL_W/2
+    ;INITALIZING POSITIONS
+    MOV Y_POS,50
+    MOV X_POS,50
+    ADD X_POS,CELL_W * 3
+    ADD Y_POS,CELL_H/2
+
+    MOV AUX_Y,0
+    MOV AUX_X,0
+    ADD AUX_X,CELL_W * 3
+    ADD AUX_Y,CELL_H/2
+
+
 
     ;MAIN LOOP
     CHECK_TIME:
@@ -311,8 +328,9 @@ MAIN PROC FAR
     ;If it is different, draw and move
     MOV TIME_AUX, DL
 
-    call moveSquares
     call drawPath
+    call moveSquares
+
 
     MOV AL,DIRS
     MOV AH,0
@@ -440,28 +458,28 @@ moveSquares PROC
     ;if 'w' is pressed, move up
     CMP [KeyList + w], 1
     JNE checkDown
-    SUB Y_POS,DX
+    SUB AUX_Y,DX
     ADD CurrentState,2
 
     checkDown:
     ;if 's' is pressed, move down
     CMP [KeyList + s], 1
     JNE checkRight
-    ADD Y_POS,DX
+    ADD AUX_Y,DX
     ADD CurrentState,4
 
     checkRight:
     ;if 'd' is pressed, move right
     CMP [KeyList + d], 1
     JNE checkLeft
-    ADD X_POS,BX
+    ADD AUX_X,BX
     ADD CurrentState,8
 
     ;if 'a' is pressed, move left
     checkLeft:
     CMP [KeyList + a], 1
     JNE Exit_
-    SUB X_POS,BX
+    SUB AUX_X,BX
     ADD CurrentState,16
 
     Exit_:
@@ -470,8 +488,17 @@ moveSquares PROC
     JE MovePlayer2
     CALL ChangeDirection_STATE
 
-
     MovePlayer2:
+    call CheckOutOfRange ;VALIDATE AUX_X,Y,DIR AND FILL X_POS Y_POS DIRS
+    ; MOV CX,AUX_X
+    ; MOV DX,AUX_Y
+    ; MOV AL,AUX_DIR
+
+    ; ; VALIDATE HERE IF VALID MOVE THEM TO THE ACTUAL POSITIONS
+    ; MOV X_POS,CX
+    ; MOV Y_POS,DX
+    ; MOV DIRS,AL
+
 
     pop DX BX
     RET
@@ -574,37 +601,221 @@ ChangeDirection_STATE PROC
 
     CMP AH,1
     JNE CHANGE2
-    MOV DIRS,AL
+    MOV AUX_DIR,AL
     RET
 
     CHANGE2:
 
     CMP AH,2
     JNE _Exit_
-    MOV DIRS,AL
+    MOV AUX_DIR,AL
     RET
 
     _Exit_:
     RET
 ChangeDirection_STATE ENDP
 
+CheckOutOfRange PROC  ;CX => ROW / DX => COLUMN /AX => DIR 
+
+    MOV CX,AUX_X
+    MOV DX,AUX_Y
+    MOV AL,AUX_DIR
+    MOV AH,0
+
+    OUT_UP_DIR:
+        CMP AX,Up_and
+        JNE OUT_UP_RIGHT_DIR
+        MOV [AUX_IMAGE_HEIGHT], verti_height
+        MOV [SUB_HEIGHT], verti_height/2
+        MOV [AUX_IMAGE_WIDTH], verti_width
+        MOV [SUB_WIDTH], verti_width/2
+        JMP CHECK
+
+    OUT_UP_RIGHT_DIR:
+        CMP AX,Up_Right_and
+        JNE OUT_RIGHT_DIR
+        MOV [AUX_IMAGE_HEIGHT], diag_height
+        MOV [SUB_HEIGHT], diag_height/2
+        MOV [AUX_IMAGE_WIDTH], diag_width
+        MOV [SUB_WIDTH], diag_width/2        
+        JMP CHECK
+    
+    OUT_RIGHT_DIR:
+        CMP AX,Right_and
+        JNE OUT_DOWN_RIGHT_DIR
+        MOV [AUX_IMAGE_HEIGHT], horiz_height
+        MOV [SUB_HEIGHT], horiz_height/2 
+        MOV [AUX_IMAGE_WIDTH], horiz_width
+        MOV [SUB_WIDTH], horiz_width/2
+        JMP CHECK
+
+    OUT_DOWN_RIGHT_DIR:
+        CMP AX,Down_Right_and
+        JNE OUT_DOWN_DIR
+        MOV [AUX_IMAGE_HEIGHT], diag_height
+        MOV [SUB_HEIGHT], diag_height/2
+        MOV [AUX_IMAGE_WIDTH], diag_width
+        MOV [SUB_WIDTH], diag_width/2    
+        JMP CHECK
+
+    OUT_DOWN_DIR:
+        CMP AX,Down_and
+        JNE OUT_DOWN_LEFT_DIR
+        MOV [AUX_IMAGE_HEIGHT], verti_height
+        MOV [SUB_HEIGHT], verti_height/2
+        MOV [AUX_IMAGE_WIDTH], verti_width
+        MOV [SUB_WIDTH], verti_width/2    
+        JMP CHECK
+
+    OUT_DOWN_LEFT_DIR:
+        CMP AX,Down_Left_and
+        JNE OUT_LEFT_DIR
+        MOV [AUX_IMAGE_HEIGHT], diag_height
+        MOV [SUB_HEIGHT], diag_height/2
+        MOV [AUX_IMAGE_WIDTH], diag_width
+        MOV [SUB_WIDTH], diag_width/2    
+        JMP CHECK
+
+    OUT_LEFT_DIR:
+        CMP AX,Left_and
+        JNE OUT_UP_LEFT_DIR
+        MOV [AUX_IMAGE_HEIGHT], horiz_height
+        MOV [SUB_HEIGHT], horiz_height/2
+        MOV [AUX_IMAGE_WIDTH], horiz_width
+        MOV [SUB_WIDTH], horiz_width/2
+        JMP CHECK
+
+    OUT_UP_LEFT_DIR:
+        CMP AX,Up_Left_and
+        MOV [AUX_IMAGE_HEIGHT], diag_height
+        MOV [SUB_HEIGHT], diag_height/2
+        MOV [AUX_IMAGE_WIDTH], diag_width
+        MOV [SUB_WIDTH], diag_width/2     
+        JMP CHECK    
+
+    ;CALC FIRST PIXEL FROM CENTER OF GRAVITY
+    
+    CHECK:
+        SUB CX,SUB_WIDTH
+        SUB DX,SUB_HEIGHT
+        MOV [START_ROW], DX
+        MOV [START_COLUMN], CX
+
+        call checkSqr
+ 
+        CMP IN_PATH,1
+        JE EXIT_OUT
+
+        OUT_OF_RANGE:
+        MOV CX,X_POS
+        MOV DX,Y_POS
+        MOV AL,DIRS
+
+        MOV AUX_X,CX
+        MOV AUX_Y,DX
+        MOV AUX_DIR,AL
+        
+        RET
+
+        EXIT_OUT:
+        MOV AL,AUX_DIR
+        MOV CX,AUX_X
+        MOV DX,AUX_Y
+
+        MOV X_POS,CX
+        MOV Y_POS,DX        
+        MOV DIRS,AL
+
+        RET
+CheckOutOfRange ENDP 
+
+checkSqr PROC  ; SI => Offset File ;START_ROW => y ;START_COLUMN => X ;AUX_IMAGE_WIDTH => IMAGE_WIDTH ;AUX_IMAGE_HEIGHT => IMAGE_HEIGHT
+
+    PUSHA
+
+    MOV CX,[START_COLUMN]
+    MOV DX,[START_ROW]
+
+    MOV SI,CX
+    ADD SI,[AUX_IMAGE_WIDTH]
+
+    MOV DI,DX
+    ADD DI,[AUX_IMAGE_HEIGHT]
+
+
+    MOV AH,0DH    
+    MOV BH,0
+    _DRAW_PIXELS_:
+        INT 10H
+        CMP AL,00h
+        JE  NOT_VALID
+        INC CX
+        CMP CX,SI
+        JNE _DRAW_PIXELS_
+
+    MOV CX,[START_COLUMN]
+    INC DX
+    CMP DX,DI
+    JNE _DRAW_PIXELS_
+
+    MOV IN_PATH,1
+    POPA
+    
+    RET
+    
+    NOT_VALID:
+    MOV IN_PATH,0
+    POPA
+    
+    RET
+
+checkSqr ENDP
+
+; CHECK_PATH PROC 
+;     PUSHA
+
+;     MOV AX,DX
+;     MOV DX,0
+;     MOV BX,CELL_H
+;     DIV BX
+;     MOV DI,AX ; STORE THE RESULT (ROW)
+
+;     MOV AX,CX
+;     MOV DX,0
+;     MOV BX,CELL_W
+;     DIV BX
+;     MOV CX,AX ;STORE THE RESULT (COLUMN)
+
+;     MOV AX,DI
+;     MOV BX,GRID_WIDTH
+;     MUL BX
+;     ADD AX,CX
+
+;     MOV BX,AX
+
+;     CMP [visited+BX],1
+;     JNE NOT_VALID_
+    
+;     MOV IN_PATH,1
+;     POPA
+;     RET
+
+;     NOT_VALID_:
+;     MOV IN_PATH,0
+;     POPA
+
+;     RET
+
+; CHECK_PATH ENDP
 
 CheckOutOfRange  PROC
 
-    MOV AL,DIRS
-    MOV DX,X_POS
-    MOV CX,Y_POS
+    MOV DX,AUX_X
+    MOV CX,AUX_Y
     CALL VALIDROW
     CALL VALIDCOL
     MOV squareX,DX
     MOV squareY,CX
-
-    ; MOV DX,squareX2
-    ; MOV CX,squareY2
-    ; CALL VALIDROW
-    ; CALL VALIDCOL
-    ; MOV squareX2,DX
-    ; MOV squareY2,CX
 
     RET
 CheckOutOfRange ENDP
@@ -637,3 +848,44 @@ VALIDCOL ENDP
 
 
 END MAIN
+
+
+END MAIN
+
+        ; CALL drawImage
+
+
+
+
+;         ;TOP LEFT CORNER
+;         fst:
+;         SUB CX,SUB_WIDTH
+;         SUB DX,SUB_HEIGHT
+
+;         CALL CHECK_PATH
+;         CMP IN_PATH,1
+;         JE snd
+;         JMP OUT_OF_RANGE
+
+;         snd:
+;         ;TOP RIGHT CORNER
+;         ADD CX,AUX_IMAGE_WIDTH
+
+;         CALL CHECK_PATH
+;         CMP IN_PATH,1
+;         JE trd
+;         JMP OUT_OF_RANGE
+
+;         trd:
+;         ;DOWN RIGHT CORNER
+;         ADD DX,AUX_IMAGE_HEIGHT
+        
+;         CALL CHECK_PATH
+;         CMP IN_PATH,1
+;         JE frth
+;         JMP OUT_OF_RANGE
+        
+;         frth:
+;         SUB CX,AUX_IMAGE_WIDTH
+
+;         CALL CHECK_PATH

@@ -7,5 +7,5 @@ horiz_height equ 17
 horiz_size equ horiz_width * horiz_height
 
 diag_width equ 33
-diag_height equ 33 
+diag_height equ 33
 diag_size equ diag_width * diag_height
