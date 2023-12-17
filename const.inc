@@ -9,14 +9,16 @@ s EQU 1Fh
 d EQU 20h
 a EQU 1Eh
 q EQU 10H
+e equ 12H
 ;-----------
 
 ;Player2Keys
-upArrow     EQU   11h  ;48H 
-downArrow   EQU   1Fh ;50h
-rightArrow  EQU   20h  ;4DH
-leftArrow   EQU   1Eh  ;4BH
-p           EQU   10h  ;19H
+upArrow     EQU   48H 
+downArrow   EQU   50h
+rightArrow  EQU   4DH
+leftArrow   EQU   4BH
+p           EQU   19H
+o           EQU   18h  
 ;-----------
 
 
@@ -29,6 +31,23 @@ VIDEO_MODE    EQU 4F02h
 VIDEO_MODE_BX EQU 0101h  
 
 BackgroundColor EQU 42H
+
+;CHOOSING PLAYERS PARAMETERS
+
+
+SpeedUpColor    EQU     2   ;green
+
+InitialSpeed    EQU     5
+IncreasedSpeed  EQU     10
+DecreasedSpeed  EQU     3
+duration        equ     5
+
+SpeedDownColor    EQU     1  ;blue
+ObstacleColor    EQU     4  ;red 
+CreateObstaclColor  EQU     6  
+AvoidObstaclColor  EQU     5  ;purple
+
+powerlength     EQU     6
 
 ;CHOOSING PLAYERS PARAMETERS
 
@@ -53,4 +72,3 @@ GRID_HEIGHT EQU 8
 
 CELL_W EQU SCREEN_WIDTH/GRID_WIDTH
 CELL_H EQU SCREEN_HEIGHT/GRID_HEIGHT
-

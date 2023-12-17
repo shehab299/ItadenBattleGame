@@ -576,7 +576,7 @@ CheckEndPower PROC
 
     ENDD:
     RET
-    CheckEndPower ENDP
+CheckEndPower ENDP
 
 
 drawSquares PROC NEAR

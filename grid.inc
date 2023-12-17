@@ -826,25 +826,25 @@ ChooseColor proc
 
     CMP AH,0
     JNE NextColor
-    MOV AL,2
+    MOV AL,SpeedUpColor
     JMP EndColor
     NextColor:
     CMP AH,4
     JNE NextColor1
-    MOV AL,5  
+    MOV AL,AvoidObstaclColor  
     JMP EndColor
     NextColor1:
     CMP AH,3
     JNE NextColor2
-    MOV AL,6
+    MOV AL,CreateObstaclColor
     JMP EndColor
     NextColor2:
     CMP AH,2  
     JNE NextColor3
-    MOV AL,4
+    MOV AL,ObstacleColor
     JMP EndColor
     NextColor3:
-    MOV AL,1
+    MOV AL,SpeedDownColor
     EndColor: 
     POP CX
     POP DI
@@ -891,3 +891,189 @@ LOPSEC:
 
     RET
     DrawPower ENDP
+
+DrawRandomPowerUp PROC
+    PUSH AX
+    PUSH Bx
+    PUSH DX
+    PUSH DI 
+    PUSH CX
+
+    MOV BH,DH
+
+    MOV AH,0
+    MOV AL,DH
+    MOV BL,5
+    DIV BL        
+    CMP AH,0
+    JNE NoDraw   ;IF TIME DIVISBLE BY -- DRAW RANDOM POWER UP
+
+    MOV BL,BH
+    MOV BH,0   ;INDEX IN BX
+
+    TryAgain:
+    CMP BX,Path_Length
+    JC SetStart
+    SUB BX,Path_Length
+    JMP TryAgain
+
+    SetStart:
+
+    CMP BX,PrevIndex
+    JZ NoDraw
+    MOV PrevIndex,BX
+
+    MOV CX,BX
+
+    MOV DI,OFFSET PathX
+    FindingX:
+    ADD DI,2
+    DEC CX
+    CMP CX,0
+    JNZ FindingX
+
+    MOV AX,CELL_W
+    MUL [DI]
+    MOV StartX,AX
+    MOV EndX,AX
+    ADD EndX,CELL_W
+
+    MOV DI,OFFSET PathY
+    FindingY:
+    ADD DI,2
+    DEC BX
+    CMP BX,0
+    JNZ FindingY
+
+    MOV AX,CELL_H
+    MUL [DI]
+    MOV StartY,AX
+    MOV EndY,AX
+    ADD EndY,CELL_H
+
+    CALL RandPowerUp
+
+    NoDraw:
+
+    POP CX
+    POP DI
+    POP DX
+    POP Bx
+    POP AX
+    RET
+    DrawRandomPowerUp ENDP
+
+ClearPwr    proc
+PUSH dx
+PUSH CX
+PUSH Ax
+PUSH DI  
+PUSH BX    
+    MOV AL,BackgroundColor
+    
+    MOV DI,DX 
+    ADD DI,powerlength
+    sub dx,powerlength
+    
+    MOV BX,CX
+    ADD BX,powerlength
+    sub cx,powerlength
+    
+    MOV AH,0CH
+    
+ClearOutLoop: 
+    ClearInLoop:
+        INT 10H
+        INC DX
+        CMP DX,DI
+        JNZ ClearInLoop  
+    MOV DX,DI
+    SUB DX,powerlength
+    sub dx,powerlength
+    INC CX
+    CMP CX,BX
+    JNZ ClearOutLoop
+
+    POP BX
+    POP DI
+    POP AX
+    POP CX
+    POP DX
+
+ret
+ClearPwr endp
+
+CheckEndPower PROC
+
+    MOV AH,2CH  
+    INT 21H  
+
+    CMP UseSpeedUp1,1
+    JNE NextCheck
+
+    cmp dh,starttimeUP1
+    jz NextCheck
+
+    mov starttimeUP1,dh
+    inc counterup1
+    cmp counterup1,duration
+    JNZ NextCheck
+
+    mov counterup1,0
+    MOV speed1_X,InitialSpeed
+    MOV speed1_Y,InitialSpeed
+    MOV UseSpeedUp1,0
+
+    NextCheck:
+    CMP UseSpeedDown1,1
+    JNE ENDD
+
+    CMP DH,starttimeDown1
+    JZ ENDD
+    MOV starttimeDown1,DH
+    INC counterDown1
+    CMP counterDown1,duration
+    JNZ ENDD
+    MOV counterDown1,0
+    MOV speed2_X,InitialSpeed
+    MOV speed2_Y,InitialSpeed
+    MOV UseSpeedDown1,0
+
+
+    ; CMP UseSpeedUp2,1
+    ; JNE CHECKSDOWN
+
+    ; cmp dh,starttimeUP2
+    ; jz ENDD
+    ; mov starttimeUP2,dh
+
+    
+    ; inc counterup2
+    ; cmp counterup2,duration
+    ; JNZ CHECKSDOWN
+    ; MOV counterup2,0
+    ; MOV speed2,3
+    ; INC powercnt
+    ; DEC UseSpeedUp2
+    ; CALL RANDPOS
+
+    ; CHECKSDOWN:
+    
+
+    ; CHECKSDOWN2:
+    ; CMP UseSpeedDown2,1
+    ; JNE ENDD
+
+    ; CMP DH,starttimeDOWN2
+    ; JZ ENDD
+    ; MOV starttimeDOWN2,DH
+    ; INC counterdown2
+    ; CMP counterdown2,duration
+    ; JNZ ENDD
+    ; MOV counterdown2,0
+    ; MOV speed1,3
+    ; DEC UseSpeedDown2
+
+    ENDD:
+    RET
+    CheckEndPower ENDP

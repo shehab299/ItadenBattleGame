@@ -43,5 +43,7 @@ EndY    dw  0
 Prev    dw  0
 PrevRow     dw      0
 PrevCol     dw      0
+PrevIndex     dw      0
 CurrRow     dw      0
 CurrCol     dw      0
+
