@@ -99,7 +99,7 @@ DIRS2 DB 4
 
 AUX_X_2 DW ?
 AUX_Y_2 DW ? 
-AUX_DIR_2 DB ?
+AUX_DIR_2 DB 4
 
 speed2_X DW 5
 speed2_Y DW 5
@@ -123,6 +123,10 @@ IN_PATH DB 0
 ;VALIDATIONS
 
 
+;DURATION 
+SEC_AUX DB ?
+TIME_COUNTER DB 0
+GAME_DURATION EQU 120
 
 ;---------------------------------------
 .code
@@ -154,38 +158,24 @@ MAIN PROC FAR
     call drawPath
     call genPowerUps
 
-    MOV CX,CELL_W/2
-    MOV DX,CELL_H/2
-
-    ; CALL Drawobstacle
-
-    ;INITALIZING POSITIONS FOR PLAYER 1
-    MOV Y_POS,50
-    MOV X_POS,50
-    ADD X_POS,CELL_W * 3
-
-
-    MOV AUX_Y,50
-    MOV AUX_X,50
-    ADD AUX_X,CELL_W * 3
-  
-
-    ;INITALIZING POSITIONS FOR PLAYER2
-    MOV Y_POS_2,50
-    MOV X_POS_2,50
-    ADD X_POS_2,CELL_W * 2
-
-
-    MOV AUX_Y_2,50
-    MOV AUX_X_2,50
-    ADD AUX_X_2,CELL_W * 2
-
+    CALL intiPos
 
     ;MAIN LOOP
     CHECK_TIME:
     Mov AH, 2CH
     INT 21H
 
+    ;GAME COUNTER
+    CMP DH,SEC_AUX
+    JE GAME
+
+    MOV SEC_AUX,DH
+    INC TIME_COUNTER
+
+    CMP TIME_COUNTER,GAME_DURATION
+    JE  ENDCHK
+
+    GAME:
     CMP DL, TIME_AUX
     JE CHECK_TIME
 
@@ -195,7 +185,7 @@ MAIN PROC FAR
     ;MOV SQUARES AND CLEAR PREVIOUS
     call clearPos
     call movePlayer1
-    ; call movePlayer2
+    call movePlayer2
 
     ;DRAW FIRST CAR
     MOV BX,1
@@ -224,7 +214,42 @@ ENDCHK:
     INT 21H
 MAIN ENDP
 
+intiPos PROC 
 
+    PUSH BX DX AX DX
+
+    MOV BX,[pathx+0]
+    MOV DX,[pathy+0]
+
+    MOV AX,BX
+    MOV BX,CELL_W 
+    MUL BX
+    ADD AX,CELL_W/2
+
+    MOV X_POS,AX
+    MOV AUX_X,AX
+    MOV X_POS_2,AX
+    MOV AUX_X_2,AX
+
+    MOV AX,DX
+    MOV DX,CELL_H
+    MUL DX
+    ADD AX,CELL_H/3
+
+    MOV Y_POS,AX
+    MOV AUX_Y,AX
+
+    ADD AX,CELL_H/3
+
+    MOV Y_POS_2,AX
+    MOV AUX_Y_2,AX
+
+
+    POP DX AX DX BX
+
+    RET
+
+intiPos ENDP
 
 
 clearPos PROC
@@ -460,27 +485,27 @@ movePlayer2 PROC
 
 Controls2:
     checkUp2:    
-    ;if 'w' is pressed, move up
+    ;if 'up' is pressed, move up
     CMP [KeyList + upArrow], 1
     JNE checkDown2
     SUB AUX_Y_2,DX
     ADD CurrentState2,2
 
     checkDown2:
-    ;if 's' is pressed, move down
+    ;if 'down' is pressed, move down
     CMP [KeyList + downArrow], 1
     JNE checkRight2
     ADD AUX_Y_2,DX
     ADD CurrentState2,4
 
     checkRight2:
-    ;if 'd' is pressed, move right
+    ;if 'right' is pressed, move right
     CMP [KeyList + rightArrow], 1
     JNE checkLeft2
     ADD AUX_X_2,BX
     ADD CurrentState2,8
 
-    ;if 'a' is pressed, move left
+    ;if 'left' is pressed, move left
     checkLeft2:
     CMP [KeyList + leftArrow], 1
     JNE CHANGE_DIRECTION_2
@@ -631,6 +656,7 @@ CheckOutOfRange PROC  ;CX => ROW / DX => COLUMN /AX => DIR
     CALL getDirctionParamaters ; START_ROW/START COLUMN -> FIRST PIXEL  CX/DX ALSO ; AUX_IMAGE_HEIGHT/WIDTH
 
 CHECK_OUF_OF_SCREEN:
+    MOV AH,1
     call checkOutOfScreen
 
     CMP OUT_OF_SCREEN_BOOL,1
@@ -691,6 +717,7 @@ CHECK_OUF_OF_SCREEN2:
     RET
     
 OUT_OF_PATH2:
+    MOV AH,2
     call CheckOoutOfPath
  
     CMP IN_PATH,1
@@ -721,8 +748,6 @@ OUT_OF_PATH2:
 CHECK_OBSTACLES2:
 
 CheckOutOfRange2 ENDP 
-
-
 
 Drawobstacle PROC ;al => color ;cx => column ;dx => row
     MOV AL,04H
@@ -918,11 +943,24 @@ checkOutOfScreen proc
     ADD CX,SUB_WIDTH
     ADD DX,SUB_HEIGHT
 
+    CMP AH,1
+    JNE SCREEN2
+
     MOV AUX_X,CX
     MOV AUX_Y,DX
 
     MOV X_POS,CX
     MOV Y_POS,DX
+
+    RET
+
+    SCREEN2:
+
+    MOV AUX_X_2,CX
+    MOV AUX_Y_2,DX
+
+    MOV X_POS_2,CX
+    MOV Y_POS_2,DX
 
     RET
 
