@@ -11,8 +11,7 @@
 
 ; START_COLUMN DW ?
 
-; x DW 0 
-; y DW 0
+
 
 ; color db 0bh
 
@@ -25,14 +24,22 @@
 ; GRID_WIDTH EQU 8
 ; GRID_HEIGHT EQU 8
 
+; x DW 0 
+; y DW 0
 
 ; CELL_W EQU SCREEN_WIDTH/GRID_WIDTH
 ; CELL_H EQU SCREEN_HEIGHT/GRID_HEIGHT
 
-; ;RANDOM GENERATOR VARS
+; ; Arrays used to store the path grid cell coordinates
+; PathX dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
+; PathY dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
+; Path_Length dw 0
+; visited dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
 
 ; Threshold db GRID_HEIGHT
 ; RandNum dw ?
+
+; ;RANDOM GENERATOR VARS
 
 ; ;PATH GENERATION VARS
 
@@ -45,17 +52,14 @@
 
 ; ; Array used to mark grid cells as visited
 ; ; index as (y * GRID_WIDTH + x)
-; visited dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
+
 
 ; ; index to use for marking visited
 ; currIndex dw 0
 ; ; for checking if a certain cell is visited or not
 ; probingIndex dw 0
 
-; ; Arrays used to store the path grid cell coordinates
-; PathX dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
-; PathY dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
-; Path_Length dw 0
+
 
 
 ; x_probe db 0
@@ -63,6 +67,25 @@
 
 ;---------------------------------------
 ; .code
+
+; GRID_WIDTH EQU 8
+; GRID_HEIGHT EQU 8
+
+; x DW 0 
+; y DW 0
+
+; CELL_W EQU SCREEN_WIDTH/GRID_WIDTH
+; CELL_H EQU SCREEN_HEIGHT/GRID_HEIGHT
+
+; ; Arrays used to store the path grid cell coordinates
+; PathX dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
+; PathY dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
+; Path_Length dw 0
+; visited dw (GRID_HEIGHT * GRID_WIDTH) dup (0)
+
+; Threshold db GRID_HEIGHT
+; RandNum dw ?
+
 
 
 DrawPath proc     
@@ -123,7 +146,6 @@ Generate proc
     exit:   
     ret
 Generate endp
-
 
 genRand PROC ;;CHANGES AX CX
 
@@ -499,9 +521,9 @@ drawSquare proc
     MOV ES,AX
 
     MOV AH,0CH    
-    ; inc color
+
     DRAW_PIXELS:
-        MOV AL,color
+        MOV AL,BackgroundColor
         INT 10H
         INC CX
         CMP CX,BX
@@ -516,7 +538,6 @@ drawSquare proc
     
     RET
 drawSquare endp
-
 
 ; Updates visited at currIndex in grid
 updateVisited proc  
@@ -618,5 +639,255 @@ updateMap proc
     ret 
 updateMap endp 
 
+carSearchDraw proc 
+    MOV DX,0
+    MOV ax,X_POS 
+    MOV BX,CELL_W
+    div Bx
+    mov x,ax
 
-; END MAIN
+    MOV DX,0
+    MOV ax,Y_POS
+    MOV BX,CELL_H
+    div BX
+    mov y,ax
+
+    mov cx,0 
+    search_loop:
+    MOV DX,x
+    MOV BX,CX
+    cmp [pathx+BX],DX
+    jnz skip_search
+        MOV DX,y
+        cmp [pathy+BX],DX
+        jnz skip_search
+            ;found 
+            call drawSquare
+            cmp cx,0
+            jle skip_back_step
+
+            dec cx ; go back one square
+            MOV BX,CX
+            mov ax,[pathx+BX]
+            mov x,ax 
+
+            mov ax,[pathy+BX]
+            mov y,ax
+
+            call drawSquare
+
+            skip_back_step:
+            cmp cx,Path_Length
+            jge skip_fwd_step
+            add cx,2
+            MOV BX,CX
+            mov ax,[pathx+BX]
+            mov x,ax 
+
+            mov ax,[pathy+BX]
+            mov y,ax
+
+            call drawSquare
+            skip_fwd_step:
+
+            ret
+    skip_search:
+    inc cx
+    cmp cx,Path_Length
+    jl search_loop
+
+    ret
+carSearchDraw endp
+
+genPowerUps PROC
+    PUSH AX
+    PUSH Bx
+    PUSH DX
+    PUSH DI 
+    PUSH CX
+
+    MOV DI,offset PathX
+    MOV BX,offset PathY
+    MOV CX,Path_Length
+
+    LoopOnPath:
+    MOV AX,CELL_W
+    MUL [DI]
+    MOV StartX,AX
+    MOV EndX,AX
+    ADD EndX,CELL_W
+
+    MOV AX,CELL_H
+    MUL [BX]
+    MOV StartY,AX
+    MOV EndY,AX
+    ADD EndY,CELL_H
+
+    CALL RandPowerUp
+
+    ADD DI,2
+    ADD BX,2   
+
+    DEC CX
+    CMP CX,0
+    JNZ LoopOnPath
+
+    POP CX
+    POP DI
+    POP DX
+    POP Bx
+    POP AX
+
+    RET
+    genPowerUps ENDP
+
+RandPowerUp PROC
+    PUSH dx
+    PUSH CX
+    PUSH AX  
+    PUSH Bx
+    PUSH DI
+
+    AGAINN: Mov AH, 2CH
+    INT 21H
+    MOV DH,0
+    CMP DL,60
+    JC LAB1
+    SUB DL,50
+    LAB1:
+    CMP DL,0
+    JNZ LAB2
+    ADD DL,10
+    LAB2:
+    CMP DX,Prev
+    JZ AGAINN
+    MOV Prev,DX
+    MOV CH,0
+    MOV CL,dL
+
+
+
+    MOV DX,StartY
+    ADD DX,CX
+
+    MOV BX,EndY
+    SUB BX,dx
+    CMP BX,6  
+    JC Skip
+
+
+    ADD CX,10
+    MOV AX,CX
+    MOV CX,StartX
+    ADD CX,AX
+
+    MOV BX,EndX
+    SUB BX,CX
+    CMP BX,6  
+    JC Skip
+
+    MOV DI,DX
+    SUB DI,PrevRow
+    CMP DI,20
+    JNC NoSkip
+    MOV BX,CX
+    SUB BX,PrevCol
+    CMP BX,20
+    JNC NoSkip
+    JMP Skip 
+
+    NoSkip:
+    MOV PrevRow,DX
+    MOV PrevCol,CX
+
+    CALL DrawPower
+    Skip:
+    POP DI
+    POP BX
+    POP AX
+    POP CX
+    POP DX
+
+    RET
+RandPowerUp ENDP
+
+ChooseColor proc
+    PUSH Bx
+    PUSH DX
+    PUSH DI 
+    PUSH CX
+    
+    Mov AH, 2CH
+    INT 21H
+    MOV BL,5
+    MOV DH,0
+    MOV AX,DX
+    DIV bl
+
+    CMP AH,0
+    JNE NextColor
+    MOV AL,2
+    JMP EndColor
+    NextColor:
+    CMP AH,4
+    JNE NextColor1
+    MOV AL,5  
+    JMP EndColor
+    NextColor1:
+    CMP AH,3
+    JNE NextColor2
+    MOV AL,6
+    JMP EndColor
+    NextColor2:
+    CMP AH,2  
+    JNE NextColor3
+    MOV AL,4
+    JMP EndColor
+    NextColor3:
+    MOV AL,1
+    EndColor: 
+    POP CX
+    POP DI
+    POP DX
+    POP Bx
+
+ret
+ChooseColor endp
+
+DrawPower   PROC
+    PUSH AX
+    PUSH Bx
+    PUSH DX
+    PUSH DI 
+    PUSH CX
+    
+    CALL ChooseColor
+    
+    MOV DI,DX 
+    ADD DI,6
+    
+    MOV BX,CX
+    ADD BX,6
+    
+    MOV AH,0CH
+    
+LOPSEC: 
+    LOPSEC2:
+        INT 10H
+        INC DX
+        CMP DX,DI
+        JNZ LOPSEC2  
+    MOV DX,DI
+    SUB DX,6
+    INC CX
+    CMP CX,BX
+    JNZ LOPSEC 
+
+    POP CX
+    POP DI
+    POP DX
+    POP Bx
+    POP AX
+
+    RET
+    DrawPower ENDP

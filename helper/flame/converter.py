@@ -295,7 +295,8 @@ while(True):
                     MIN = (abs(k[0] - pixel[0]), abs(k[1] - pixel[1]), abs(k[2] - pixel[2]))
                     MINK = k
             Converted.append(D[MINK])
-        
+  	
+    print(Converted)      
     binary_data = bytes(Converted);
     file_name =  fileName.split('.')[0] + '.bin'
 

@@ -33,8 +33,11 @@ include const.inc
 
 include cars/const.inc
 include cars/redSp.inc
-include cars/yellowSp.inc
+include cars/ySp.inc
+include cars/flamSp.inc
+include cars/blueSp.inc
 include pagesImg/img.inc
+
 
 
 player1_up  db verti_size dup(?)
@@ -58,8 +61,12 @@ file_handle DW ?
 
 SUB_WIDTH DW ?
 SUB_HEIGHT DW ? 
- 
 
+;VALIDATION_BOOLEANS
+
+OUT_OF_SCREEN_BOOL DB ?
+OUT_OF_PATH_BOOL DB ?
+ 
 include gridta.inc
 
 ;CAR SHOW
@@ -67,22 +74,43 @@ include gridta.inc
 MovingSQR DB 0
 TIME_AUX DB 0
 
+;PLAYER 1
+
 X_POS DW 200
 Y_POS DW 200
+DIRS DB 4
 
-Pre_X DW ?
-Pre_Y DW ?
+AUX_X DW ?
+AUX_Y DW ?
+AUX_DIR db 4
+
 
 speed1_X DW 5
 speed1_Y DW 5
 
-speed2 DW 2
-
-;CAR DIRECTIONS
-DIRS DB 4
-
 PrevState db 0
 CurrentState db 0
+
+;PLAYER 2
+
+X_POS_2 DW 400
+Y_POS_2 DW 400 
+DIRS2 DB 4
+
+AUX_X_2 DW ?
+AUX_Y_2 DW ? 
+AUX_DIR_2 DW ?
+
+speed2_X DW 5
+speed2_Y DW 5
+
+PrevState2 db 0 
+CurrentState2 db 0
+
+;CAR DIRECTIONS
+
+
+
 
 Up_and equ 1
 Down_and equ 16
@@ -97,11 +125,6 @@ START_COLUMN DW ?
 IN_PATH DB 0
 ;VALIDATIONS
 
-AUX_X DW ?
-AUX_Y DW ?
-AUX_DIR db 4
-
-
 
 
 ;---------------------------------------
@@ -113,7 +136,7 @@ include pagesPrc/keyboard.inc
 include grid.inc
 
 
-loadRedCar PROC
+loadRedCarForOne PROC
     ;1
     MOV DX, offset upFName_R
     MOV DI, offset file_handle
@@ -195,9 +218,93 @@ loadRedCar PROC
     CALL ReadFileToMemory
 
     RET
-loadRedCar ENDP
+loadRedCarForOne ENDP
 
-loadYellowCar PROC
+loadRedCarForTwo PROC
+    ;1
+    MOV DX, offset upFName_R
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player2_up
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;2
+    MOV DX, offset downFName_R
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player2_down
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;3
+    MOV DX, offset leftFName_R
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player2_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;4
+    MOV DX, offset rightFName_R
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player2_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;5
+    MOV DX, offset upleftFName_R
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_up_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;6
+    MOV DX, offset uprightFName_R
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_up_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;7
+    MOV DX, offset downleftFName_R
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_down_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;8
+    MOV DX, offset downrightFName_R
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_down_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    RET
+loadRedCarForTwo ENDP
+
+loadYellowCarForOne PROC
     ;1
     MOV DX, offset upFName_Y
     MOV DI, offset file_handle
@@ -223,7 +330,7 @@ loadYellowCar PROC
     MOV DI, offset file_handle
     CALL openFile
 
-    MOV CX, verti_size
+    MOV CX, horiz_size
     MOV DX, offset player1_left
     MOV BX, [file_handle]
     CALL ReadFileToMemory
@@ -233,7 +340,7 @@ loadYellowCar PROC
     MOV DI, offset file_handle
     CALL openFile
 
-    MOV CX, verti_size
+    MOV CX, horiz_size
     MOV DX, offset player1_right
     MOV BX, [file_handle]
     CALL ReadFileToMemory
@@ -243,7 +350,7 @@ loadYellowCar PROC
     MOV DI, offset file_handle
     CALL openFile
 
-    MOV CX, verti_size
+    MOV CX, diag_size
     MOV DX, offset player1_up_left
     MOV BX, [file_handle]
     CALL ReadFileToMemory
@@ -253,7 +360,7 @@ loadYellowCar PROC
     MOV DI, offset file_handle
     CALL openFile
 
-    MOV CX, verti_size
+    MOV CX, diag_size
     MOV DX, offset player1_up_right
     MOV BX, [file_handle]
     CALL ReadFileToMemory
@@ -263,7 +370,7 @@ loadYellowCar PROC
     MOV DI, offset file_handle
     CALL openFile
 
-    MOV CX, verti_size
+    MOV CX, diag_size
     MOV DX, offset player1_down_left
     MOV BX, [file_handle]
     CALL ReadFileToMemory
@@ -273,14 +380,443 @@ loadYellowCar PROC
     MOV DI, offset file_handle
     CALL openFile
 
-    MOV CX, verti_size
+    MOV CX, diag_size
     MOV DX, offset player1_down_right
     MOV BX, [file_handle]
     CALL ReadFileToMemory
 
     RET
 
-loadYellowCar ENDP
+loadYellowCarForOne ENDP
+
+loadBlueCarForOne PROC
+
+    ;1
+    MOV DX, offset upFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player1_up
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;2
+    MOV DX, offset downFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player1_down
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;3
+    MOV DX, offset leftFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player1_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;4
+    MOV DX, offset rightFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player1_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;5
+    MOV DX, offset upleftFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player1_up_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;6
+    MOV DX, offset uprightFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player1_up_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;7
+    MOV DX, offset downleftFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player1_down_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;8
+    MOV DX, offset downrightFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player1_down_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    RET
+
+loadBlueCarForOne ENDP
+
+loadYellowCarForTWo PROC
+    ;1
+    MOV DX, offset upFName_Y
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player2_up
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;2
+    MOV DX, offset downFName_Y
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player2_down
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;3
+    MOV DX, offset leftFName_Y
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player2_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;4
+    MOV DX, offset rightFName_Y
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player2_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;5
+    MOV DX, offset upleftFName_Y
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_up_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;6
+    MOV DX, offset uprightFName_Y
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_up_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;7
+    MOV DX, offset downleftFName_Y
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_down_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;8
+    MOV DX, offset downrightFName_Y
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_down_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    RET
+
+loadYellowCarForTwo ENDP
+
+loadBlueCarForTwo PROC
+
+    ;1
+    MOV DX, offset upFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player2_up
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;2
+    MOV DX, offset downFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player2_down
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;3
+    MOV DX, offset leftFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player2_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;4
+    MOV DX, offset rightFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player2_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;5
+    MOV DX, offset upleftFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_up_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;6
+    MOV DX, offset uprightFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_up_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;7
+    MOV DX, offset downleftFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_down_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;8
+    MOV DX, offset downrightFName_B
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_down_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    RET
+
+loadBlueCarForTwo ENDP
+
+loadFlameCarForOne PROC
+    ;1
+    MOV DX, offset upFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player1_up
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;2
+    MOV DX, offset downFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player1_down
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;3
+    MOV DX, offset leftFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player1_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;4
+    MOV DX, offset rightFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player1_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;5
+    MOV DX, offset upleftFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player1_up_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;6
+    MOV DX, offset uprightFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player1_up_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;7
+    MOV DX, offset downleftFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player1_down_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;8
+    MOV DX, offset downrightFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player1_down_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    RET
+
+loadFlameCarForOne ENDP
+
+loadFlameCarForTwo PROC
+
+    ;1
+    MOV DX, offset upFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player2_up
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;2
+    MOV DX, offset downFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, verti_size
+    MOV DX, offset player2_down
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;3
+    MOV DX, offset leftFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player2_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;4
+    MOV DX, offset rightFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, horiz_size
+    MOV DX, offset player2_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;5
+    MOV DX, offset upleftFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_up_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;6
+    MOV DX, offset uprightFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_up_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;7
+    MOV DX, offset downleftFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_down_left
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    ;8
+    MOV DX, offset downrightFName_F
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, diag_size
+    MOV DX, offset player2_down_right
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    RET
+
+loadFlameCarForTwo ENDP
+
 
 
 MAIN PROC FAR
@@ -293,16 +829,19 @@ MAIN PROC FAR
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
-    ;LOADING THE CARS AND THE PATHS
-    call loadRedCar
+
+    call loadBlueCarForOne
+    call loadFlameCarForTwo
     call Generate
 
+
     call drawPath
-    MOV AH,0DH
-    MOV BH,0
-    MOV CX,0
-    MOV DX,0
-    INT 10H
+    call genPowerUps
+
+    MOV CX,CELL_W/2
+    MOV DX,CELL_H/2
+
+    ; CALL Drawobstacle
 
     ;INITALIZING POSITIONS
     MOV Y_POS,50
@@ -315,8 +854,6 @@ MAIN PROC FAR
     ADD AUX_X,CELL_W * 3
     ADD AUX_Y,CELL_H/2
 
-
-
     ;MAIN LOOP
     CHECK_TIME:
     Mov AH, 2CH
@@ -328,15 +865,27 @@ MAIN PROC FAR
     ;If it is different, draw and move
     MOV TIME_AUX, DL
 
-    call drawPath
+    ;MOV SQUARES AND CLEAR PREVIOUS
+    call clearPos
     call moveSquares
 
-
+    ;DRAW FIRST CAR
+    MOV BX,1
     MOV AL,DIRS
     MOV AH,0
     MOV CX,Y_POS
     MOV DX,X_POS
-    CALL drawFirstCar
+    CALL drawCar
+
+    ;DRAW SECOND CAR
+    MOV BX,2
+    MOV AL,DIRS2
+    MOV AH,0
+    MOV CX,Y_POS_2
+    MOV DX,X_POS_2
+    CALL drawCar
+
+
     JMP CHECK_TIME
 
 ENDCHK:
@@ -347,13 +896,43 @@ ENDCHK:
     INT 21H
 MAIN ENDP
 
+
+
+
+clearPos PROC
+
+    MOV CX,X_POS
+    MOV DX,Y_POS
+    MOV AL,DIRS
+    MOV AH,0
+    CALL getDirctionParamaters
+    CALL drawSpot
+
+    MOV CX,X_POS_2
+    MOV DX,Y_POS_2
+    MOV AL,DIRS2
+    MOV AH,0
+    CALL getDirctionParamaters
+    CALL drawSpot
+
+    RET
+
+clearPos ENDP
+
+
 ; THE POSITION WILL BE CALCULATED FROM THE CENTER OF THE IMAGE
-drawFirstCar PROC  ;CX => ROW / DX => COLUMN /AX => DIR 
+drawCar PROC  ;CX => ROW / DX => COLUMN /AX => DIR 
 
     UP_DIR:
         CMP AX,Up_and
         JNE UP_RIGHT_DIR
+        CMP BX,1
+        JNE player2_u
         MOV SI,OFFSET player1_up
+        JMP para_up
+        player2_u:
+        MOV SI,OFFSET player2_up
+        para_up:
         MOV [AUX_IMAGE_HEIGHT], verti_height
         MOV [SUB_HEIGHT], verti_height/2
         MOV [AUX_IMAGE_WIDTH], verti_width
@@ -363,37 +942,62 @@ drawFirstCar PROC  ;CX => ROW / DX => COLUMN /AX => DIR
     UP_RIGHT_DIR:
         CMP AX,Up_Right_and
         JNE RIGHT_DIR
+        CMP BX,1
+        JNE player2_upr
+        MOV SI,OFFSET player1_up_right
+        JMP para_upr
+        player2_upr:
+        MOV SI,OFFSET player2_up_right
+        para_upr:
         MOV [AUX_IMAGE_HEIGHT], diag_height
         MOV [SUB_HEIGHT], diag_height/2
         MOV [AUX_IMAGE_WIDTH], diag_width
         MOV [SUB_WIDTH], diag_width/2        
-        MOV SI,OFFSET player1_up_right
+
         JMP DRAW
     
     RIGHT_DIR:
         CMP AX,Right_and
         JNE DOWN_RIGHT_DIR
+        CMP BX,1
+        JNE player2_r
+        MOV SI,OFFSET player1_right
+        JMP para_r
+        player2_r:
+        MOV SI,OFFSET player2_right
+        para_r:
         MOV [AUX_IMAGE_HEIGHT], horiz_height
         MOV [SUB_HEIGHT], horiz_height/2
         MOV [AUX_IMAGE_WIDTH], horiz_width
         MOV [SUB_WIDTH], horiz_width/2
-        MOV SI,OFFSET player1_right
         JMP DRAW
 
     DOWN_RIGHT_DIR:
         CMP AX,Down_Right_and
         JNE DOWN_DIR
+        CMP BX,1
+        JNE player2_dr
+        MOV SI,OFFSET player1_down_right        
+        JMP para_dr
+        player2_dr:
+        MOV SI,OFFSET player2_down_right        
+        para_dr:
         MOV [AUX_IMAGE_HEIGHT], diag_height
         MOV [SUB_HEIGHT], diag_height/2
         MOV [AUX_IMAGE_WIDTH], diag_width
         MOV [SUB_WIDTH], diag_width/2    
-        MOV SI,OFFSET player1_down_right
         JMP DRAW
 
     DOWN_DIR:
         CMP AX,Down_and
         JNE DOWN_LEFT_DIR
-        MOV SI,OFFSET player1_down
+        CMP BX,1
+        JNE player2_d
+        MOV SI,OFFSET player1_down      
+        JMP para_d
+        player2_d:
+        MOV SI,OFFSET player2_down    
+        para_d:
         MOV [AUX_IMAGE_HEIGHT], verti_height
         MOV [SUB_HEIGHT], verti_height/2
         MOV [AUX_IMAGE_WIDTH], verti_width
@@ -403,44 +1007,60 @@ drawFirstCar PROC  ;CX => ROW / DX => COLUMN /AX => DIR
     DOWN_LEFT_DIR:
         CMP AX,Down_Left_and
         JNE LEFT_DIR
+        CMP BX,1
+        JNE player2_dl
+        MOV SI,OFFSET player1_down_left   
+        JMP para_dl
+        player2_dl:
+        MOV SI,OFFSET player1_down_left    
+        para_dl:
         MOV [AUX_IMAGE_HEIGHT], diag_height
         MOV [SUB_HEIGHT], diag_height/2
         MOV [AUX_IMAGE_WIDTH], diag_width
         MOV [SUB_WIDTH], diag_width/2    
-        MOV SI,OFFSET player1_down_left
         JMP DRAW
 
     LEFT_DIR:
         CMP AX,Left_and
         JNE UP_LEFT_DIR
+        CMP BX,1
+        JNE player2_l
+        MOV SI,OFFSET player1_left 
+        JMP para_l
+        player2_l:
+        MOV SI,OFFSET player1_left
+        para_l:
         MOV [AUX_IMAGE_HEIGHT], horiz_height
         MOV [SUB_HEIGHT], horiz_height/2
         MOV [AUX_IMAGE_WIDTH], horiz_width
         MOV [SUB_WIDTH], horiz_width/2
-        MOV SI,OFFSET player1_left
         JMP DRAW
 
     UP_LEFT_DIR:
         CMP AX,Up_Left_and
+        CMP BX,1
+        JNE player2_ul
+        MOV SI,OFFSET player1_up_left
+        JMP para_ul
+        player2_ul:
+        MOV SI,OFFSET player1_up_left
+        para_ul:
         MOV [AUX_IMAGE_HEIGHT], diag_height
         MOV [SUB_HEIGHT], diag_height/2
         MOV [AUX_IMAGE_WIDTH], diag_width
         MOV [SUB_WIDTH], diag_width/2     
-        MOV SI,OFFSET player1_up_left
         JMP DRAW    
 
     ;CALC FIRST PIXEL FROM CENTER OF GRAVITY
     DRAW:
-        SUB CX,SUB_WIDTH
-        SUB DX,SUB_HEIGHT
+        SUB CX,SUB_HEIGHT
+        SUB DX,SUB_WIDTH
         MOV [START_ROW], CX
         MOV [START_COLUMN], DX
 
         CALL drawImage
-
     RET
-
-drawFirstCar ENDP
+drawCar ENDP
     ;Move Squares
 moveSquares PROC
 
@@ -452,8 +1072,8 @@ moveSquares PROC
     MOV AL,CurrentState
     MOV PrevState,al
     MOV CurrentState,0
-    
 
+Controls:
     checkUp:    
     ;if 'w' is pressed, move up
     CMP [KeyList + w], 1
@@ -478,27 +1098,19 @@ moveSquares PROC
     ;if 'a' is pressed, move left
     checkLeft:
     CMP [KeyList + a], 1
-    JNE Exit_
+    JNE CHANGE_DIRECTION_1
     SUB AUX_X,BX
     ADD CurrentState,16
 
-    Exit_:
+CHANGE_DIRECTION_1:
+    
     MOV AL,PrevState
     CMP AL,CurrentState
-    JE MovePlayer2
+    JE VALIDATE1
     CALL ChangeDirection_STATE
 
-    MovePlayer2:
-    call CheckOutOfRange ;VALIDATE AUX_X,Y,DIR AND FILL X_POS Y_POS DIRS
-    ; MOV CX,AUX_X
-    ; MOV DX,AUX_Y
-    ; MOV AL,AUX_DIR
-
-    ; ; VALIDATE HERE IF VALID MOVE THEM TO THE ACTUAL POSITIONS
-    ; MOV X_POS,CX
-    ; MOV Y_POS,DX
-    ; MOV DIRS,AL
-
+    VALIDATE1:
+    call CheckOutOfRange ;CHECK OUT OF PATH AND OUT OF SCREEN
 
     pop DX BX
     RET
@@ -593,7 +1205,7 @@ ChangeDirection_STATE PROC
 
     next15:
     CMP CurrentState,2
-    JNE _Exit_
+    JNE _CHANGE_DIRECTION_1
     MOV AL,Up_and
     JMP CHANGE
 
@@ -607,11 +1219,11 @@ ChangeDirection_STATE PROC
     CHANGE2:
 
     CMP AH,2
-    JNE _Exit_
+    JNE _CHANGE_DIRECTION_1
     MOV AUX_DIR,AL
     RET
 
-    _Exit_:
+    _CHANGE_DIRECTION_1:
     RET
 ChangeDirection_STATE ENDP
 
@@ -622,14 +1234,85 @@ CheckOutOfRange PROC  ;CX => ROW / DX => COLUMN /AX => DIR
     MOV AL,AUX_DIR
     MOV AH,0
 
-    OUT_UP_DIR:
+    CALL getDirctionParamaters ; START_ROW/START COLUMN -> FIRST PIXEL  CX/DX ALSO ; AUX_IMAGE_HEIGHT/WIDTH
+
+CHECK_OUF_OF_SCREEN:
+    call checkOutOfScreen
+
+    CMP OUT_OF_SCREEN_BOOL,1
+    JNE OUT_OF_PATH
+
+    MOV OUT_OF_SCREEN_BOOL,0
+    RET
+    
+OUT_OF_PATH:
+    call CheckOoutOfPath
+ 
+    CMP IN_PATH,1
+    JE CHANGE_DIRECTION_1OUT
+
+    OUT_OF_RANGE:
+    MOV CX,X_POS
+    MOV DX,Y_POS
+    MOV AL,DIRS
+
+    MOV AUX_X,CX
+    MOV AUX_Y,DX
+    MOV AUX_DIR,AL
+    
+    RET
+
+    CHANGE_DIRECTION_1OUT:
+    MOV AL,AUX_DIR
+    MOV CX,AUX_X
+    MOV DX,AUX_Y
+
+    MOV X_POS,CX
+    MOV Y_POS,DX        
+    MOV DIRS,AL
+
+    RET
+
+CHECK_OBSTACLES:
+
+CheckOutOfRange ENDP 
+
+Drawobstacle PROC ;al => color ;cx => column ;dx => row
+    MOV AL,04H
+
+    MOV DI,DX 
+    ADD DI,11
+    
+    MOV BX,CX
+    ADD BX,15
+
+    MOV AH,0CH
+
+    lloopp: 
+        lloopp2:
+            INT 10H
+            INC DX
+            CMP DX,DI
+            JNZ lloopp2  
+        MOV DX,DI
+        SUB DX,11
+        INC CX
+        CMP CX,BX
+        JNZ lloopp 
+
+    RET
+
+Drawobstacle ENDP
+
+getDirctionParamaters PROC
+        OUT_UP_DIR:
         CMP AX,Up_and
         JNE OUT_UP_RIGHT_DIR
         MOV [AUX_IMAGE_HEIGHT], verti_height
         MOV [SUB_HEIGHT], verti_height/2
         MOV [AUX_IMAGE_WIDTH], verti_width
         MOV [SUB_WIDTH], verti_width/2
-        JMP CHECK
+        JMP DONE
 
     OUT_UP_RIGHT_DIR:
         CMP AX,Up_Right_and
@@ -638,7 +1321,7 @@ CheckOutOfRange PROC  ;CX => ROW / DX => COLUMN /AX => DIR
         MOV [SUB_HEIGHT], diag_height/2
         MOV [AUX_IMAGE_WIDTH], diag_width
         MOV [SUB_WIDTH], diag_width/2        
-        JMP CHECK
+        JMP DONE
     
     OUT_RIGHT_DIR:
         CMP AX,Right_and
@@ -647,7 +1330,7 @@ CheckOutOfRange PROC  ;CX => ROW / DX => COLUMN /AX => DIR
         MOV [SUB_HEIGHT], horiz_height/2 
         MOV [AUX_IMAGE_WIDTH], horiz_width
         MOV [SUB_WIDTH], horiz_width/2
-        JMP CHECK
+        JMP DONE
 
     OUT_DOWN_RIGHT_DIR:
         CMP AX,Down_Right_and
@@ -656,7 +1339,7 @@ CheckOutOfRange PROC  ;CX => ROW / DX => COLUMN /AX => DIR
         MOV [SUB_HEIGHT], diag_height/2
         MOV [AUX_IMAGE_WIDTH], diag_width
         MOV [SUB_WIDTH], diag_width/2    
-        JMP CHECK
+        JMP DONE
 
     OUT_DOWN_DIR:
         CMP AX,Down_and
@@ -665,7 +1348,7 @@ CheckOutOfRange PROC  ;CX => ROW / DX => COLUMN /AX => DIR
         MOV [SUB_HEIGHT], verti_height/2
         MOV [AUX_IMAGE_WIDTH], verti_width
         MOV [SUB_WIDTH], verti_width/2    
-        JMP CHECK
+        JMP DONE
 
     OUT_DOWN_LEFT_DIR:
         CMP AX,Down_Left_and
@@ -674,7 +1357,7 @@ CheckOutOfRange PROC  ;CX => ROW / DX => COLUMN /AX => DIR
         MOV [SUB_HEIGHT], diag_height/2
         MOV [AUX_IMAGE_WIDTH], diag_width
         MOV [SUB_WIDTH], diag_width/2    
-        JMP CHECK
+        JMP DONE
 
     OUT_LEFT_DIR:
         CMP AX,Left_and
@@ -683,53 +1366,28 @@ CheckOutOfRange PROC  ;CX => ROW / DX => COLUMN /AX => DIR
         MOV [SUB_HEIGHT], horiz_height/2
         MOV [AUX_IMAGE_WIDTH], horiz_width
         MOV [SUB_WIDTH], horiz_width/2
-        JMP CHECK
+        JMP DONE
 
     OUT_UP_LEFT_DIR:
         CMP AX,Up_Left_and
+        JNE DONE
         MOV [AUX_IMAGE_HEIGHT], diag_height
         MOV [SUB_HEIGHT], diag_height/2
         MOV [AUX_IMAGE_WIDTH], diag_width
         MOV [SUB_WIDTH], diag_width/2     
-        JMP CHECK    
+        JMP DONE    
 
-    ;CALC FIRST PIXEL FROM CENTER OF GRAVITY
-    
-    CHECK:
+    DONE:
         SUB CX,SUB_WIDTH
         SUB DX,SUB_HEIGHT
         MOV [START_ROW], DX
         MOV [START_COLUMN], CX
 
-        call checkSqr
- 
-        CMP IN_PATH,1
-        JE EXIT_OUT
+        RET            
 
-        OUT_OF_RANGE:
-        MOV CX,X_POS
-        MOV DX,Y_POS
-        MOV AL,DIRS
+getDirctionParamaters ENDP
 
-        MOV AUX_X,CX
-        MOV AUX_Y,DX
-        MOV AUX_DIR,AL
-        
-        RET
-
-        EXIT_OUT:
-        MOV AL,AUX_DIR
-        MOV CX,AUX_X
-        MOV DX,AUX_Y
-
-        MOV X_POS,CX
-        MOV Y_POS,DX        
-        MOV DIRS,AL
-
-        RET
-CheckOutOfRange ENDP 
-
-checkSqr PROC  ; SI => Offset File ;START_ROW => y ;START_COLUMN => X ;AUX_IMAGE_WIDTH => IMAGE_WIDTH ;AUX_IMAGE_HEIGHT => IMAGE_HEIGHT
+CheckOoutOfPath PROC 
 
     PUSHA
 
@@ -747,8 +1405,16 @@ checkSqr PROC  ; SI => Offset File ;START_ROW => y ;START_COLUMN => X ;AUX_IMAGE
     MOV BH,0
     _DRAW_PIXELS_:
         INT 10H
+
+        ;CHECK BACKGROUND
         CMP AL,00h
         JE  NOT_VALID
+
+        ;CHECK OBSTACLES
+        CMP AL,04H
+        JE NOT_VALID
+
+        ;COMPLETE LOOP
         INC CX
         CMP CX,SI
         JNE _DRAW_PIXELS_
@@ -769,123 +1435,88 @@ checkSqr PROC  ; SI => Offset File ;START_ROW => y ;START_COLUMN => X ;AUX_IMAGE
     
     RET
 
-checkSqr ENDP
+CheckOoutOfPath ENDP
 
-; CHECK_PATH PROC 
-;     PUSHA
+checkOutOfScreen proc
 
-;     MOV AX,DX
-;     MOV DX,0
-;     MOV BX,CELL_H
-;     DIV BX
-;     MOV DI,AX ; STORE THE RESULT (ROW)
-
-;     MOV AX,CX
-;     MOV DX,0
-;     MOV BX,CELL_W
-;     DIV BX
-;     MOV CX,AX ;STORE THE RESULT (COLUMN)
-
-;     MOV AX,DI
-;     MOV BX,GRID_WIDTH
-;     MUL BX
-;     ADD AX,CX
-
-;     MOV BX,AX
-
-;     CMP [visited+BX],1
-;     JNE NOT_VALID_
-    
-;     MOV IN_PATH,1
-;     POPA
-;     RET
-
-;     NOT_VALID_:
-;     MOV IN_PATH,0
-;     POPA
-
-;     RET
-
-; CHECK_PATH ENDP
-
-CheckOutOfRange  PROC
-
-    MOV DX,AUX_X
-    MOV CX,AUX_Y
-    CALL VALIDROW
-    CALL VALIDCOL
-    MOV squareX,DX
-    MOV squareY,CX
-
-    RET
-CheckOutOfRange ENDP
-
-
-VALIDROW PROC
+    TOP_BORDER:
     CMP DX,1
-    JNL N1
+    JNL DOWN_BORDER
     MOV DX,0
-    N1:
-    CMP DX,SCREEN_HEIGHT - squareLength
-    JNA N2
-    MOV DX,SCREEN_HEIGHT - squareLength
-    N2:
+    JMP LEFT_BORDER
     
-    RET
-VALIDROW ENDP
+    DOWN_BORDER:
+    MOV DI,SCREEN_HEIGHT
+    SUB DI,AUX_IMAGE_HEIGHT
+    CMP DX,DI
+    JNA LEFT_BORDER
+    MOV DX,DI
 
-VALIDCOL PROC
+    LEFT_BORDER:
     CMP CX,1
-    JNL N11
+    JNL RIGHT_BORDER
     MOV CX,0
-    N11:
-    CMP CX,SCREEN_WIDTH - squareLength
-    JNA N22
-    MOV CX,SCREEN_WIDTH - squareLength
-    N22:
+
+    RIGHT_BORDER:
+    MOV DI,SCREEN_WIDTH
+    SUB DI,AUX_IMAGE_WIDTH
+    CMP CX,DI
+    JA FINISH_CHECK
+    JMP VALID
+
+    FINISH_CHECK:
+    MOV OUT_OF_SCREEN_BOOL,1
+
+    MOV CX,DI
+    ADD CX,SUB_WIDTH
+    ADD DX,SUB_HEIGHT
+
+    MOV AUX_X,CX
+    MOV AUX_Y,DX
+
+    MOV X_POS,CX
+    MOV Y_POS,DX
+
     RET
-VALIDCOL ENDP
 
+    VALID:
+
+    MOV OUT_OF_SCREEN_BOOL,0
+    RET
+
+    RET
+
+checkOutOfScreen endp
+
+drawSpot PROC
+
+    MOV AL,BackgroundColor
+
+    MOV CX,[START_COLUMN]
+    MOV DX,[START_ROW]
+
+    MOV SI,CX
+    ADD SI,[AUX_IMAGE_WIDTH]
+
+    MOV DI,DX
+    ADD DI,[AUX_IMAGE_HEIGHT]
+
+
+    MOV AH,0CH    
+    MOV BH,0
+    _DRAW_PIXELS_2:
+        INT 10H
+        INC CX
+        CMP CX,SI
+        JNE _DRAW_PIXELS_2
+
+    MOV CX,[START_COLUMN]
+    INC DX
+    CMP DX,DI
+    JNE _DRAW_PIXELS_2
+
+    RET
+
+drawSpot ENDP
 
 END MAIN
-
-
-END MAIN
-
-        ; CALL drawImage
-
-
-
-
-;         ;TOP LEFT CORNER
-;         fst:
-;         SUB CX,SUB_WIDTH
-;         SUB DX,SUB_HEIGHT
-
-;         CALL CHECK_PATH
-;         CMP IN_PATH,1
-;         JE snd
-;         JMP OUT_OF_RANGE
-
-;         snd:
-;         ;TOP RIGHT CORNER
-;         ADD CX,AUX_IMAGE_WIDTH
-
-;         CALL CHECK_PATH
-;         CMP IN_PATH,1
-;         JE trd
-;         JMP OUT_OF_RANGE
-
-;         trd:
-;         ;DOWN RIGHT CORNER
-;         ADD DX,AUX_IMAGE_HEIGHT
-        
-;         CALL CHECK_PATH
-;         CMP IN_PATH,1
-;         JE frth
-;         JMP OUT_OF_RANGE
-        
-;         frth:
-;         SUB CX,AUX_IMAGE_WIDTH
-
-;         CALL CHECK_PATH

@@ -1,7 +1,7 @@
 x DW 0 
 y DW 0
 
-color db 0bh
+color db 8
 
 
 ;RANDOM GENERATOR VARS
@@ -35,3 +35,13 @@ Path_Length dw 0
 
 x_probe db 0
 y_probe db 0
+
+StartX  dw  0
+StartY  dw  0
+EndX    dw  0
+EndY    dw  0
+Prev    dw  0
+PrevRow     dw      0
+PrevCol     dw      0
+CurrRow     dw      0
+CurrCol     dw      0

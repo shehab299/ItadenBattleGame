@@ -5,8 +5,6 @@
 
 ;Keyboard
 
-KeyList db 128 dup(0)
-
 FoundSpeedUp  db  0
 FoundSpeedUp2  db  0
 
@@ -15,10 +13,6 @@ FoundSpeedDown2  db  0
 
 GhostOn1  db  0
 GhostOn2  db  0
-
-OutTrack  db  0
-OutTrackRow dw 0
-OutTrackCol dw 0
 
 direction1 db 'k'
 direction2 db 'k'
@@ -58,7 +52,6 @@ counterdown2     db      0
 
 duration equ 5
 
-TIME_AUX DB 0
 
 PreX    DW  0
 PreY    DW  0
@@ -78,35 +71,12 @@ speed2 DW 3
 player1Keys DW 0
 player2Keys DW 0
 
-;Parameters
-squareLength EQU 20
-powerlength  EQU    5
-fircolor    EQU  5
-seccolor    EQU 7
-powercolor  EQU  01h
+
 upSpeed EQU 3
 downSpeed EQU 1
 
-;Player1Keys
-W EQU 11h
-s EQU 1Fh
-d EQU 20h
-a EQU 1Eh
-q EQU 10H
-e EQU 12h
-;-----------
 
-;Player2Keys
-upArrow     EQU     48H 
-downArrow   EQU     50h
-rightArrow  EQU     4DH
-leftArrow   EQU     4BH
-p           EQU     19H
-o           EQU     18H
-
-;VIDEO MODE
-VIDEO_MODE    EQU 4F02h                          
-VIDEO_MODE_BX EQU 0101h       
+   
 
 ;COLOR PARAMETERS
 SpeedUpColor EQU 2   
@@ -115,71 +85,12 @@ ObstacleColor EQU  8
 CreateObstaclColor EQU 6 
 AvoidObstaclColor EQU 4
 
-;grid
 
-x DW 0 
-y DW 0
-
-color db 0eh
-
-SCREEN_WIDTH EQU 640
-SCREEN_HEIGHT EQU 480
-
-GRID_WIDTH EQU 5
-GRID_HEIGHT EQU 5
-
-START_COLUMN DW ?
-
-CELL_W EQU SCREEN_WIDTH/GRID_WIDTH
-CELL_H EQU SCREEN_HEIGHT/GRID_HEIGHT
 
 .CODE
 
 include pagesPrc/path.inc
 
-drawSquare proc
-    PUSH DI BX CX
-
-    mov ax , x;
-    mov bx,CELL_W
-    mov dx,0
-    mul bx
-    mov cx,ax
-
-    mov [START_COLUMN],CX
-
-    mov ax, y;
-    mov bx,CELL_H
-    mov dx,0
-    mul bx
-    mov dx,ax
-
-    MOV BX,CX
-    ADD BX,CELL_W
-
-    MOV DI,DX
-    ADD DI,CELL_H
-
-    MOV AX,DS
-    MOV ES,AX
-
-    MOV AH,0CH    
-    DRAW_PIXELS:
-        MOV AL,color
-        INT 10H
-        INC CX
-        CMP CX,BX
-        JNE DRAW_PIXELS
-
-    MOV CX,[START_COLUMN]
-    INC DX
-    CMP DX,DI
-    JNE DRAW_PIXELS
-
-    POP CX BX DI
-    
-    RET
-drawSquare endp
 
 MAIN    PROC    FAR
     MOV AX,@DATA
@@ -188,30 +99,7 @@ MAIN    PROC    FAR
     MOV AH,0
     INT 16H
 
-; CONFIGURING THE KEYBOARD
 
-    MOV  AX, 3509h    ; DOS.GetInterruptVector
-    INT  21h          ; -> ES:BX
-    PUSH ES BX        
-
-    mov  dx, offset Int09
-    PUSH DS
-    MOV AX,CS
-    MOV DS,AX
-    mov  ax, 2509h         ; DOS.SetInterruptVector
-    int  21h
-    POP DS
-
-
-;SETTIGN THE VIDEO MODE
-    MOV    AX,VIDEO_MODE
-    MOV    BX,VIDEO_MODE_BX
-    INT    10h                     ; Set video mode
-
-    ; call drawPath
-
-;THE ACTUAL GAME
-    CALL setBackgroundColor
     CALL DrawPowers
 
     CHECK_TIME:
@@ -615,23 +503,6 @@ ret
 ClearPwr endp
 
 
-setBackgroundColor PROC NEAR
-    mov cx, 0           ;Column
-    mov dx, 0           ;Row
-    mov al, 0        ;Pixel color
-    mov ah, 0ch         ;Draw Pixel Command
-Horizon: int 10h
-    INC CX
-    CMP CX, SCREEN_WIDTH
-    JNZ Horizon
-
-    MOV CX, 0
-    INC DX
-    CMP DX, SCREEN_HEIGHT
-    JNZ Horizon
-    RET
-setBackgroundColor ENDP
-
 CheckEndPower PROC
 
     MOV AH,2CH  
@@ -707,22 +578,6 @@ CheckEndPower PROC
     RET
     CheckEndPower ENDP
 
-Int09 PROC
-
-push ax bx
-in   al, 60h
-mov  ah, 0
-mov  bx, ax
-and  bx, 127           ; 7-bit scancode goes to BX
-shl  ax, 1             ; 1-bit press/release goes to AH
-xor  ah, 1             ; -> AH=1 Press, AH=0 Release
-mov  [KeyList+bx], ah
-mov  al, 20h           ; The non specific EOI (End Of Interrupt)
-out  20h, al
-pop  bx ax
-iret
-
-Int09 ENDP
 
 drawSquares PROC NEAR
     ;Draw square1
@@ -1045,149 +900,13 @@ SKIP:
     RET
 VALIDATE2 ENDP
 
-sleepSomeTime proc 
-    push cx dx
-    mov cx, 0
-    mov dx, 20000  ; 20ms
-    mov ah, 86h
-    int 15h  ; param is cx:dx (in microseconds)
-    pop dx cx
-    ret
-sleepSomeTime endp
 
 
 
 
 
-RANDPOS PROC
-    CMP DH,30
-    JNC OTHER
-    MOV BL,6
-    MOV AL,DH
-    MUL BL 
-    MOV powerrow,AX
-    MOV AL,DL
-    MUL BL 
-    MOV powercol,AX
-    JMP DONE
-    OTHER:
-    MOV BL,3
-    MOV AL,DH
-    MUL BL 
-    MOV powerrow,AX
-    MOV AL,DL
-    MUL BL 
-    MOV powercol,AX
-    DONE:
-    RET
-RANDPOS ENDP
 
 
-DrawOnePower PROC ;al => color  ;cx => row ;dx => column
 
-    MOV DI,DX 
-    ADD DI,powerlength
-    
-    MOV BX,CX
-    ADD BX,powerlength
-
-    MOV AH,0CH
-
-    lloopp: 
-        lloopp2:
-            INT 10H
-            INC DX
-            CMP DX,DI
-            JNZ lloopp2  
-        MOV DX,DI
-        SUB DX,powerlength
-        INC CX
-        CMP CX,BX
-        JNZ lloopp 
-
-    RET
-
-DrawOnePower ENDP
-
-DrawPowers   PROC
-    ;draw power
-
-    MOV DX,50
-    MOV CX,50
-    MOV AL,AvoidObstaclColor
-    call DrawOnePower
-
-    MOV DX,100
-    MOV CX,100
-    MOV AL,ObstacleColor
-    call DrawOnePower
-    
-    MOV DX,150
-    MOV CX,150
-    MOV AL,SpeedDownColor
-    call DrawOnePower
-
-
-    MOV DX,200
-    MOV CX,200
-    MOV AL,CreateObstaclColor
-    CALL DrawOnePower
-
-
-    MOV DX,250
-    MOV CX,250
-    MOV AL,SpeedUpColor
-    call DrawOnePower
-ENDdraw:
-    RET
-DrawPowers ENDP
 
 ; CHECKING THE PLAYER IS IN THE THE SCREEN
-
-CheckOutOfRange  PROC
-
-    MOV DX,squareX
-    MOV CX,squareY
-    CALL VALIDROW
-    CALL VALIDCOL
-    MOV squareX,DX
-    MOV squareY,CX
-
-    MOV DX,squareX2
-    MOV CX,squareY2
-    CALL VALIDROW
-    CALL VALIDCOL
-    MOV squareX2,DX
-    MOV squareY2,CX
-
-    RET
-CheckOutOfRange ENDP
-
-
-VALIDROW PROC
-    CMP DX,1
-    JNL N1
-    MOV DX,0
-    N1:
-    CMP DX,SCREEN_HEIGHT - squareLength
-    JNA N2
-    MOV DX,SCREEN_HEIGHT - squareLength
-    N2:
-    
-    RET
-VALIDROW ENDP
-
-VALIDCOL PROC
-    CMP CX,1
-    JNL N11
-    MOV CX,0
-    N11:
-    CMP CX,SCREEN_WIDTH - squareLength
-    JNA N22
-    MOV CX,SCREEN_WIDTH - squareLength
-    N22:
-    RET
-VALIDCOL ENDP
-
-
-END MAIN
