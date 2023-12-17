@@ -12,11 +12,11 @@ q EQU 10H
 ;-----------
 
 ;Player2Keys
-upArrow     EQU     48H 
-downArrow   EQU     50h
-rightArrow  EQU     4DH
-leftArrow   EQU     4BH
-p           EQU     19H
+upArrow     EQU   11h  ;48H 
+downArrow   EQU   1Fh ;50h
+rightArrow  EQU   20h  ;4DH
+leftArrow   EQU   4Bh  ;4BH
+p           EQU   10h  ;19H
 ;-----------
 
 
