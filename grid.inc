@@ -969,7 +969,7 @@ genPowerUps PROC
      MOV CX,Path_Length
     ; SUB CX,1
     MOV AX,CX
-    MOV BL,3
+    MOV BL,4
     DIV BL
     MOV CL,al
     MOV CH,0
@@ -996,8 +996,8 @@ genPowerUps PROC
 
     CALL RandPowerUp
 
-    ADD DI,6
-    ADD BX,6  
+    ADD DI,8
+    ADD BX,8  
 
     DEC CX
     CMP CX,0
