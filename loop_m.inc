@@ -603,11 +603,19 @@ Controls1:
 
     CheckAvoid:
     CMP [KeyList + z],1
-    JNE CHANGE_DIRECTION_1
+    JNE CheckCreate
     CMP Avoid1,1
-    JNE CHANGE_DIRECTION_1
+    JNE CheckCreate
     MOV UseAvoid1,1
     MOV Avoid1,0
+
+    CheckCreate:
+    CMP [KeyList + xkey],1
+    JNE CHANGE_DIRECTION_1
+    CMP CreationPower1,1
+    JNE CHANGE_DIRECTION_1
+    CALL DrawObstaclePower
+    MOV CreationPower1,0
 
 CHANGE_DIRECTION_1:
     
@@ -708,12 +716,21 @@ Controls2:
 
     CheckAvoid2:
     CMP [KeyList + Kkey],1
-    JNE CHANGE_DIRECTION_2
+    JNE CheckCreate2
 
     CMP Avoid2,1
-    JNE CHANGE_DIRECTION_2
+    JNE CheckCreate2
     MOV UseAvoid2,1
     MOV Avoid2,0
+
+    CheckCreate2:
+    CMP [KeyList + l],1
+    JNE CHANGE_DIRECTION_2
+
+    CMP CreationPower2,1
+    JNE CHANGE_DIRECTION_2
+    CALL DrawObstaclePower2 
+    MOV CreationPower2,0
 
 CHANGE_DIRECTION_2:
     
@@ -1069,7 +1086,7 @@ CheckOoutOfPath PROC
         CheckAgain4:
         CMP AL,SpeedUpColor
         JNZ CheckAgain
-        mov FoundSpeedUp,1
+        mov SpeedUp1,1
         call ClearPwr
 
         ;CHECK SPEED DOWN
@@ -1083,7 +1100,9 @@ CheckOoutOfPath PROC
         CheckAgain1:
         CMP AL,CreateObstaclColor
         JNZ CheckAgain2
-        CALL DrawObstaclePower
+
+        ; CALL DrawObstaclePower
+        MOV CreationPower1,1
         CALL ClearPwr
 
         CheckAgain2:
@@ -1108,11 +1127,11 @@ CheckOoutOfPath PROC
     CMP DX,DI
     JNE _DRAW_PIXELS_
 
-    CMP FoundSpeedUp,1
-    JNE NoSpeedUp
+    ; CMP FoundSpeedUp,1
+    ; JNE NoSpeedUp
 
-    inc SpeedUp1
-    mov FoundSpeedUp,0
+    ; ; inc SpeedUp1
+    ; mov FoundSpeedUp,0
 
     NoSpeedUp:
 
@@ -1171,7 +1190,7 @@ CheckOoutOfPath2 PROC
         CheckAgain24:
         CMP AL,SpeedUpColor
         JNZ CheckAgain22_
-        mov FoundSpeedUp2,1
+        mov SpeedUp2,1
         call ClearPwr
 
         ;CHECK SPEED DOWN
@@ -1185,7 +1204,7 @@ CheckOoutOfPath2 PROC
         CheckAgain21:
         CMP AL,CreateObstaclColor
         JNZ CheckAgain22
-        CALL DrawObstaclePower2
+        MOV CreationPower2,1
         CALL ClearPwr
 
         CheckAgain22:
@@ -1210,11 +1229,11 @@ CheckOoutOfPath2 PROC
     CMP DX,DI
     JNE _DRAW_PIXELS_2
 
-    CMP FoundSpeedUp2,1
-    JNE NoSpeedUp2
+    ; CMP FoundSpeedUp2,1
+    ; JNE NoSpeedUp2
 
-    inc SpeedUp2
-    mov FoundSpeedUp2,0
+    ; inc SpeedUp2
+    ; mov FoundSpeedUp2,0
 
     NoSpeedUp2:
     CMP FoundSpeedDown2,1
@@ -1243,26 +1262,30 @@ CheckOoutOfPath2 ENDP
 DrawObstaclePower PROC
     PUSHA  
 
+    MOV DX,Y_POS
+    MOV CX,X_POS
+
     cmp DIRS,Up_and
     JNE try1
     ADD dx,[AUX_IMAGE_HEIGHT]
-    ADD dx,powerlength
+    ; ADD dx,[AUX_IMAGE_HEIGHT]
+
+
     JMP DrawObstaclePowerLabel
     try1:
     CMP DIRS,Left_and
     JNZ try2
     ADD CX,[AUX_IMAGE_HEIGHT]
-    ADD CX,powerlength
-    ADD CX,powerlength
-    ADD CX,powerlength
+    ; ADD CX,[AUX_IMAGE_HEIGHT]
+
     JMP DrawObstaclePowerLabel
 
     try2:
     CMP DIRS,Right_and
     JNE DOWNTRIAL1
     SUB CX,[AUX_IMAGE_HEIGHT]
-    SUB CX,powerlength
-    SUB CX,powerlength
+    ; SUB CX,[AUX_IMAGE_HEIGHT]
+
     SUB CX,powerlength
 
     JMP DrawObstaclePowerLabel
@@ -1270,12 +1293,10 @@ DrawObstaclePower PROC
     CMP DIRS,Down_and
     JNE NOOBSTACLE
     SUB DX,[AUX_IMAGE_HEIGHT]
+    ; SUB DX,[AUX_IMAGE_HEIGHT]
 
     SUB DX,powerlength
-    SUB DX,powerlength
-    SUB DX,powerlength
 
-    MOV BH,0
     MOV AH,0DH
     INT 10H
     CMP AL,BackgroundColor
@@ -1290,7 +1311,7 @@ DrawObstaclePower PROC
     ADD BX,powerlength
 
 
-
+;    MOV BH,0
     MOV AH,0CH
     ob: 
     obs:
@@ -1485,18 +1506,19 @@ drawSpot ENDP
 DrawObstaclePower2 PROC
     PUSHA  
 
+    MOV DX,Y_POS_2
+    MOV CX,X_POS_2
+
     cmp DIRS2,Up_and
     JNE try11
     ADD dx,[AUX_IMAGE_HEIGHT]
-    ADD dx,powerlength
+
     JMP DrawObstaclePowerLabel2
     try11:
     CMP DIRS2,Left_and
     JNZ try22
     ADD CX,[AUX_IMAGE_HEIGHT]
-    ADD CX,powerlength
-    ADD CX,powerlength
-    ADD CX,powerlength
+
     JMP DrawObstaclePowerLabel2
 
     try22:
@@ -1504,8 +1526,7 @@ DrawObstaclePower2 PROC
     JNE DOWNTRIAL
     SUB CX,[AUX_IMAGE_HEIGHT]
     SUB CX,powerlength
-    SUB CX,powerlength
-    SUB CX,powerlength
+
 
     JMP DrawObstaclePowerLabel2
     DOWNTRIAL:
@@ -1514,8 +1535,7 @@ DrawObstaclePower2 PROC
     SUB DX,[AUX_IMAGE_HEIGHT]
 
     SUB DX,powerlength
-    SUB DX,powerlength
-    SUB DX,powerlength
+
 
     MOV BH,0
     MOV AH,0DH
