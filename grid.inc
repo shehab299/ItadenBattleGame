@@ -1373,7 +1373,7 @@ PUSH CX
 PUSH Ax
 PUSH DI  
 PUSH BX    
-    MOV AL,BackgroundColor
+    MOV AL,TrackColor
     
     MOV DI,DX 
     ADD DI,powerlength

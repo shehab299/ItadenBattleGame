@@ -1084,6 +1084,9 @@ CheckOoutOfPath PROC
         CMP AL,00h
         JE  NOT_VALID
 
+        CMP AL,border_color
+        JE NOT_VALID
+
         ;CHECK OBSTACLES
         CMP AL,04H
         JNE CheckAgain4
@@ -1187,6 +1190,9 @@ CheckOoutOfPath2 PROC
         ;CHECK BACKGROUND
         CMP AL,00h
         JE  NOT_VALID2
+
+        CMP AL,border_color
+        JE NOT_VALID2
 
         ;CHECK OBSTACLES
         CMP AL,04H
@@ -1309,7 +1315,7 @@ DrawObstaclePower PROC
 
     MOV AH,0DH
     INT 10H
-    CMP AL,BackgroundColor
+    CMP AL,TrackColor
     JNZ NOOBSTACLE
 
     DrawObstaclePowerLabel:
@@ -1375,7 +1381,7 @@ AvoidObstacle PROC
     mov bh,0
     mov ah,0DH
     int 10h
-    CMP AL,BackgroundColor
+    CMP AL,TrackColor
     JZ PositionDone
 
      MOV DX,PrevX1
@@ -1484,7 +1490,7 @@ checkOutOfScreen endp
 
 drawSpot PROC
 
-    MOV AL,BackgroundColor
+    MOV AL,TrackColor
 
     MOV CX,[START_COLUMN]
     MOV DX,[START_ROW]
@@ -1550,7 +1556,7 @@ DrawObstaclePower2 PROC
     MOV BH,0
     MOV AH,0DH
     INT 10H
-    CMP AL,BackgroundColor
+    CMP AL,TrackColor
     JNZ NONNNN
 
     DrawObstaclePowerLabel2:
@@ -1617,7 +1623,7 @@ AvoidObstacle2 PROC
     mov bh,0
     mov ah,0DH
     int 10h
-    CMP AL,BackgroundColor
+    CMP AL,TrackColor
     JZ PositionDone2
 
     MOV DX,PrevX2

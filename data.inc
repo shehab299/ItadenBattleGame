@@ -198,8 +198,8 @@ num dw ?
 x DW 0 
 y DW 0
 
-color db BackgroundColor
-border_color db 04h
+color db TrackColor
+border_color db 35h
 tile_no dw 1 ; 0 = updown, 1 = leftright, 2 = leftdown
 ;3 = rightdown 4 = downleft 5 = downright
 ;RANDOM GENERATOR VARS
