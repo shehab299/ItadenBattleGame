@@ -1438,6 +1438,7 @@ drawFinishLine proc
 
     MOV BX,CX
     ADD BX,CELL_W
+    ADD CX,2
     ;add bx,10 ;prob change that between h and v
 
     MOV DI,DX
