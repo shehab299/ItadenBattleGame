@@ -11,6 +11,7 @@ a EQU 1Eh
 q EQU 10H
 e equ 12H
 z equ 2ch
+xkey equ 2dh
 ;-----------
 
 ;Player2Keys
@@ -21,6 +22,7 @@ leftArrow   EQU   4BH
 p           EQU   19H
 o           EQU   18h  
 l           EQU   26H
+Kkey           EQU   25H
 ;-----------
 
 

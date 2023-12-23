@@ -142,6 +142,8 @@ counterup1      DB      0
 counterDown1      DB      0
 
 Avoid1      db      0 ;GHOST COUNT FOR PLAYER 1
+UseAvoid1   db      0
+
 
 
 ;POWERUPS PLAYER 2
@@ -161,7 +163,7 @@ counterup2      DB      0
 counterDown2      DB      0
 
 Avoid2      db      0; GHOST COUNT FOR PLAYER 2
-
+UseAvoid2   db      0
 
 ;TEXT POWERUPS PLAYER1
 SpeedUp1_Text      DB     '0', '$'

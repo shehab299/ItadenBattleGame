@@ -586,10 +586,10 @@ Controls1:
 
     checkSpeedingDown:
     CMP [KeyList + e],1
-    JNE CHANGE_DIRECTION_1
+    JNE CheckAvoid
 
     CMP SpeedDown1,0
-    JE CHANGE_DIRECTION_1
+    JE CheckAvoid
     DEC SpeedDown1
     MOV UseSpeedDown1,1
     PUSHA
@@ -600,6 +600,14 @@ Controls1:
     POPA
     MOV speed2_X,DecreasedSpeed
     MOV speed2_Y,DecreasedSpeed
+
+    CheckAvoid:
+    CMP [KeyList + z],1
+    JNE CHANGE_DIRECTION_1
+    CMP Avoid1,1
+    JNE CHANGE_DIRECTION_1
+    MOV UseAvoid1,1
+    MOV Avoid1,0
 
 CHANGE_DIRECTION_1:
     
@@ -682,10 +690,10 @@ Controls2:
 
     checkSpeedingDown2:
     CMP [KeyList + o],1
-    JNE CHANGE_DIRECTION_2
+    JNE CheckAvoid2
 
     CMP SpeedDown2,0
-    JE CHANGE_DIRECTION_2
+    JE CheckAvoid2
     DEC SpeedDown2
     MOV UseSpeedDown2,1
     PUSHA
@@ -698,6 +706,14 @@ Controls2:
     MOV speed1_X,DecreasedSpeed
     MOV speed1_Y,DecreasedSpeed
 
+    CheckAvoid2:
+    CMP [KeyList + Kkey],1
+    JNE CHANGE_DIRECTION_2
+
+    CMP Avoid2,1
+    JNE CHANGE_DIRECTION_2
+    MOV UseAvoid2,1
+    MOV Avoid2,0
 
 CHANGE_DIRECTION_2:
     
@@ -1044,10 +1060,10 @@ CheckOoutOfPath PROC
         ;CHECK OBSTACLES
         CMP AL,04H
         JNE CheckAgain4
-        CMP Avoid1,1
+        CMP UseAvoid1,1
         JNE NOT_VALID
         CALL AvoidObstacle
-        MOV Avoid1,0
+        MOV UseAvoid1,0
 
         ;CHECK SPEED UP
         CheckAgain4:
@@ -1146,10 +1162,10 @@ CheckOoutOfPath2 PROC
         ;CHECK OBSTACLES
         CMP AL,04H
         JNE CheckAgain24
-        CMP Avoid2,1
+        CMP UseAvoid2,1
         JNE NOT_VALID2
         CALL AvoidObstacle2
-        MOV Avoid2,0
+        MOV UseAvoid2,0
 
         ;CHECK SPEED UP
         CheckAgain24:
