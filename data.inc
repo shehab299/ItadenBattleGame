@@ -185,8 +185,8 @@ player2_name_text    DB     'player2', '$'
 percentage_Text      DB     '0', '$'
 
 
-WIN_1_TEXT DB 'PLAYER1 WIN', '$'
-WIN_2_TEXT DB 'PLAYER2 WIN', '$'
+WIN_1_TEXT DB 'WINNER IS ', '$'
+WIN_2_TEXT DB 'WINNER IS ', '$'
 TIE_TEXT DB 'YOU BOTH LOSE', '$'
 
 

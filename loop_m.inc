@@ -66,7 +66,7 @@ MAIN_LOOP PROC
     JMP ENDCHK
 
     CHECK_WIN_2:
-    CMP PLAYER2_WIN,2
+    CMP PLAYER2_WIN,1
     JNE NO_WIN
     CALL WIN_2
     JMP ENDCHK
@@ -138,6 +138,12 @@ WIN_1 PROC
     mov ah, 9
     mov dx, offset WIN_1_TEXT
     int 21h
+
+    mov ah, 9
+    mov dx, offset player1_name + 2
+    int 21h
+
+    
     RET
 WIN_1 ENDP
 
@@ -151,6 +157,10 @@ WIN_2 PROC
 
     mov ah, 9
     mov dx, offset WIN_2_TEXT
+    int 21h
+
+    mov ah, 9
+    mov dx, offset player2_name + 2
     int 21h
     RET
 WIN_2 ENDP
@@ -182,7 +192,7 @@ display_Player1_name PROC
     int 10h
 
     mov ah, 9
-    mov dx, offset player1_name_text
+    mov dx, offset player1_name +2
     int 21h
     RET
 display_Player1_name ENDP
@@ -195,7 +205,7 @@ display_Player2_name PROC
     int 10h
 
     mov ah, 9
-    mov dx, offset player2_name_text
+    mov dx, offset player2_name +2
     int 21h
     RET
 display_Player2_name ENDP
