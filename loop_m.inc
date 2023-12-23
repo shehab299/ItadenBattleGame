@@ -28,7 +28,7 @@ MAIN_LOOP PROC
 
     call DrawPath_
     call genPowerUps
-    CALL genObstacles
+    ; CALL genObstacles
 
     call drawFinishLine
 
@@ -1231,45 +1231,49 @@ DrawObstaclePower PROC
     JNE try1
     ADD dx,[AUX_IMAGE_HEIGHT]
     ADD dx,powerlength
-    DEC DX
+    JMP DrawObstaclePowerLabel
     try1:
     CMP DIRS,Left_and
-    JNE try2
+    JNZ try2
     ADD CX,[AUX_IMAGE_HEIGHT]
     ADD CX,powerlength
     ADD CX,powerlength
+    ADD CX,powerlength
+    JMP DrawObstaclePowerLabel
+
     try2:
     CMP DIRS,Right_and
-    JNE try3
+    JNE DOWNTRIAL1
     SUB CX,[AUX_IMAGE_HEIGHT]
     SUB CX,powerlength
     SUB CX,powerlength
     SUB CX,powerlength
 
-    try3:
-    CMP DIRS,Down_and
-    JNE NoDrawing
-    SUB DX,[AUX_IMAGE_HEIGHT]
-    SUB DX,powerlength
-    SUB DX,powerlength
     JMP DrawObstaclePowerLabel
+    DOWNTRIAL1:
+    CMP DIRS,Down_and
+    JNE NOOBSTACLE
+    SUB DX,[AUX_IMAGE_HEIGHT]
 
-
-
-    DrawObstaclePowerLabel:
+    SUB DX,powerlength
+    SUB DX,powerlength
+    SUB DX,powerlength
 
     MOV BH,0
     MOV AH,0DH
     INT 10H
     CMP AL,BackgroundColor
-    JNZ NoDrawing
+    JNZ NOOBSTACLE
 
+    DrawObstaclePowerLabel:
     MOV AL,ObstacleColor
     MOV DI,DX 
     ADD DI,powerlength
 
     MOV BX,CX
     ADD BX,powerlength
+
+
 
     MOV AH,0CH
     ob: 
@@ -1283,8 +1287,7 @@ DrawObstaclePower PROC
     INC CX
     CMP CX,BX
     JNZ ob 
-    NoDrawing:
-
+    NOOBSTACLE:
     POPA
     RET
 DrawObstaclePower ENDP
@@ -1339,9 +1342,6 @@ AvoidObstacle PROC
     POP DX
     RET
 AvoidObstacle ENDP
-
-
-
 
 
 Drawobstacle PROC ;al => color ;cx => column ;dx => row

@@ -10,6 +10,7 @@ d EQU 20h
 a EQU 1Eh
 q EQU 10H
 e equ 12H
+z equ 2ch
 ;-----------
 
 ;Player2Keys
@@ -19,6 +20,7 @@ rightArrow  EQU   4DH
 leftArrow   EQU   4BH
 p           EQU   19H
 o           EQU   18h  
+l           EQU   26H
 ;-----------
 
 

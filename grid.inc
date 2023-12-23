@@ -969,7 +969,7 @@ genPowerUps PROC
      MOV CX,Path_Length
     ; SUB CX,1
     MOV AX,CX
-    MOV BL,2
+    MOV BL,3
     DIV BL
     MOV CL,al
     MOV CH,0
@@ -996,8 +996,8 @@ genPowerUps PROC
 
     CALL RandPowerUp
 
-    ADD DI,4
-    ADD BX,4   
+    ADD DI,6
+    ADD BX,6  
 
     DEC CX
     CMP CX,0
@@ -1240,8 +1240,8 @@ ChooseColor proc
     NextColor2:
     CMP AH,2  
     JNE NextColor3
-    ; MOV AL,ObstacleColor
-    ; JMP EndColor
+    MOV AL,ObstacleColor
+    JMP EndColor
     NextColor3:
     MOV AL,SpeedDownColor
     EndColor: 
@@ -1591,53 +1591,50 @@ CheckEndPower PROC
 
     NextCheck:
     CMP UseSpeedDown1,1
-    JNE ENDD
+    JNE NextCheck1
 
     CMP DH,starttimeDown1
-    JZ ENDD
+    JZ NextCheck1
     MOV starttimeDown1,DH
     INC counterDown1
     CMP counterDown1,duration
-    JNZ ENDD
+    JNZ NextCheck1
     MOV counterDown1,0
     MOV speed2_X,InitialSpeed
     MOV speed2_Y,InitialSpeed
     MOV UseSpeedDown1,0
 
+    NextCheck1:
+    CMP UseSpeedUp2,1
+    JNE NextCheck2
 
-    ; CMP UseSpeedUp2,1
-    ; JNE CHECKSDOWN
+    cmp dh,starttimeUP2
+    jz NextCheck2
 
-    ; cmp dh,starttimeUP2
-    ; jz ENDD
-    ; mov starttimeUP2,dh
+    mov starttimeUP2,dh
+    inc counterup2
+    cmp counterup2,duration
+    JNZ NextCheck2
 
-    
-    ; inc counterup2
-    ; cmp counterup2,duration
-    ; JNZ CHECKSDOWN
-    ; MOV counterup2,0
-    ; MOV speed2,3
-    ; INC powercnt
-    ; DEC UseSpeedUp2
-    ; CALL RANDPOS
+    mov counterup2,0
+    MOV speed2_X,InitialSpeed
+    MOV speed2_Y,InitialSpeed
+    MOV UseSpeedUp2,0
 
-    ; CHECKSDOWN:
-    
+    NextCheck2:
+    CMP UseSpeedDown2,1
+    JNE ENDD
 
-    ; CHECKSDOWN2:
-    ; CMP UseSpeedDown2,1
-    ; JNE ENDD
-
-    ; CMP DH,starttimeDOWN2
-    ; JZ ENDD
-    ; MOV starttimeDOWN2,DH
-    ; INC counterdown2
-    ; CMP counterdown2,duration
-    ; JNZ ENDD
-    ; MOV counterdown2,0
-    ; MOV speed1,3
-    ; DEC UseSpeedDown2
+    CMP DH,starttimeDown2
+    JZ ENDD
+    MOV starttimeDown2,DH
+    INC counterDown2
+    CMP counterDown2,duration
+    JNZ ENDD
+    MOV counterDown2,0
+    MOV speed1_X,InitialSpeed
+    MOV speed1_Y,InitialSpeed
+    MOV UseSpeedDown2,0
 
     ENDD:
     RET
