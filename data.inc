@@ -1,3 +1,11 @@
+TimeRow     dw      0
+TimeCol     dw      0
+TimeMin     dw      0
+TimeSec     dw      0
+TimeDur     dw      120
+TimeCounter dw      0
+LastTime    dw      0
+
 PrevX1      dw      200
 PrevY1      dw      200
 

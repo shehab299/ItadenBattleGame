@@ -46,6 +46,16 @@ MAIN_LOOP PROC
     MOV SEC_AUX,DH
     INC TIME_COUNTER
 
+    inc TimeSec
+    cmp TimeSec,60
+    jne whatever
+    mov TimeSec,0
+    inc TimeMin
+    whatever:
+
+    CALL displayTime
+
+
     CMP TIME_COUNTER,GAME_DURATION
     JNE  GAME
     CALL TIE
@@ -80,8 +90,8 @@ MAIN_LOOP PROC
     call display_speedDown2
     call display_Avoid2
 
-    Call display_percentage
 
+    Call display_percentage
 
     CALL CheckEndPower
 
@@ -1880,6 +1890,53 @@ SetFourCorners PROC
         RET
         CalcCorners2FUN ENDP
 
+
+displayTime     PROC
+    PUSHA
+    ; MOV DX,TimeRow
+    ; MOV CX,TimeCol
+
+    MOV AH,2
+    MOV DX,0
+    INT 10H
+
+    MOV BL,10
+    MOV AX,TimeMin
+    DIV BL
+    MOV BH,AH
+
+    MOV DL,AL
+    ADD DL,30H
+    MOV AH,2 
+    INT 21H
+
+    MOV DL,BH
+    ADD DL,30H
+    MOV AH,2 
+    INT 21H
+
+    MOV DL,':'
+    MOV AH,2 
+    INT 21H
+
+    MOV BL,10
+    MOV AX,TimeSec
+    DIV BL
+    MOV BH,AH
+
+    MOV DL,AL
+    ADD DL,30H
+    MOV AH,2 
+    INT 21H
+
+    MOV DL,BH
+    ADD DL,30H
+    MOV AH,2 
+    INT 21H
+
+    POPA
+    RET
+    displayTime ENDP
 
 display_percentage PROC
     PUSHA
