@@ -1,3 +1,7 @@
+STATE1   DB    0
+;WSDAQEZX
+STATE2   DB    0
+
 TimeRow     dw      0
 TimeCol     dw      0
 TimeMin     dw      0
