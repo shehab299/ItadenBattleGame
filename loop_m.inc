@@ -728,6 +728,14 @@ Controls1:
     XnotPressed:
     AND STATE1,11111110B
 
+    TransimtAgain:
+    CALL checkTransimt
+    CMP DATA_OUTBOUND,1
+    JNE TransimtAgain
+    MOV AL,STATE1
+    MOV DataOut,AL
+    CALL sendByte
+
 CHANGE_DIRECTION_1:
     
     MOV AL,PrevState
@@ -747,6 +755,14 @@ movePlayer1 ENDP
 movePlayer2 PROC
 
     PUSHA
+
+    RecieveAgain:
+    CALL checkRecieve2
+    CMP DATA_INBOUND,1
+    JNE RecieveAgain
+    CALL recieveByte
+    MOV AL,DataIn
+    MOV STATE2,AL
 
     MOV BX,speed2_X
     MOV DX,speed2_Y
@@ -2279,146 +2295,52 @@ CalcEnd PROC
 
 CalcEnd ENDP
 
-;description
-load_players_cars PROC
-    CMP player1_character, 1
-    JNE player1_checkCar2
-    call loadFlameCarForOne
-    JMP Get_Player2_Car
-   
-    player1_checkCar2:
-    CMP player1_character, 2
-    JNE player1_checkCar3
-    CALL loadRedCarForOne
-    JMP Get_Player2_Car
+checkRecieve2 PROC  ;THERE IS DATA => DATA_INBOUND DB ?
 
-    player1_checkCar3:
-    CMP player1_character, 3
-    JNE player1_checkCar4
-    call loadBlueCarForOne
-    JMP Get_Player2_Car
+    MOV  DX,3FDH
+    IN AL,DX
+    AND AL,1
+    JZ  NO_DATA
 
-    player1_checkCar4:
-    CALL loadYellowCarForOne
+    MOV DATA_INBOUND,1
+    RET 
 
-
-    Get_Player2_Car:
-    CMP player2_character, 1
-    JNE player2_checkCar2
-    call loadFlameCarForTwo
-    JMP End_load_Cars
-   
-    player2_checkCar2:
-    CMP player2_character, 2
-    JNE player2_checkCar3
-    CALL loadRedCarForTwo
-    JMP End_load_Cars
-
-    player2_checkCar3:
-    CMP player2_character, 3
-    JNE player2_checkCar4
-    call loadBlueCarForTwo
-    JMP End_load_Cars
-
-    player2_checkCar4:
-    CALL loadYellowCarForTwo
-
-    End_load_Cars:
+    NO_DATA:
+    MOV DATA_INBOUND,0
     RET
-load_players_cars ENDP
+checkRecieve2 ENDP
 
-drawGreenPowerUp PROC
-        MOV DX, offset greenPower_file_name
-        MOV DI, offset greenPower_file_handle
-        call openFile
+recieveByte PROC 
 
-        MOV CX, greenPower_file_size
-        MOV DX, offset greenPower_file
-        MOV BX, [greenPower_file_handle]
-        call ReadFileToMemory
+    MOV  DX,03F8H
+    IN   AL,DX
+    MOV  DataIn,AL
 
-        MOV SI, offset greenPower_file
-        MOV AX, starting_row
-        MOV [START_ROW], AX
-         MOV AX, starting_column
-        MOV [START_COLUMN], AX
-        MOV [AUX_IMAGE_HEIGHT], greenPower_height
-        MOV [AUX_IMAGE_WIDTH], greenPower_width
-        CALL drawImage
-        RET
-    drawGreenPowerUp ENDP
-
-    drawRedPowerUp PROC
-    MOV DX, offset redPower_file_name
-    MOV DI, offset file_handle
-    CALL openFile
-
-    MOV CX, redPower_file_size
-    MOV DX, offset redPower_file
-    MOV BX, [file_handle]
-    CALL ReadFileToMemory
-
-    MOV SI, offset redPower_file
-    MOV AX, red_powerup_starting_row
-    MOV [START_ROW], AX
-    MOV AX, red_powerup_starting_column
-    MOV [START_COLUMN], AX
-    MOV [AUX_IMAGE_HEIGHT], redPower_height
-    MOV [AUX_IMAGE_WIDTH], redPower_width
-    CALL drawImage
     RET
-    drawRedPowerUp ENDP
+recieveByte ENDP
 
-    drawBluePowerUp PROC
-    MOV DX, offset bluePower_file_name
-    MOV DI, offset file_handle
-    CALL openFile
+checkTransimt PROC
 
-    MOV CX, bluePower_file_size
-    MOV DX, offset bluePower_file
-    MOV BX, [file_handle]
-    CALL ReadFileToMemory
+    MOV  DX,3FDH
+    IN   AL,DX
+    AND  AL,00100000B
+    JZ  NOT_EMPTY
 
-    MOV SI, offset bluePower_file
-    MOV AX, blue_powerup_starting_row
-    MOV [START_ROW], AX
-    MOV AX, blue_powerup_starting_column
-    MOV [START_COLUMN], AX
-    MOV [AUX_IMAGE_HEIGHT], bluePower_height
-    MOV [AUX_IMAGE_WIDTH], bluePower_width
-    CALL drawImage
+    MOV DATA_OUTBOUND,1
+    RET 
+
+    NOT_EMPTY:
+    MOV DATA_OUTBOUND,0
     RET
-    drawBluePowerUp ENDP
 
-    drawEvilPowerUp PROC
-    MOV DX, offset evilPower_file_name
-    MOV DI, offset file_handle
-    CALL openFile
+checkTransimt ENDP
 
-    MOV CX, evilPower_file_size
-    MOV DX, offset evilPower_file
-    MOV BX, [file_handle]
-    CALL ReadFileToMemory
+sendByte PROC
 
-    MOV SI, offset evilPower_file
-    MOV AX, evil_powerup_starting_row
-    MOV [START_ROW], AX
-    MOV AX, evil_powerup_starting_column
-    MOV [START_COLUMN], AX
-    MOV [AUX_IMAGE_HEIGHT], evilPower_height
-    MOV [AUX_IMAGE_WIDTH], evilPower_width
-    CALL drawImage
+    MOV  DX,3F8H
+    MOV AL,DataOut
+    OUT  DX,AL
+
     RET
-drawEvilPowerUp ENDP
+sendByte ENDP
 
-;description
-draw_All_Powers PROC
-    ; Mov starting_row, 350
-    ; Mov starting_row, 600
-
-   
-    call drawEvilPowerUp
-    call drawRedPowerUp
-    call drawBluePowerUp
-    call drawGreenPowerUp
-draw_All_Powers ENDP

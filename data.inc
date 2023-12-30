@@ -1,3 +1,8 @@
+DataOut DB ?
+DataIn  DB '8'
+DATA_INBOUND DB ?
+DATA_OUTBOUND DB ?
+
 STATE1   DB    0
 ;WSDAQEZX
 STATE2   DB    0
