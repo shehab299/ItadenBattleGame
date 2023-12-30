@@ -1,4 +1,3 @@
-
 MAIN_LOOP PROC 
     MOV AX,@DATA
     MOV DS,AX
@@ -9,22 +8,14 @@ MAIN_LOOP PROC
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
-
-    call loadBlueCarForOne
-    call loadFlameCarForTwo
+    call load_players_cars
     call Generate
-
-    call display_speedUp1
-    call display_speedDown1
-    call display_Avoid1
-
-    call display_speedup2
-    call display_speedDown2
-    call display_Avoid2
 
     call display_Player1_name
     call display_Player2_name
+  
 
+   
 
     call DrawPath_
     call genPowerUps
@@ -34,6 +25,22 @@ MAIN_LOOP PROC
 
     CALL CalcEnd
     CALL intiPos
+
+    call drawEvilPowerUp
+    call drawRedPowerUp
+    call drawBluePowerUp
+    call drawGreenPowerUp
+    
+    MOV starting_column, 35
+    MOV blue_powerup_starting_column, 70
+    MOV evil_powerup_starting_column, 100
+    MOV red_powerup_starting_column, 130
+
+    call drawEvilPowerUp
+    call drawRedPowerUp
+    call drawBluePowerUp
+    call drawGreenPowerUp
+
     
     ;MAIN LOOP
     CHECK_TIME:
@@ -87,14 +94,18 @@ MAIN_LOOP PROC
     CALL WIN_2
     JMP ENDCHK
 
+
+
     NO_WIN:
     call display_speedUp1
     call display_speedDown1
     call display_Avoid1
+    call display_CreationPower1
 
     call display_speedup2
     call display_speedDown2
     call display_Avoid2
+    call display_CreationPower2
 
 
     Call display_percentage
@@ -240,10 +251,11 @@ display_speedDown1 PROC
     XOR AX, AX
     mov ah, 2
     mov dh, 400/CharHeight + 2    ;ROW
-    mov dl, 580/CharWidth         ;COLUMN
+    mov dl, 570/CharWidth         ;COLUMN
     mov bh, 0         
-    mov bh, 00h
+    mov bh, 00h 
     int 10h
+
     MOV ah, 0
     MOV AL, SpeedDown1
     call OUTPUT_NUM
@@ -252,27 +264,38 @@ display_speedDown1 ENDP
 
 display_Avoid1 PROC
     XOR AX, AX
-    MOV AL, Avoid1
-    ADD AL, 30H
-    MOV [Avoid1_Text], AL
-
     mov ah, 2
     mov dh, 400/CharHeight + 2    ;ROW
-    mov dl, 560/CharWidth         ;COLUMN
+    mov dl, 540/CharWidth         ;COLUMN
     mov bh, 0         
     mov bh, 00h
     int 10h
 
-    mov ah, 9
-    mov dx, offset Avoid1_Text
-    int 21h
+    MOV ah, 0
+    MOV AL, Avoid1
+    call OUTPUT_NUM
     RET
 display_Avoid1 ENDP
+
+display_CreationPower1 PROC
+    XOR AX, AX
+    mov ah, 2
+    mov dh, 400/CharHeight + 2    ;ROW
+    mov dl, 510/CharWidth         ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
+    MOV ah, 0
+    MOV AL, CreationPower1
+    call OUTPUT_NUM
+    RET
+display_CreationPower1 ENDP
 
 display_speedup2 PROC
     mov ah, 2
     mov dh, 400/CharHeight + 2    ;ROW
-    mov dl, 40/CharWidth         ;COLUMN
+    mov dl, 35/CharWidth         ;COLUMN
     mov bh, 0         
     mov bh, 00h
     int 10h
@@ -299,22 +322,33 @@ display_speedDown2 ENDP
 
 display_Avoid2 PROC
     XOR AX, AX
-    MOV AL, Avoid2
-    ADD AL, 30H
-    MOV [Avoid2_Text], AL
-
     mov ah, 2
     mov dh, 400/CharHeight + 2    ;ROW
-    mov dl, 90/CharWidth         ;COLUMN
+    mov dl, 100/CharWidth         ;COLUMN
     mov bh, 0         
     mov bh, 00h
     int 10h
 
-    mov ah, 9
-    mov dx, offset Avoid2_Text
-    int 21h
+    MOV ah, 0
+    MOV AL, Avoid2
+    call OUTPUT_NUM
     RET
 display_Avoid2 ENDP
+
+display_CreationPower2 PROC
+    XOR AX, AX
+    mov ah, 2
+    mov dh, 400/CharHeight + 2    ;ROW
+    mov dl, 130/CharWidth         ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
+    MOV ah, 0
+    MOV AL, CreationPower2
+    call OUTPUT_NUM
+    RET
+display_CreationPower2 ENDP
 
 intiPos PROC 
 
@@ -606,8 +640,8 @@ Controls1:
     JNE CheckCreate
     CMP Avoid1,1
     JNE CheckCreate
-    MOV UseAvoid1,1
-    MOV Avoid1,0
+    MOV UseAvoid1, 1
+    DEC Avoid1
 
     CheckCreate:
     CMP [KeyList + xkey],1
@@ -615,7 +649,7 @@ Controls1:
     CMP CreationPower1,1
     JNE CHANGE_DIRECTION_1
     CALL DrawObstaclePower
-    MOV CreationPower1,0
+    DEC CreationPower1
 
 CHANGE_DIRECTION_1:
     
@@ -721,7 +755,7 @@ Controls2:
     CMP Avoid2,1
     JNE CheckCreate2
     MOV UseAvoid2,1
-    MOV Avoid2,0
+    DEC Avoid2
 
     CheckCreate2:
     CMP [KeyList + l],1
@@ -730,7 +764,7 @@ Controls2:
     CMP CreationPower2,1
     JNE CHANGE_DIRECTION_2
     CALL DrawObstaclePower2 
-    MOV CreationPower2,0
+    DEC CreationPower2
 
 CHANGE_DIRECTION_2:
     
@@ -1089,7 +1123,7 @@ CheckOoutOfPath PROC
         CheckAgain4:
         CMP AL,SpeedUpColor
         JNZ CheckAgain
-        mov SpeedUp1,1
+        INC SpeedUp1
         call ClearPwr
 
         ;CHECK SPEED DOWN
@@ -1105,13 +1139,13 @@ CheckOoutOfPath PROC
         JNZ CheckAgain2
 
         ; CALL DrawObstaclePower
-        MOV CreationPower1,1
+        INC CreationPower1
         CALL ClearPwr
 
         CheckAgain2:
         CMP AL,AvoidObstaclColor
         JNZ CheckAgain3
-        MOV Avoid1,1
+        INC Avoid1
         CALL ClearPwr
         
         CheckAgain3:
@@ -1196,7 +1230,7 @@ CheckOoutOfPath2 PROC
         CheckAgain24:
         CMP AL,SpeedUpColor
         JNZ CheckAgain22_
-        mov SpeedUp2,1
+        INC SpeedUp2
         call ClearPwr
 
         ;CHECK SPEED DOWN
@@ -1204,19 +1238,18 @@ CheckOoutOfPath2 PROC
         CMP AL,SpeedDownColor
         JNZ CheckAgain21
         MOV FoundSpeedDown2,1
-        CALL ClearPwr
 
         ;CHECK CREATE OBSTACLES
         CheckAgain21:
         CMP AL,CreateObstaclColor
         JNZ CheckAgain22
-        MOV CreationPower2,1
+        INC CreationPower2
         CALL ClearPwr
 
         CheckAgain22:
         CMP AL,AvoidObstaclColor
         JNZ CheckAgain23
-        MOV Avoid2,1
+        INC Avoid2
         CALL ClearPwr
         
         CheckAgain23:
@@ -1928,7 +1961,7 @@ display_percentage PROC
     DIV Path_Length_dec
     
     mov ah, 2
-    mov dh, SCREEN_HEIGHT/CharHeight - 2     ;ROW
+    mov dh, 470/CharHeight    ;ROW
     mov dl, 70                               ;COLUMN
     mov bh, 0         
     int 10h
@@ -1950,7 +1983,7 @@ display_percentage PROC
 
 
     mov ah, 2
-    mov dh, SCREEN_HEIGHT/CharHeight - 2     ;ROW
+    mov dh, 470/CharHeight    ;ROW
     mov dl, 5                               ;COLUMN
     mov bh, 0         
     int 10h
@@ -2115,3 +2148,147 @@ CalcEnd PROC
     RET
 
 CalcEnd ENDP
+
+;description
+load_players_cars PROC
+    CMP player1_character, 1
+    JNE player1_checkCar2
+    call loadFlameCarForOne
+    JMP Get_Player2_Car
+   
+    player1_checkCar2:
+    CMP player1_character, 2
+    JNE player1_checkCar3
+    CALL loadRedCarForOne
+    JMP Get_Player2_Car
+
+    player1_checkCar3:
+    CMP player1_character, 3
+    JNE player1_checkCar4
+    call loadBlueCarForOne
+    JMP Get_Player2_Car
+
+    player1_checkCar4:
+    CALL loadYellowCarForOne
+
+
+    Get_Player2_Car:
+    CMP player2_character, 1
+    JNE player2_checkCar2
+    call loadFlameCarForTwo
+    JMP End_load_Cars
+   
+    player2_checkCar2:
+    CMP player2_character, 2
+    JNE player2_checkCar3
+    CALL loadRedCarForTwo
+    JMP End_load_Cars
+
+    player2_checkCar3:
+    CMP player2_character, 3
+    JNE player2_checkCar4
+    call loadBlueCarForTwo
+    JMP End_load_Cars
+
+    player2_checkCar4:
+    CALL loadYellowCarForTwo
+
+    End_load_Cars:
+    RET
+load_players_cars ENDP
+
+drawGreenPowerUp PROC
+        MOV DX, offset greenPower_file_name
+        MOV DI, offset greenPower_file_handle
+        call openFile
+
+        MOV CX, greenPower_file_size
+        MOV DX, offset greenPower_file
+        MOV BX, [greenPower_file_handle]
+        call ReadFileToMemory
+
+        MOV SI, offset greenPower_file
+        MOV AX, starting_row
+        MOV [START_ROW], AX
+         MOV AX, starting_column
+        MOV [START_COLUMN], AX
+        MOV [AUX_IMAGE_HEIGHT], greenPower_height
+        MOV [AUX_IMAGE_WIDTH], greenPower_width
+        CALL drawImage
+        RET
+    drawGreenPowerUp ENDP
+
+    drawRedPowerUp PROC
+    MOV DX, offset redPower_file_name
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, redPower_file_size
+    MOV DX, offset redPower_file
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    MOV SI, offset redPower_file
+    MOV AX, red_powerup_starting_row
+    MOV [START_ROW], AX
+    MOV AX, red_powerup_starting_column
+    MOV [START_COLUMN], AX
+    MOV [AUX_IMAGE_HEIGHT], redPower_height
+    MOV [AUX_IMAGE_WIDTH], redPower_width
+    CALL drawImage
+    RET
+    drawRedPowerUp ENDP
+
+    drawBluePowerUp PROC
+    MOV DX, offset bluePower_file_name
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, bluePower_file_size
+    MOV DX, offset bluePower_file
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    MOV SI, offset bluePower_file
+    MOV AX, blue_powerup_starting_row
+    MOV [START_ROW], AX
+    MOV AX, blue_powerup_starting_column
+    MOV [START_COLUMN], AX
+    MOV [AUX_IMAGE_HEIGHT], bluePower_height
+    MOV [AUX_IMAGE_WIDTH], bluePower_width
+    CALL drawImage
+    RET
+    drawBluePowerUp ENDP
+
+    drawEvilPowerUp PROC
+    MOV DX, offset evilPower_file_name
+    MOV DI, offset file_handle
+    CALL openFile
+
+    MOV CX, evilPower_file_size
+    MOV DX, offset evilPower_file
+    MOV BX, [file_handle]
+    CALL ReadFileToMemory
+
+    MOV SI, offset evilPower_file
+    MOV AX, evil_powerup_starting_row
+    MOV [START_ROW], AX
+    MOV AX, evil_powerup_starting_column
+    MOV [START_COLUMN], AX
+    MOV [AUX_IMAGE_HEIGHT], evilPower_height
+    MOV [AUX_IMAGE_WIDTH], evilPower_width
+    CALL drawImage
+    RET
+drawEvilPowerUp ENDP
+
+;description
+draw_All_Powers PROC
+    ; Mov starting_row, 350
+    ; Mov starting_row, 600
+
+   
+    call drawEvilPowerUp
+    call drawRedPowerUp
+    call drawBluePowerUp
+    call drawGreenPowerUp
+draw_All_Powers ENDP

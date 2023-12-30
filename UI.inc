@@ -732,6 +732,7 @@ Choose PROC
     JE start_from_samer
     MOV owl_current_row, first_player
     JMP Player2_options
+
     start_from_samer:
     MOV owl_current_row, second_player
 
@@ -762,54 +763,7 @@ Choose PROC
     
     JMP Check_Keypress2
 
-    
-    ;Example to get the characters selected by the two players
     EXIT:
-    CMP player1_character, 1
-    JNE ch2
-    CALL drawWard
-    JMP EXIT2
-   
-    ch2:
-    CMP player1_character, 2
-    JNE ch3
-    CALL drawSamer
-    JMP EXIT2
-
-    ch3:
-    CMP player1_character, 3
-    JNE ch4
-    CALL drawMays
-    JMP EXIT2
-
-    ch4:
-    CALL drawBassam
-
-    EXIT2:
-    CMP player2_character, 1
-    JNE ch22
-    CALL drawWard
-    JMP EXIT3
-   
-    ch22:
-    CMP player2_character, 2
-    JNE ch33
-    CALL drawSamer
-    JMP EXIT3
-
-    ch33:
-    CMP player2_character, 3
-    JNE ch44
-    CALL drawMays
-    JMP EXIT3
-
-    ch44:
-    CALL drawBassam
-
-    EXIT3:
-    MOV AH, 0
-    INT 16H
-
     RET
 
 Choose ENDP

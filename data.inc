@@ -175,17 +175,47 @@ UseAvoid2   db      0
 
 CreationPower2        db      0
 
-;TEXT POWERUPS PLAYER1
-SpeedUp1_Text      DB     '0', '$'
-SpeedDown1_Text    DB     '0', '$'
-Avoid1_Text        DB     '0', '$'
+;status bar power ups
+;greenPowerUp FILE
+greenPower_width equ 15
+greenPower_height equ 11
+greenPower_file_name db '/bin/GPower.bin', 0
+greenPower_file_handle dw ?
+greenPower_file_size equ greenPower_height * greenPower_width
+greenPower_file db greenPower_file_size dup(?)
+starting_row dw 450
+starting_column dw 600
 
+;---------------------------------------
+;red powerup
+redPower_width equ 14
+redPower_height equ 11
+redPower_file_name db '/bin/RPower.bin', 0
+redPower_file_size equ redPower_height * redPower_width
+redPower_file db redPower_file_size dup(?)
+red_powerup_starting_row dw 450
+red_powerup_starting_column dw 510
 
+;---------------------------------------
+;blue powerup
+bluePower_width equ 15
+bluePower_height equ 11
+bluePower_file_name db '/bin/BPower.bin', 0
+bluePower_file_size equ bluePower_height * bluePower_width
+bluePower_file db bluePower_file_size dup(?)
+blue_powerup_starting_row dw 450
+blue_powerup_starting_column dw 570
 
-;TEXT POWERUPS PLAYER1
-SpeedUp2_Text      DB     '0', '$'
-SpeedDown2_Text    DB     '0', '$'
-Avoid2_Text        DB     '0', '$'
+;---------------------------------------
+;evil powerup
+evilPower_width equ 12
+evilPower_height equ 11
+evilPower_file_name db '/bin/EPower.bin', 0
+evilPower_file_size equ evilPower_height * evilPower_width
+evilPower_file db evilPower_file_size dup(?)
+evil_powerup_starting_row dw 450
+evil_powerup_starting_column dw 540
+
 
 ;Display players' names
 player1_name_text    DB     'player1', '$'
