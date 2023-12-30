@@ -115,6 +115,8 @@ MAIN PROC FAR
 
     call ConfigKeyboard
 
+    CALL SetConfig
+
     call MAIN_LOOP
 
     CALL ResetKeyboard
@@ -439,6 +441,23 @@ findCarRemSteps endp
 ;     RET
 
 ; LoadCarsForPlayers ENDP
+SetConfig PROC
+              MOV  DX,3FBH
+              MOV  AL,10000000B
+              OUT  DX,AL
 
+              MOV  DX,3F8H
+              MOV  AL,0CH
+              OUT  DX,AL
+
+              MOV  DX,3F9H
+              MOV  AL,00H
+              OUT  DX,AL
+
+              MOV  DX,3FBH
+              MOV  AL,00011011B
+              OUT  DX,AL
+              RET
+SetConfig ENDP
 
 END MAIN

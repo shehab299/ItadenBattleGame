@@ -657,6 +657,14 @@ Controls1:
     XnotPressed:
     AND STATE1,11111110B
 
+    TransimtAgain:
+    CALL checkTransimt
+    CMP DATA_OUTBOUND,1
+    JNE TransimtAgain
+    MOV AL,STATE1
+    MOV DataOut,AL
+    CALL sendByte
+
 CHANGE_DIRECTION_1:
     
     MOV AL,PrevState
@@ -676,6 +684,14 @@ movePlayer1 ENDP
 movePlayer2 PROC
 
     PUSHA
+
+    RecieveAgain:
+    CALL checkRecieve2
+    CMP DATA_INBOUND,1
+    JNE RecieveAgain
+    CALL recieveByte
+    MOV AL,DataIn
+    MOV STATE2,AL
 
     MOV BX,speed2_X
     MOV DX,speed2_Y
@@ -726,6 +742,10 @@ Controls2:
     mov MovingCar,2
     SUB AUX_X_2,BX
     ADD CurrentState2,16
+
+    JMP checkSpeedingUp2
+    NoState:
+    JMP CHANGE_DIRECTION_2
 
     checkSpeedingUp2:
     MOV AL,STATE2
@@ -2173,3 +2193,53 @@ CalcEnd PROC
     RET
 
 CalcEnd ENDP
+
+checkRecieve2 PROC  ;THERE IS DATA => DATA_INBOUND DB ?
+
+    MOV  DX,3FDH
+    IN AL,DX
+    AND AL,1
+    JZ  NO_DATA
+
+    MOV DATA_INBOUND,1
+    RET 
+
+    NO_DATA:
+    MOV DATA_INBOUND,0
+    RET
+checkRecieve2 ENDP
+
+recieveByte PROC 
+
+    MOV  DX,03F8H
+    IN   AL,DX
+    MOV  DataIn,AL
+
+    RET
+recieveByte ENDP
+
+checkTransimt PROC
+
+    MOV  DX,3FDH
+    IN   AL,DX
+    AND  AL,00100000B
+    JZ  NOT_EMPTY
+
+    MOV DATA_OUTBOUND,1
+    RET 
+
+    NOT_EMPTY:
+    MOV DATA_OUTBOUND,0
+    RET
+
+checkTransimt ENDP
+
+sendByte PROC
+
+    MOV  DX,3F8H
+    MOV AL,DataOut
+    OUT  DX,AL
+
+    RET
+sendByte ENDP
+
