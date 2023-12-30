@@ -658,9 +658,7 @@ Controls1:
     AND STATE1,11111110B
 
     TransimtAgain:
-    CALL checkTransimt
-    CMP DATA_OUTBOUND,1
-    JNE TransimtAgain
+    CALL CHECKSEND
     MOV AL,STATE1
     MOV DataOut,AL
     CALL sendByte
@@ -686,10 +684,10 @@ movePlayer2 PROC
     PUSHA
 
     RecieveAgain:
-    CALL checkRecieve2
-    CMP DATA_INBOUND,1
-    JNE RecieveAgain
-    CALL recieveByte
+    CALL CHECKRECIEVE
+    CMP RecieveFlag,1
+    JNE NoState
+    CALL RecieveByte
     MOV AL,DataIn
     MOV STATE2,AL
 
@@ -2194,52 +2192,41 @@ CalcEnd PROC
 
 CalcEnd ENDP
 
-checkRecieve2 PROC  ;THERE IS DATA => DATA_INBOUND DB ?
-
+CHECKSEND PROC
     MOV  DX,3FDH
-    IN AL,DX
-    AND AL,1
-    JZ  NO_DATA
+    LOP1:    IN   AL,DX
+             AND  AL,00100000B
+             JZ   LOP1
+    ret
+    CHECKSEND ENDP
 
-    MOV DATA_INBOUND,1
-    RET 
+CHECKRECIEVE PROC
 
-    NO_DATA:
-    MOV DATA_INBOUND,0
-    RET
-checkRecieve2 ENDP
+     MOV  DX,3FDH
+     IN   AL,DX
+    AND  AL,1
+    JZ   NoRecieve
+    mov RecieveFlag,1
+    jmp donerecieve
 
-recieveByte PROC 
 
-    MOV  DX,03F8H
-    IN   AL,DX
-    MOV  DataIn,AL
+    NoRecieve:
+    mov RecieveFlag,0
+donerecieve:
+    ret
+    CHECKRECIEVE ENDP
 
-    RET
-recieveByte ENDP
+RecieveByte  proc
+MOV  DX,03F8H
+IN   AL,DX
+MOV  DataIn,AL
+ret
+RecieveByte endp
 
-checkTransimt PROC
-
-    MOV  DX,3FDH
-    IN   AL,DX
-    AND  AL,00100000B
-    JZ  NOT_EMPTY
-
-    MOV DATA_OUTBOUND,1
-    RET 
-
-    NOT_EMPTY:
-    MOV DATA_OUTBOUND,0
-    RET
-
-checkTransimt ENDP
-
-sendByte PROC
-
-    MOV  DX,3F8H
-    MOV AL,DataOut
-    OUT  DX,AL
-
-    RET
-sendByte ENDP
+sendbyte proc
+MOV  DX,3F8H
+ MOV  AL,DataOut
+ OUT  DX,AL
+ret
+sendbyte endp
 
