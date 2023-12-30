@@ -32,6 +32,7 @@ MAIN_LOOP PROC
 
     call drawFinishLine
 
+    CALL CalcEnd
     CALL intiPos
     
     ;MAIN LOOP
@@ -62,6 +63,11 @@ MAIN_LOOP PROC
     JMP ENDCHK
 
     GAME:
+
+    PUSHA
+    CALL checkEndGame
+    POPA
+
     CMP DL, TIME_AUX
     JE CHECK_TIME
 
@@ -113,6 +119,8 @@ MAIN_LOOP PROC
     call movePlayer2
 
     CALL FinalValidation
+
+
 
     ;DRAW FIRST CAR
     MOV BX,1
@@ -188,12 +196,6 @@ TIE PROC
     RET
 TIE ENDP
 
-
-
-
-
-
-
 display_Player1_name PROC
     mov ah, 2
     mov dh, SCREEN_HEIGHT/CharHeight - 4     ;ROW
@@ -219,7 +221,6 @@ display_Player2_name PROC
     int 21h
     RET
 display_Player2_name ENDP
-
 
 display_speedup1 PROC
     XOR AX, AX
@@ -315,27 +316,6 @@ display_Avoid2 PROC
     RET
 display_Avoid2 ENDP
 
-
-markEnd PROC
-
-    MOV BX,Path_Length
-    ADD BX,Path_Length
-    DEC BX
-    DEC BX
-
-    MOV CX,[pathx+BX]
-    MOV DX,[pathy+BX]
-
-    MOV X,CX
-    MOV Y,DX
-
-    mov color,04h
-    call drawSquare
-
-    RET
-
-markEnd ENDP
-
 intiPos PROC 
 
     PUSH BX DX AX DX
@@ -359,12 +339,12 @@ intiPos PROC
     MOV AX,DX
     MOV DX,CELL_H
     MUL DX
-    ADD AX,CELL_H/3
+    ADD AX,CELL_H/4
 
     MOV Y_POS,AX
     MOV AUX_Y,AX
 
-    ADD AX,CELL_H/3
+    ADD AX,CELL_H/2
 
     MOV Y_POS_2,AX
     MOV AUX_Y_2,AX
@@ -1135,9 +1115,9 @@ CheckOoutOfPath PROC
         CALL ClearPwr
         
         CheckAgain3:
-        CMP AL,0fh
-        JNE AAAAAAAAAAAA
-        MOV PLAYER1_WIN,1
+        ; CMP AL,0fh
+        ; JNE AAAAAAAAAAAA
+        ; MOV PLAYER1_WIN,1
 
         AAAAAAAAAAAA:
         ;COMPLETE LOOP
@@ -1240,9 +1220,9 @@ CheckOoutOfPath2 PROC
         CALL ClearPwr
         
         CheckAgain23:
-        CMP AL,0fh
-        JNE AAAAAAAAAAA
-        MOV PLAYER2_WIN,1
+        ; CMP AL,0fh
+        ; JNE AAAAAAAAAAA
+        ; MOV PLAYER2_WIN,1
 
         AAAAAAAAAAA:
         ;COMPLETE LOOP
@@ -1282,8 +1262,6 @@ CheckOoutOfPath2 PROC
     RET
 
 CheckOoutOfPath2 ENDP
-
-
 
 DrawObstaclePower PROC
     PUSHA  
@@ -1405,7 +1383,6 @@ AvoidObstacle PROC
     POP DX
     RET
 AvoidObstacle ENDP
-
 
 Drawobstacle PROC ;al => color ;cx => column ;dx => row
     MOV AL,04H
@@ -1790,106 +1767,105 @@ SetFourCorners PROC
 
     POPA
     RET
-    SetFourCorners ENDP
+SetFourCorners ENDP
 
-    CalcCornersFUN PROC
-        CMP FirstVertical,1
-        JNZ HOR  
-        MOV CornerTLRow,BX
-        SUB CornerTLRow,17
-        MOV CornerTLCol,AX
-        SUB CornerTLCol,9
+CalcCornersFUN PROC
+    CMP FirstVertical,1
+    JNZ HOR  
+    MOV CornerTLRow,BX
+    SUB CornerTLRow,17
+    MOV CornerTLCol,AX
+    SUB CornerTLCol,9
 
-        MOV CornerTRRow,BX
-        SUB CornerTRRow,17
-        MOV CornerTRCol,AX
-        ADD CornerTRCol,9
+    MOV CornerTRRow,BX
+    SUB CornerTRRow,17
+    MOV CornerTRCol,AX
+    ADD CornerTRCol,9
 
-        MOV CornerBLRow,BX
-        ADD CornerBLRow,17
-        MOV CornerBLCol,AX
-        SUB CornerBLCol,9
+    MOV CornerBLRow,BX
+    ADD CornerBLRow,17
+    MOV CornerBLCol,AX
+    SUB CornerBLCol,9
 
-        MOV CornerBRRow,BX
-        ADD CornerBRRow,17
-        MOV CornerBRCol,AX
-        ADD CornerBRCol,9
+    MOV CornerBRRow,BX
+    ADD CornerBRRow,17
+    MOV CornerBRCol,AX
+    ADD CornerBRCol,9
 
-        JMP CALC1DONE
+    JMP CALC1DONE
 
-        HOR:
-        MOV CornerTLRow,BX
-        SUB CornerTLRow,9
-        MOV CornerTLCol,AX
-        SUB CornerTLCol,17
+    HOR:
+    MOV CornerTLRow,BX
+    SUB CornerTLRow,9
+    MOV CornerTLCol,AX
+    SUB CornerTLCol,17
 
-        MOV CornerTRRow,BX
-        SUB CornerTRRow,9
-        MOV CornerTRCol,AX
-        ADD CornerTRCol,17
+    MOV CornerTRRow,BX
+    SUB CornerTRRow,9
+    MOV CornerTRCol,AX
+    ADD CornerTRCol,17
 
-        MOV CornerBLRow,BX
-        ADD CornerBLRow,9
-        MOV CornerBLCol,AX
-        SUB CornerBLCol,17
+    MOV CornerBLRow,BX
+    ADD CornerBLRow,9
+    MOV CornerBLCol,AX
+    SUB CornerBLCol,17
 
-        MOV CornerBRRow,BX
-        ADD CornerBRRow,9
-        MOV CornerBRCol,AX
-        ADD CornerBRCol,17
-        CALC1DONE:
-        RET
-        CalcCornersFUN ENDP
+    MOV CornerBRRow,BX
+    ADD CornerBRRow,9
+    MOV CornerBRCol,AX
+    ADD CornerBRCol,17
+    CALC1DONE:
+    RET
+    CalcCornersFUN ENDP
 
-        CalcCorners2FUN PROC
-        CMP SecondVertical,1
-        JNZ HOR2  
-        MOV CornerTLRow2,BX
-        SUB CornerTLRow2,17
-        MOV CornerTLCol2,AX
-        SUB CornerTLCol2,9
+CalcCorners2FUN PROC
+CMP SecondVertical,1
+JNZ HOR2  
+MOV CornerTLRow2,BX
+SUB CornerTLRow2,17
+MOV CornerTLCol2,AX
+SUB CornerTLCol2,9
 
-        MOV CornerTRRow2,BX
-        SUB CornerTRRow2,17
-        MOV CornerTRCol2,AX
-        ADD CornerTRCol2,9
+MOV CornerTRRow2,BX
+SUB CornerTRRow2,17
+MOV CornerTRCol2,AX
+ADD CornerTRCol2,9
 
-        MOV CornerBLRow2,BX
-        ADD CornerBLRow2,17
-        MOV CornerBLCol2,AX
-        SUB CornerBLCol2,9
+MOV CornerBLRow2,BX
+ADD CornerBLRow2,17
+MOV CornerBLCol2,AX
+SUB CornerBLCol2,9
 
-        MOV CornerBRRow2,BX
-        ADD CornerBRRow2,17
-        MOV CornerBRCol2,AX
-        ADD CornerBRCol2,9
+MOV CornerBRRow2,BX
+ADD CornerBRRow2,17
+MOV CornerBRCol2,AX
+ADD CornerBRCol2,9
 
-        JMP CALC2DONE
+JMP CALC2DONE
 
-        HOR2:
-        MOV CornerTLRow2,BX
-        SUB CornerTLRow2,9
-        MOV CornerTLCol2,AX
-        SUB CornerTLCol2,17
+HOR2:
+MOV CornerTLRow2,BX
+SUB CornerTLRow2,9
+MOV CornerTLCol2,AX
+SUB CornerTLCol2,17
 
-        MOV CornerTRRow2,BX
-        SUB CornerTRRow2,9
-        MOV CornerTRCol2,AX
-        ADD CornerTRCol2,17
+MOV CornerTRRow2,BX
+SUB CornerTRRow2,9
+MOV CornerTRCol2,AX
+ADD CornerTRCol2,17
 
-        MOV CornerBLRow2,BX
-        ADD CornerBLRow2,9
-        MOV CornerBLCol2,AX
-        SUB CornerBLCol2,17
+MOV CornerBLRow2,BX
+ADD CornerBLRow2,9
+MOV CornerBLCol2,AX
+SUB CornerBLCol2,17
 
-        MOV CornerBRRow2,BX
-        ADD CornerBRRow2,9
-        MOV CornerBRCol2,AX
-        ADD CornerBRCol2,17
-        CALC2DONE:
-        RET
-        CalcCorners2FUN ENDP
-
+MOV CornerBRRow2,BX
+ADD CornerBRRow2,9
+MOV CornerBRCol2,AX
+ADD CornerBRCol2,17
+CALC2DONE:
+RET
+CalcCorners2FUN ENDP
 
 displayTime     PROC
     PUSHA
@@ -1988,7 +1964,6 @@ display_percentage PROC
     RET
 display_percentage ENDP
 
-
 OUTPUT_NUM PROC
     mov bl,100
     div bl
@@ -2013,3 +1988,128 @@ OUTPUT_NUM PROC
     int 21h
     RET
 OUTPUT_NUM ENDP
+
+
+
+
+
+checkEndGame PROC 
+    ;PLAYER1
+    MOV AL,DIRS
+    MOV AH,0
+    MOV CX,Y_POS
+    MOV DX,X_POS
+    CALL getDirctionParamaters    
+
+    ;FRONT CORNER
+    ADD CX,[SUB_HEIGHT]
+    ADD DX,[SUB_WIDTH]
+
+    CALL checkEndRange
+    cmp AUX_BOOL,1
+    JE  FIRST_WIN
+    ; DO SOMETHING
+
+    ;SECOND CORNER
+    SUB DX,[AUX_IMAGE_WIDTH]
+
+    CALL checkEndRange
+    cmp AUX_BOOL,1
+    JE  FIRST_WIN
+
+    ;PlAYER2
+    MOV AL,DIRS2
+    MOV AH,0
+    MOV CX,Y_POS_2
+    MOV DX,X_POS_2
+    CALL getDirctionParamaters
+
+    ;FRONT CORNER
+    ADD CX,[SUB_HEIGHT]
+    ADD DX,[SUB_WIDTH]
+
+    CALL checkEndRange
+    cmp AUX_BOOL,1
+    JE  SECOND_WIN
+
+    ;SECOND CORNER
+    SUB DX,[AUX_IMAGE_WIDTH]
+
+    CALL checkEndRange
+    cmp AUX_BOOL,1
+    JE  SECOND_WIN
+
+    JMP JUST_END
+
+    FIRST_WIN:
+    MOV PLAYER1_WIN,1
+
+    SECOND_WIN:
+    MOV PLAYER2_WIN,1
+
+    JUST_END:
+    RET
+
+checkEndGame ENDP
+
+checkEndRange PROC ;CX => ROW / DX => COLUMN
+
+
+RANGE_Y:
+    CMP CX,END_END_Y
+    JNB END_NOT
+
+    CMP CX,END_START_Y
+    JNA END_NOT
+
+RANGE_X:
+    CMP DX,END_END_X
+    JNB END_NOT
+
+    CMP DX,END_START_X
+    JNA END_NOT
+
+    MOV AUX_BOOL,1
+    RET
+
+    END_NOT:
+    MOV AUX_BOOL,0
+
+    
+    RET
+checkEndRange ENDP
+
+CalcEnd PROC
+
+    MOV BX,Path_Length
+    ADD BX,Path_Length
+    SUB BX,2
+
+    MOV CX,[pathx+BX]
+    MOV DX,[pathy+BX]
+
+
+    ;CALCULATE X POSES
+    PUSH dx
+
+    MOV DX,0
+    MOV AX,CELL_W
+    MUL CX
+
+    MOV END_START_X,AX
+    ADD AX,CELL_W
+    MOV END_END_X,AX
+
+    POP dx
+
+    ;CALCULATE Y POSES
+    MOV AX,CELL_H
+    MUL DX
+
+    MOV END_START_Y,AX
+    ADD AX,CELL_H
+    MOV END_END_Y,AX
+
+    RET
+
+CalcEnd ENDP
