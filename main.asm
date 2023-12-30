@@ -88,13 +88,13 @@ MAIN PROC FAR
     call getInfo
 
     ;To display the names
-    mov ah, 9
-    mov dx, offset player1_name + 2
-    int 21h
+    ; mov ah, 9
+    ; mov dx, offset player1_name + 2
+    ; int 21h
 
-    mov ah, 9
-    mov dx, offset player2_name + 2
-    int 21h
+    ; mov ah, 9
+    ; mov dx, offset player2_name + 2
+    ; int 21h
 
 
     ;CHOOSE CHARACTER
@@ -390,75 +390,5 @@ findCarRemSteps proc ;DI -> X_POS ; SI -> Y_POS
     jl search_findcarindex
     ret
 findCarRemSteps endp
-
-; LoadCarsForPlayers proc
-
-;     ;PLAYER 1
-
-;     ;FIRST CAR
-;     CMP player1_carIndex, 0
-;     JNE SECOND_CAR
-;     CALL loadFlameCarForOne
-
-;     SECOND_CAR:
-;     CMP player1_carIndex, 1
-;     JNE THIRD_CAR
-;     CALL loadRedCarForOne
-
-
-;     THIRD_CAR:
-;     CMP player1_carIndex, 2
-;     JNE FOURTH_CAR
-;     CALL loadBlueCarForOne
-
-;     FOURTH_CAR:
-;     CMP player1_carIndex, 3
-;     JNE PLAYER2_CAR
-;     CALL loadYellowCarForOne
-
-;     PLAYER2_CAR:
-
-;     ;FIRST CAR
-;     CMP player2_carIndex, 0
-;     JNE SECOND_CAR_2
-;     CALL loadFlameCarForTwo
-
-;     SECOND_CAR_2:
-;     CMP player2_carIndex, 1
-;     JNE THIRD_CAR_2
-;     CALL loadRedCarForTwo
-
-;     THIRD_CAR:
-;     CMP player1_carIndex, 2
-;     JNE FOURTH_CAR_2
-;     CALL loadBlueCarForTwo
-
-;     FOURTH_CAR:
-;     CMP player1_carIndex, 3
-;     JNE END_CAR
-;     CALL loadYellowCarForTwo
-
-;     END_CAR:
-;     RET
-
-; LoadCarsForPlayers ENDP
-SetConfig PROC
-              MOV  DX,3FBH
-              MOV  AL,10000000B
-              OUT  DX,AL
-
-              MOV  DX,3F8H
-              MOV  AL,0CH
-              OUT  DX,AL
-
-              MOV  DX,3F9H
-              MOV  AL,00H
-              OUT  DX,AL
-
-              MOV  DX,3FBH
-              MOV  AL,00011011B
-              OUT  DX,AL
-              RET
-SetConfig ENDP
 
 END MAIN
