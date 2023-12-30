@@ -604,6 +604,9 @@ Controls1:
 
     CMP SpeedUp1,0
     JE checkSpeedingDown
+    CMP UseSpeedUp1,1
+    JE checkSpeedingDown
+
     DEC SpeedUp1
 
     MOV UseSpeedUp1,1
@@ -612,7 +615,7 @@ Controls1:
     MOV AH,2CH
     INT 21H
     MOV starttimeUP1,DH
-    ; MOV counterup1,0
+    MOV counterup1,0
     POPA
 
     MOV speed1_X,IncreasedSpeed
@@ -624,6 +627,9 @@ Controls1:
 
     CMP SpeedDown1,0
     JE CheckAvoid
+    CMP UseSpeedDown1,1
+    JE CheckAvoid
+
     DEC SpeedDown1
     MOV UseSpeedDown1,1
     PUSHA
@@ -631,6 +637,7 @@ Controls1:
     MOV AH,2CH
     INT 21H
     MOV starttimeDown1,DH
+    MOV counterDown1,0
     POPA
     MOV speed2_X,DecreasedSpeed
     MOV speed2_Y,DecreasedSpeed
@@ -638,16 +645,19 @@ Controls1:
     CheckAvoid:
     CMP [KeyList + z],1
     JNE CheckCreate
-    CMP Avoid1,1
-    JNE CheckCreate
+    CMP Avoid1,0
+    JE CheckCreate
+    CMP UseAvoid1,1
+    JE CheckCreate
+
     MOV UseAvoid1, 1
     DEC Avoid1
 
     CheckCreate:
     CMP [KeyList + xkey],1
     JNE CHANGE_DIRECTION_1
-    CMP CreationPower1,1
-    JNE CHANGE_DIRECTION_1
+    CMP CreationPower1,0
+    JE CHANGE_DIRECTION_1
     CALL DrawObstaclePower
     DEC CreationPower1
 
@@ -717,6 +727,8 @@ Controls2:
 
     CMP SpeedUp2,0
     JE checkSpeedingDown2
+    CMP UseSpeedUp2,1
+    JE checkSpeedingDown2
     DEC SpeedUp2
 
     MOV UseSpeedUp2,1
@@ -736,6 +748,8 @@ Controls2:
 
     CMP SpeedDown2,0
     JE CheckAvoid2
+    CMP UseSpeedDown2,1
+    JE CheckAvoid2
     DEC SpeedDown2
     MOV UseSpeedDown2,1
     PUSHA
@@ -754,6 +768,8 @@ Controls2:
 
     CMP Avoid2,1
     JNE CheckCreate2
+    CMP UseAvoid2,1
+    JE CheckCreate2
     MOV UseAvoid2,1
     DEC Avoid2
 
