@@ -281,3 +281,11 @@ firstCharCheck_height equ 25
 firstCharCheck_file_size equ emptyName_height * firstCharCheck_width
 firstCharCheck_starting_row  EQU 366
 firstCharCheck_starting_column EQU 178
+
+;END POINT
+
+AUX_BOOL DB 0
+END_END_X DW ?
+END_END_Y DW ?
+END_START_X DW ?
+END_START_Y DW ?
