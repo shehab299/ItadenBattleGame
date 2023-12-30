@@ -14,6 +14,7 @@ include img.inc
 include data.inc
 
 
+
 ;ADDRESS VECTOR FOR INTERRUPTS
 INT09_BX DW ?
 INT09_ES DW ?
@@ -46,7 +47,7 @@ include keyboard.inc ;FOR KEYBOARD CONFIGURATION
 include loadCars.inc
 include grid.inc
 include loop_m.inc
-
+include Comm.inc
 
 MAIN PROC FAR
     MOV AX,@DATA
@@ -113,7 +114,7 @@ MAIN PROC FAR
 
     ;START THE GAME
 
-    call ConfigKeyboard
+    ; call ConfigKeyboard
 
     CALL SetConfig
 

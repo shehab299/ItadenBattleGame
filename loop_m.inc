@@ -3,37 +3,30 @@ MAIN_LOOP PROC
     MOV AX,@DATA
     MOV DS,AX
 
-    CALL ConfigKeyboard
+    ; CALL ConfigKeyboard
 
     MOV AX,VIDEO_MODE
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
+    CHK_IN:
+    MOV AH,0
+    INT 16H
 
-    call loadBlueCarForOne
-    call loadFlameCarForTwo
-    call Generate
+    CMP AH,W
+    JNE RECIEVE
+    CALL Generate
+    CALL SendTrack
+    jmp draw_path
 
-    call display_speedUp1
-    call display_speedDown1
-    call display_Avoid1
+    RECIEVE:
+    CMP AH,S
+    JNE CHK_IN
+    CALL RecieveTrack
 
-    call display_speedup2
-    call display_speedDown2
-    call display_Avoid2
-
-    call display_Player1_name
-    call display_Player2_name
-
-
+    draw_path:
     call DrawPath_
-    call genPowerUps
-    ; CALL genObstacles
-
     call drawFinishLine
-
-    CALL CalcEnd
-    CALL intiPos
     
     ;MAIN LOOP
     CHECK_TIME:
@@ -64,86 +57,229 @@ MAIN_LOOP PROC
 
     GAME:
 
-    PUSHA
-    CALL checkEndGame
-    POPA
 
     CMP DL, TIME_AUX
     JE CHECK_TIME
 
-    CALL DrawRandomPowerUp
-
-    ;If it is different, draw and move
     MOV TIME_AUX, DL
-
-    CMP PLAYER1_WIN,1
-    JNE CHECK_WIN_2
-    CALL WIN_1
-    JMP ENDCHK
-
-    CHECK_WIN_2:
-    CMP PLAYER2_WIN,1
-    JNE NO_WIN
-    CALL WIN_2
-    JMP ENDCHK
-
-    NO_WIN:
-    call display_speedUp1
-    call display_speedDown1
-    call display_Avoid1
-
-    call display_speedup2
-    call display_speedDown2
-    call display_Avoid2
-
-
-    Call display_percentage
-
-    CALL CheckEndPower
-
-
-    ;MOV SQUARES AND CLEAR PREVIOUS
-    call clearPos
-
-    MOV DX,X_POS
-    MOV CX,Y_POS
-    MOV PrevX1,DX
-    MOV PREVY1,CX
-
-    MOV DX,X_POS_2
-    MOV CX,Y_POS_2
-    MOV PrevX2,DX
-    MOV PREVY2,CX
-
-    call movePlayer1
-    call movePlayer2
-
-    CALL FinalValidation
-
-
-
-    ;DRAW FIRST CAR
-    MOV BX,1
-    MOV AL,DIRS
-    MOV AH,0
-    MOV CX,Y_POS
-    MOV DX,X_POS
-    CALL drawCar
-
-    ;DRAW SECOND CAR
-    MOV BX,2
-    MOV AL,DIRS2
-    MOV AH,0
-    MOV CX,Y_POS_2
-    MOV DX,X_POS_2
-    CALL drawCar
-
-
     JMP CHECK_TIME
 
 ENDCHK:
     RET
 MAIN_LOOP ENDP
+
+
+
+ 
+SendTrack PROC
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE X's
+    xLoop:
+
+    call CHECKSEND
+    mov ax,PathX[bx]
+    mov DataOut,al
+    CALL sendByte
+
+    inc bx
+    inc bx
+
+    Loop xloop
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE Y's
+    y_loop:
+
+    call CHECKSEND
+    mov ax,PathY[bx]
+    mov DataOut,al
+    CALL sendByte
+
+    inc bx
+    inc bx
+
+    Loop y_loop
+
+    RET
+
+    
+SendTrack ENDP
+
+
+RecieveTrack PROC
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE X's
+    xLoop_R:
+
+    check_recieve_again:
+
+    call CHECKRECIEVE
+    cmp RecieveFlag,1
+    jne check_recieve_again
+
+    CALL RecieveByte
+    mov al,DataIn
+    mov ah,0
+    mov PathX[bx],ax
+
+    inc bx
+    inc bx
+
+    Loop xLoop_R
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE Y's
+    y_loop_R:
+
+    check_recieve_again2:
+    call CHECKRECIEVE
+    cmp RecieveFlag,1
+    jne check_recieve_again2
+    CALL RecieveByte
+    mov al,DataIn
+    mov ah,0
+    mov PathY[bx],ax
+
+    inc bx
+    inc bx
+
+    Loop y_loop_R
+
+    RET
+
+RecieveTrack ENDP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 WIN_1 PROC
@@ -2067,10 +2203,6 @@ OUTPUT_NUM PROC
     RET
 OUTPUT_NUM ENDP
 
-
-
-
-
 checkEndGame PROC 
     ;PLAYER1
     MOV AL,DIRS
@@ -2191,42 +2323,4 @@ CalcEnd PROC
     RET
 
 CalcEnd ENDP
-
-CHECKSEND PROC
-    MOV  DX,3FDH
-    LOP1:    IN   AL,DX
-             AND  AL,00100000B
-             JZ   LOP1
-    ret
-    CHECKSEND ENDP
-
-CHECKRECIEVE PROC
-
-     MOV  DX,3FDH
-     IN   AL,DX
-    AND  AL,1
-    JZ   NoRecieve
-    mov RecieveFlag,1
-    jmp donerecieve
-
-
-    NoRecieve:
-    mov RecieveFlag,0
-donerecieve:
-    ret
-    CHECKRECIEVE ENDP
-
-RecieveByte  proc
-MOV  DX,03F8H
-IN   AL,DX
-MOV  DataIn,AL
-ret
-RecieveByte endp
-
-sendbyte proc
-MOV  DX,3F8H
- MOV  AL,DataOut
- OUT  DX,AL
-ret
-sendbyte endp
 
