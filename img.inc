@@ -19,8 +19,8 @@ player1_character DB 1
 player2_character DB 1
 
 
-player1_name db 10,'?',10 dup('$') 
-player2_name db 10,'?',10 dup('$') 
+player1_name db 10, ?, 30 dup('$')
+player2_name db 10, ?, 30 dup('$') 
 
 
 ;blank names alert

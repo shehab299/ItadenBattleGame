@@ -1996,6 +1996,7 @@ OUTPUT_NUM PROC
     push ax
     add dl,30h
     mov ah,02h
+    int 21h
     pop ax
     mov bl,10
     mov al,ah
