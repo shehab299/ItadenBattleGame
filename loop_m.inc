@@ -817,8 +817,8 @@ Controls2:
     CMP AL,00000010B
     JNE CheckCreate2
 
-    CMP Avoid2,1
-    JNE CheckCreate2
+    CMP Avoid2,0
+    JE CheckCreate2
     CMP UseAvoid2,1
     JE CheckCreate2
     MOV UseAvoid2,1
@@ -830,8 +830,8 @@ Controls2:
     CMP AL,00000001B
     JNE CHANGE_DIRECTION_2
 
-    CMP CreationPower2,1
-    JNE CHANGE_DIRECTION_2
+    CMP CreationPower2,0
+    JE CHANGE_DIRECTION_2
     CALL DrawObstaclePower2 
     DEC CreationPower2
 
