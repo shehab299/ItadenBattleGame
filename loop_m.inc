@@ -559,15 +559,24 @@ movePlayer1 PROC
 ;WSDAQEZX  -> STATE1
 
 
+;WSDAQEZX  -> STATE1
+
+
 Controls1:
     checkUp:    
     ;if 'w' is pressed, move up
     CMP [KeyList + w], 1
     JNE WnotPressed
     OR STATE1,10000000B
+    JNE WnotPressed
+    OR STATE1,10000000B
     mov MovingCar,1
     SUB AUX_Y,DX
     ADD CurrentState,2
+    JMP checkDown
+
+    WnotPressed:
+    AND STATE1,01111111B
     JMP checkDown
 
     WnotPressed:
@@ -578,9 +587,15 @@ Controls1:
     CMP [KeyList + s], 1
     JNE SnotPressed
     OR STATE1,01000000B
+    JNE SnotPressed
+    OR STATE1,01000000B
     mov MovingCar,1
     ADD AUX_Y,DX
     ADD CurrentState,4
+    JMP checkRight
+
+    SnotPressed:
+    AND STATE1,10111111B
     JMP checkRight
 
     SnotPressed:
@@ -591,9 +606,15 @@ Controls1:
     CMP [KeyList + d], 1
     JNE DnotPressed
     OR STATE1,00100000B
+    JNE DnotPressed
+    OR STATE1,00100000B
     mov MovingCar,1
     ADD AUX_X,BX
     ADD CurrentState,8
+    JMP checkLeft
+
+    DnotPressed:
+    AND STATE1,11011111B
     JMP checkLeft
 
     DnotPressed:
@@ -604,6 +625,8 @@ Controls1:
     CMP [KeyList + a], 1
     JNE AnotPressed
     OR STATE1,00010000B
+    JNE AnotPressed
+    OR STATE1,00010000B
     mov MovingCar,1
     SUB AUX_X,BX
     ADD CurrentState,16
@@ -612,9 +635,16 @@ Controls1:
     AnotPressed:
 
     AND STATE1,11101111B
+    JMP checkSpeedingUp
+
+    AnotPressed:
+
+    AND STATE1,11101111B
 
     checkSpeedingUp:
     CMP [KeyList+q],1
+    JNE QnotPressed
+    OR STATE1,00001000B
     JNE QnotPressed
     OR STATE1,00001000B
     CMP SpeedUp1,0
@@ -639,9 +669,15 @@ Controls1:
     QnotPressed:
     AND STATE1,11110111B
 
+    JMP checkSpeedingDown
+    QnotPressed:
+    AND STATE1,11110111B
+
 
     checkSpeedingDown:
     CMP [KeyList + e],1
+    JNE EnotPressed
+    OR STATE1,00000100B
     JNE EnotPressed
     OR STATE1,00000100B
 
@@ -664,26 +700,33 @@ Controls1:
     JMP CheckAvoid
     EnotPressed:
     AND STATE1,11111011B
+    JMP CheckAvoid
+    EnotPressed:
+    AND STATE1,11111011B
 
     CheckAvoid:
     CMP [KeyList + z],1
+    JNE ZnotPressed
+    OR STATE1,00000010B
+    CMP Avoid1,1
     JNE CheckCreate
-    CMP Avoid1,0
-    JE CheckCreate
-    CMP UseAvoid1,1
-    JE CheckCreate
-
-    MOV UseAvoid1, 1
-    DEC Avoid1
+    MOV UseAvoid1,1
+    MOV Avoid1,0
+    JMP CheckCreate
+    ZnotPressed:
+    AND STATE1,11111101B
 
     CheckCreate:
     CMP [KeyList + xkey],1
+    JNE XnotPressed
+    OR STATE1,00000001B
+    CMP CreationPower1,1
     JNE CHANGE_DIRECTION_1
-    CMP CreationPower1,0
-    JE CHANGE_DIRECTION_1
     CALL DrawObstaclePower
-    DEC CreationPower1
-    MOV [KeyList + xkey],0
+    MOV CreationPower1,0
+    JMP CHANGE_DIRECTION_1
+    XnotPressed:
+    AND STATE1,11111110B
 
 CHANGE_DIRECTION_1:
     
@@ -705,14 +748,6 @@ movePlayer2 PROC
 
     PUSHA
 
-    RecieveAgain:
-    CALL CHECKRECIEVE
-    CMP RecieveFlag,1
-    JNE NoState
-    CALL RecieveByte
-    MOV AL,DataIn
-    MOV STATE2,AL
-
     MOV BX,speed2_X
     MOV DX,speed2_Y
 
@@ -722,9 +757,14 @@ movePlayer2 PROC
 
     ;WSDAQEZX
 
+    ;WSDAQEZX
+
 Controls2:
     checkUp2:    
     ;if 'up' is pressed, move up
+    mov al,STATE2
+    and al,10000000B
+    CMP AL, 10000000B
     mov al,STATE2
     and al,10000000B
     CMP AL, 10000000B
@@ -736,7 +776,10 @@ Controls2:
     checkDown2:
     MOV AL,STATE2
     AND AL,01000000B
+    MOV AL,STATE2
+    AND AL,01000000B
     ;if 'down' is pressed, move down
+    CMP AL, 01000000B
     CMP AL, 01000000B
     JNE checkRight2
     mov MovingCar,2
@@ -745,6 +788,9 @@ Controls2:
 
     checkRight2:
     ;if 'right' is pressed, move right
+    MOV AL,STATE2
+    AND AL,00100000B
+    CMP AL, 00100000B
     MOV AL,STATE2
     AND AL,00100000B
     CMP AL, 00100000B
@@ -758,6 +804,9 @@ Controls2:
     MOV AL,STATE2
     AND AL,00010000B
     CMP AL,00010000B
+    MOV AL,STATE2
+    AND AL,00010000B
+    CMP AL,00010000B
     JNE checkSpeedingUp2
     mov MovingCar,2
     SUB AUX_X_2,BX
@@ -768,6 +817,9 @@ Controls2:
     JMP CHANGE_DIRECTION_2
 
     checkSpeedingUp2:
+    MOV AL,STATE2
+    AND AL,00001000B
+    CMP AL,00001000B
     MOV AL,STATE2
     AND AL,00001000B
     CMP AL,00001000B
@@ -794,6 +846,9 @@ Controls2:
     MOV AL,STATE2
     AND AL,00000100B
     CMP AL,00000100B
+    MOV AL,STATE2
+    AND AL,00000100B
+    CMP AL,00000100B
     JNE CheckAvoid2
 
     CMP SpeedDown2,0
@@ -816,6 +871,9 @@ Controls2:
     MOV AL,STATE2
     AND AL,00000010B
     CMP AL,00000010B
+    MOV AL,STATE2
+    AND AL,00000010B
+    CMP AL,00000010B
     JNE CheckCreate2
 
     CMP Avoid2,0
@@ -826,6 +884,9 @@ Controls2:
     DEC Avoid2
 
     CheckCreate2:
+    MOV AL,STATE2
+    AND AL,00000001B
+    CMP AL,00000001B
     MOV AL,STATE2
     AND AL,00000001B
     CMP AL,00000001B
@@ -848,6 +909,7 @@ CHANGE_DIRECTION_2:
     VALIDATE2:
     call CheckOutOfRange2 ;CHECK OUT OF PATH AND OUT OF SCREEN AND OBSTACLES
 
+    POPA
     POPA
     RET
 

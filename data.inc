@@ -1,10 +1,3 @@
-DataOut DB ?
-DataIn  DB '8'
-DATA_INBOUND DB ?
-DATA_OUTBOUND DB ?
-RecieveFlag  db    0
-sendflag     db    0
-
 STATE1   DB    0
 ;WSDAQEZX
 STATE2   DB    0
