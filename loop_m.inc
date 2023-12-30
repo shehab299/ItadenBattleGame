@@ -683,6 +683,7 @@ Controls1:
     JE CHANGE_DIRECTION_1
     CALL DrawObstaclePower
     DEC CreationPower1
+    MOV [KeyList + xkey],0
 
 CHANGE_DIRECTION_1:
     
@@ -834,6 +835,7 @@ Controls2:
     JE CHANGE_DIRECTION_2
     CALL DrawObstaclePower2 
     DEC CreationPower2
+    MOV [KeyList+l],0
 
 CHANGE_DIRECTION_2:
     
