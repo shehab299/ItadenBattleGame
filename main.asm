@@ -347,7 +347,6 @@ MAIN ENDP
     clear_warnings ENDP
 
 findCarRemSteps proc ;DI -> X_POS ; SI -> Y_POS
-
     MOV DX,0
     MOV ax,DI
     MOV BX,CELL_W
@@ -371,7 +370,7 @@ findCarRemSteps proc ;DI -> X_POS ; SI -> Y_POS
         jnz skip_search_findcarindex
             ;found
             mov bx,2 
-            mov ax,cx  
+            mov ax,cx 
             mov dx,0          
             div bx      
             mov carIndex,ax
