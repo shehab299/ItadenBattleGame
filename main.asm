@@ -14,6 +14,9 @@ include img.inc
 include data.inc
 
 
+FiveSecondsCount DB 0
+SECONDS DB 0
+
 ;ADDRESS VECTOR FOR INTERRUPTS
 INT09_BX DW ?
 INT09_ES DW ?
@@ -54,12 +57,14 @@ MAIN PROC FAR
 
     ;SET VIDEO MODE
 
+    BEGIN:
+   
     MOV AX,VIDEO_MODE
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
 
-    BEGIN:
+   
     call setBackgroundColor
     
     ;WELCOME PAGE
@@ -86,15 +91,6 @@ MAIN PROC FAR
     call drawpPlayerInfo
     call getInfo
 
-    ;To display the names
-    ; mov ah, 9
-    ; mov dx, offset player1_name + 2
-    ; int 21h
-
-    ; mov ah, 9
-    ; mov dx, offset player2_name + 2
-    ; int 21h
-
 
     ;CHOOSE CHARACTER
     CHOOSE_LBL:
@@ -116,10 +112,11 @@ MAIN PROC FAR
     call ConfigKeyboard
 
     call MAIN_LOOP
+    call wait5sec
+    JMP BEGIN
 
     CALL ResetKeyboard
 
-    JMP BEGIN
     HLT
 
     CLOSE:
@@ -374,9 +371,9 @@ findCarRemSteps proc ;DI -> X_POS ; SI -> Y_POS
         cmp [pathy+BX],DX
         jnz skip_search_findcarindex
             ;found
-            mov bx,2 
+            mov bx, 2 
             mov ax,cx 
-            mov dx,0          
+            mov dx, 0          
             div bx      
             mov carIndex,ax
             ret 
@@ -387,5 +384,29 @@ findCarRemSteps proc ;DI -> X_POS ; SI -> Y_POS
     jl search_findcarindex
     ret
 findCarRemSteps endp
+
+wait5sec PROC
+    PUSHA
+    Mov AH, 2CH
+    INT 21H
+    MOV SECONDS, DH
+
+    CHECK_TIME2:
+        Mov AH, 2CH
+        INT 21H     ;DH => SECONDS
+
+        CMP DH, SECONDS
+        JE CHECK_TIME2
+
+        MOV SECONDS, DH
+        INC FiveSecondsCount
+        CMP  FiveSecondsCount, 5
+        JE EXIT_WAITING
+    JMP CHECK_TIME2
+
+    EXIT_WAITING:
+    POPA
+    RET
+wait5sec ENDP 
 
 END MAIN

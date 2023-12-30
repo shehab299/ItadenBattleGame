@@ -2280,15 +2280,3 @@ drawGreenPowerUp PROC
     CALL drawImage
     RET
 drawEvilPowerUp ENDP
-
-;description
-draw_All_Powers PROC
-    ; Mov starting_row, 350
-    ; Mov starting_row, 600
-
-   
-    call drawEvilPowerUp
-    call drawRedPowerUp
-    call drawBluePowerUp
-    call drawGreenPowerUp
-draw_All_Powers ENDP
