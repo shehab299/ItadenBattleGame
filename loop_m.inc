@@ -1238,6 +1238,7 @@ CheckOoutOfPath2 PROC
         CMP AL,SpeedDownColor
         JNZ CheckAgain21
         MOV FoundSpeedDown2,1
+        CALL ClearPwr
 
         ;CHECK CREATE OBSTACLES
         CheckAgain21:
