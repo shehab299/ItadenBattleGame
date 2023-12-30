@@ -93,6 +93,9 @@ Generate proc
 
     exit_:   
     mov ax,Path_Length
+    mov Path_Length_dec,ax        
+    dec Path_Length_dec
+    dec Path_Length_dec
     mov Path_Length_aux,ax 
     add Path_Length_aux,ax
     mov Path_Length_aux_2,ax 

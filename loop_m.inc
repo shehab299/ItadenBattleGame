@@ -1924,7 +1924,8 @@ display_percentage PROC
     MOV BX,100
     MOV AX,carIndex
     MUL BX
-    DIV Path_Length
+    ;DIV Path_Length
+    DIV Path_Length_dec
     
     mov ah, 2
     mov dh, SCREEN_HEIGHT/CharHeight - 2     ;ROW
