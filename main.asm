@@ -85,6 +85,7 @@ MAIN PROC FAR
     ; call Wait_Sec
 
     ;TAKE KEY FROM USER
+
     CHK_KEY:
     ;MOV AH,0
     ;INT 16H
@@ -153,6 +154,7 @@ MAIN PROC FAR
     INT 21H
 
 MAIN ENDP
+
 
 getplayer1name proc
 ; CHECK_PLAYER1_NAME:
