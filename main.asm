@@ -632,7 +632,7 @@ HorizonQ: int 10h
              cmp  cx,640
              jnz  LL1
 
-    call displayplayernames
+    call displayPlayerNames
 
     mov cx, 0           ;Column
             mov dx, 270           ;Row
@@ -868,10 +868,19 @@ inviteToChat proc
         ret
 
     not_invited_send:
-    mov ah,9  
-    mov dx,offset sendChatInviteMes
+
+    ;set cursor
+    mov ah, 2h
+    mov dh, 350/CharHeight + 2    ;ROW
+    mov dl, 130/CharWidth        ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
+    mov ah, 9  
+    mov dx, offset sendChatInviteMes
     int 21h
-    mov dx,offset player1_name_text
+    mov dx,offset player2_name + 2
     int 21h
 
     mov invitedChat,1
@@ -912,10 +921,17 @@ inviteToChat proc
         ret
 
     not_invited_receive:
+    mov ah, 02h                   ;BIOS.SetCursorPosition
+    mov dh, 350/CharHeight + 2    ;ROW
+    mov dl, 100/CharWidth         ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
     mov ah,9  
-    mov dx,offset player2_name_text
+    mov dx, offset player2_name + 2
     int 21h
-    mov dx,offset recChatInviteMes
+    mov dx, offset recChatInviteMes
     int 21h
 
 
