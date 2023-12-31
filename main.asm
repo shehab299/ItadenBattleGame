@@ -87,22 +87,24 @@ MAIN PROC FAR
     ;TAKE KEY FROM USER
 
     CHK_KEY:
-    MOV AH,0
-    INT 16H
+    ;MOV AH,0
+    ;INT 16H
 
-    CMP AH,F1
-    JE CHAT
+    ;CMP AH,F1
+    ;JE CHAT
 
-    CMP AH,EscKey
-    JE CLOSE
+    ;CMP AH,EscKey
+    ;JE CLOSE
 
-    CMP AH,EnterKey
-    JNE CHK_KEY
+    ;CMP AH,EnterKey
+    ;JNE CHK_KEY
 
-    jmp Names
+    ;jmp Names
 
     chat:
-    call displaychat
+    
+    ;call displaychat
+    call inviteToChat
     jmp mainmenu
 
 
@@ -632,7 +634,7 @@ HorizonQ: int 10h
              cmp  cx,640
              jnz  LL1
 
-    call displayplayernames
+    call displayPlayerNames
 
     mov cx, 0           ;Column
             mov dx, 270           ;Row
@@ -650,7 +652,13 @@ HorizonQ: int 10h
 
 AGAIN:
             CMP ENDCHAT1,1
-            JNE DONTQUIT
+            JNE DONTQUIT1
+            MOV ENDCHAT1,0
+            MOV ENDCHAT2,0
+            JMP ENDINGCHAT
+
+
+            DONTQUIT1:
             CMP ENDCHAT2,1
             JNE DONTQUIT
             MOV ENDCHAT1,0
@@ -804,22 +812,136 @@ displayplayernames endp
 
 
 SetConfig PROC
-              MOV  DX,3FBH
-              MOV  AL,10000000B
-              OUT  DX,AL
+    MOV  DX,3FBH
+    MOV  AL,10000000B
+    OUT  DX,AL
 
-              MOV  DX,3F8H
-              MOV  AL,0CH
-              OUT  DX,AL
+    MOV  DX,3F8H
+    MOV  AL,0CH
+    OUT  DX,AL
 
-              MOV  DX,3F9H
-              MOV  AL,00H
-              OUT  DX,AL
+    MOV  DX,3F9H
+    MOV  AL,00H
+    OUT  DX,AL
 
-              MOV  DX,3FBH
-              MOV  AL,00011011B
-              OUT  DX,AL
-              RET
+    MOV  DX,3FBH
+    MOV  AL,00011011B
+    OUT  DX,AL
+    RET
 SetConfig ENDP
+
+inviteToChat proc
+
+    mainLoop_inviteToChat:
+    ;send 
+    mov ah,1    
+    int 16h   
+    jnz readKeyInviteToChat
+    cmp receivedInviteToChat,1
+    jnz receive_inviteToChat
+    jmp mainLoop_inviteToChat
+
+    readKeyInviteToChat:
+
+    MOV AH,0
+    INT 16H
+
+        cmp ah,F1 
+    jz continue_send_inviteToChat
+    ret 
+    continue_send_inviteToChat:
+    ;Check that Transmitter Holding Register is Empty
+    mov         dx , 3FDH         ; Line Status Register
+
+    In          al , dx           ;Read Line Status
+    AND         al , 00100000b
+    JZ          receive_inviteToChat             ;jump untill it is empty
+
+    ;If empty put the VALUE in Transmit data register
+    mov         dx , 3F8H         ; Transmit data register
+    mov         al, F1
+    out         dx , al
+
+    cmp invitedChat,1 
+    jne not_invited_send
+        call displaychat
+        mov invitedChat,0
+        mov receivedInviteToChat,0
+        ret
+
+    not_invited_send:
+
+    ;set cursor
+    mov ah, 2h
+    mov dh, 350/CharHeight + 2    ;ROW
+    mov dl, 130/CharWidth        ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
+    mov ah, 9  
+    mov dx, offset sendChatInviteMes
+    int 21h
+    mov dx,offset player2_name + 2
+    int 21h
+
+    mov invitedChat,1
+
+
+    receive_inviteToChat:
+
+    ;Check that Data Ready
+    mov         dx , 3FDH         ; Line Status Register
+
+    in          al , dx
+    AND         al , 00000001b
+
+    jnz          readValue_inviteToChat
+
+    cmp invitedChat,1
+    jz          receive_inviteToChat
+    Jmp          mainLoop_inviteToChat        ;jump untill it recive data
+
+    ;If Ready read the VALUE in Receive data register
+    readValue_inviteToChat:
+        mov         dx , 03F8H
+        in          al , dx
+    cmp al,F1   
+    je continue_receive_inviteToChat
+
+    ret     
+
+    mainLoop_inviteToChat_bridge_1: jmp mainLoop_inviteToChat   
+
+    continue_receive_inviteToChat:
+
+    cmp invitedChat,1
+    jne not_invited_receive
+        call displaychat
+        mov invitedChat,0
+        mov receivedInviteToChat,0
+        ret
+
+    not_invited_receive:
+    mov ah, 02h                   ;BIOS.SetCursorPosition
+    mov dh, 350/CharHeight + 2    ;ROW
+    mov dl, 100/CharWidth         ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
+    mov ah,9  
+    mov dx, offset player2_name + 2
+    int 21h
+    mov dx, offset recChatInviteMes
+    int 21h
+
+
+    mov invitedChat,1
+    mov receivedInviteToChat,1
+    jmp mainLoop_inviteToChat_bridge_1
+
+    ret
+inviteToChat ENDP
 
 END MAIN
