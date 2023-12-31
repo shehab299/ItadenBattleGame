@@ -365,9 +365,6 @@ INITIAL_X_POS DW ?
 INITIAL_Y_POS_1 DW ?
 INITIAL_Y_POS_2 DW ? 
 
-
-receivedInviteToChat db 0
-
 sendGameInviteMes db "You sent a game invitation to $"
 recGameInviteMes db " sent you a chat invitation, to accept press F2$"
 
