@@ -1,12 +1,16 @@
-waittime db 3
+ENDCHAT1      DB   0
+ENDCHAT2      DB   0
+
+
+waittime db 4
 goaltime db ?
 
 DataOut DB ?
 DataIn  DB '8'
 SRX     db 0
-SRY     db 13
+SRY     db 17
 SSendX  db 0
-SSendY  db 0
+SSendY  db 1
 RecieveFlag  db    0
 sendflag     db    0
 
