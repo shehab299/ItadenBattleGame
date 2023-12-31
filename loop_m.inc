@@ -32,7 +32,6 @@ MAIN_LOOP PROC
     call WaitSomeTime
 
     call genPowerUps
-    CALL genObstacles
     ; CALL ConfigKeyboard
  
     CALL CalcEnd
@@ -269,6 +268,14 @@ SendTrack PROC
 
     call WaitSomeTime
 
+    MOV AH,2CH
+    int 21h
+    MOV RandomNumberForPowerUp,DL
+    CALL CHECKSEND
+    MOV DataOut,DL
+    CALL sendByte
+    CALL WaitSomeTime
+
     RET
 
     
@@ -341,6 +348,14 @@ RecieveTrack PROC
     inc bx
 
     Loop tile_loop_R
+
+    AKHER:
+    call CHECKRECIEVE
+    cmp RecieveFlag,0
+    JE AKHER
+    call RecieveByte
+    mov al,DataIn
+    MOV RandomNumberForPowerUp,AL
 
     RET
 

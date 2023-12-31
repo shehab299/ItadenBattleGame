@@ -969,7 +969,7 @@ RecievePowerUp PROC
     JNE Ragain
     mov al,DataIn
     MOV RandomNumberForPowerUp,AL
-    CALL RandPowerUp
+    ; CALL RandPowerUp
     POPA
     RET
     RecievePowerUp ENDP
@@ -1008,28 +1008,30 @@ genPowerUps PROC
     MOV EndY,AX
     ADD EndY,CELL_H
 
-    CMP IN1,1
-    JNE RECIEVING
+    ; CMP IN1,1
+    ; JNE RECIEVING
 
-    PUSHA
-    Mov AH, 2CH
-    INT 21H
-    MOV RandomNumberForPowerUp,DL
-    POPA
+    ; PUSHA
+    ; Mov AH, 2CH
+    ; INT 21H
+    ; MOV RandomNumberForPowerUp,DL
+    ; POPA
 
-    CALL CHECKSEND
-    MOV AL,RandomNumberForPowerUp
-    MOV DataOut,AL
-    CALL sendbyte
-    PUSH CX
-    MOV CX,50000 
-    TIMER:
-    LOOP TIMER
-    POP CX
-    JMP WEWE
+    ; CALL CHECKSEND
+    ; MOV AL,RandomNumberForPowerUp
+    ; MOV DataOut,AL
+    ; CALL sendbyte
 
-    RECIEVING:
-    CALL RecievePowerUp
+    ; PUSH CX
+    ; MOV CX,50000 
+    ; TIMER:
+    ; LOOP TIMER
+    ; POP CX
+
+    ; JMP WEWE
+
+    ; RECIEVING:
+    ; CALL RecievePowerUp
 
     WEWE:
     CALL RandPowerUp
@@ -1185,54 +1187,33 @@ RandPowerUp PROC
 
     AGAINN: 
     MOV DL,RandomNumberForPowerUp
-    CMP DL,60
+    CMP DL,50
     JC LAB1
-    SUB DL,50
+    SUB DL,30
     LAB1:
-    CMP DL,0
-    JNZ LAB2
-    ADD DL,10
+    ; CMP DL,0
+    ; JNZ LAB2
+    ; ADD DL,10
     LAB2:
-    ; CMP DX,Prev
-    ; JZ AGAINN
-    ; MOV Prev,DX
     MOV CH,0
     MOV CL,dL
-
-
 
     MOV DX,StartY
     ADD DX,CX
 
-    MOV BX,EndY
-    SUB BX,dx
-    CMP BX,6  
-    JC Skip
+    ; MOV BX,EndY
+    ; SUB BX,dx
+    ; CMP BX,6  
+    ; JC Skip
 
-
-    ADD CX,10
     MOV AX,CX
     MOV CX,StartX
     ADD CX,AX
 
-    MOV BX,EndX
-    SUB BX,CX
-    CMP BX,6  
-    JC Skip
-
-    ; MOV DI,DX
-    ; SUB DI,PrevRow
-    ; CMP DI,20
-    ; JNC NoSkip
-    ; MOV BX,CX
-    ; SUB BX,PrevCol
-    ; CMP BX,20
-    ; JNC NoSkip
-    ; JMP Skip 
-
-    NoSkip:
-    MOV PrevRow,DX
-    MOV PrevCol,CX
+    ; MOV BX,EndX
+    ; SUB BX,CX
+    ; CMP BX,6  
+    ; JC Skip
 
     CALL ChooseColor
 
