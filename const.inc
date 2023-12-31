@@ -5,6 +5,7 @@ EscKey EQU 01H
 F1  EQU   3Bh
 F2  EQU   3CH
 F3  EQU   3DH
+F    EQU  21h
 
 ;Player1Keys
 W EQU 11h

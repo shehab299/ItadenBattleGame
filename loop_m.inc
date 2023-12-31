@@ -41,6 +41,9 @@ MAIN_LOOP PROC
     call drawBluePowerUp
     call drawGreenPowerUp
 
+    call Chat_Box_asmaa
+
+
     
     ;MAIN LOOP
     CHECK_TIME:
@@ -78,7 +81,7 @@ MAIN_LOOP PROC
     CMP DL, TIME_AUX
     JE CHECK_TIME
 
-    CALL DrawRandomPowerUp
+    ; CALL DrawRandomPowerUp
 
     ;If it is different, draw and move
     MOV TIME_AUX, DL
@@ -655,12 +658,18 @@ Controls1:
 
     CheckCreate:
     CMP [KeyList + xkey],1
-    JNE CHANGE_DIRECTION_1
+    JNE CheckStartInline
     CMP CreationPower1,0
-    JE CHANGE_DIRECTION_1
+    JE CheckStartInline
     CALL DrawObstaclePower
     DEC CreationPower1
     MOV [KeyList + xkey],0
+
+    CheckStartInline:
+    CMP [KeyList + F],1
+    JNE CHANGE_DIRECTION_1
+    CALL DisplayInlineChat
+
 
 CHANGE_DIRECTION_1:
     
@@ -2311,3 +2320,103 @@ draw_All_Powers PROC
     call drawBluePowerUp
     call drawGreenPowerUp
 draw_All_Powers ENDP
+
+Chat_Box_asmaa PROC
+        mov cx, chat_starting_column        ;Column
+        mov dx, chat_starting_row           ;Row
+        mov al, BackgroundColor             ;Pixel color
+        mov ah, 0CH                         ;Draw Pixel Command
+
+        chat_horizontal: int 10H
+        INC CX
+        MOV BX, CX
+        SUB BX, chat_starting_column
+        CMP BX, chat_width
+        JNZ chat_horizontal
+
+        MOV CX, chat_starting_column
+        INC DX
+        MOV BX, DX
+        SUB BX, chat_starting_row
+        CMP BX, chat_length
+        JNZ chat_horizontal
+        RET
+Chat_Box_asmaa ENDP
+
+DisplayInlineChat proc
+pusha
+
+AGAINinline:
+             mov  dl,20
+             mov  dh,25
+             mov  ah,2
+             int  10h
+
+             CALL CHECKRECIEVE
+
+             CMP RecieveFlag,1
+             JNE SENDLOPinline
+
+             call RecieveByte
+
+             MOV  DL,DataIn
+             MOV  AH,2
+             INT  21H
+
+            CMP DataIn,0DH
+            JNZ NEX
+            jmp doneinline
+            NEX:
+
+            mov ah,3h
+            mov bh,0h
+            int 10h
+
+            CMP dh,30
+            JNZ skip1in
+            call Chat_Box_asmaa
+            skip1in:
+
+             JMP  AGAINinline
+
+    SENDLOPinline:
+
+             mov  dl,20  ;c
+             mov  dh,29
+             mov  ah,2
+             int  10h
+
+             mov  ah,01h
+             int  16h
+             jz   AGAINinline
+
+             mov  ah,00H
+             int  16h
+             mov  bl,al
+             MOV DataOut,AL
+
+             mov  dl,bl
+             mov  ah,2
+             INT  21H
+
+             CALL CHECKSEND
+             call sendbyte
+
+
+             CMP BL,0DH
+            jz doneinline
+
+            mov ah,3h
+            mov bh,0h
+            int 10h
+
+            CMP dh,30
+            JNZ skip1in2
+            call Chat_Box_asmaa
+            skip1in2:
+             JMP  SENDLOPinline
+    doneinline:
+    call Chat_Box_asmaa
+    popa
+ret
+DisplayInlineChat endp
