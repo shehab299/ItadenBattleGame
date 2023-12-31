@@ -9,8 +9,8 @@ CHECKSEND PROC
 
 CHECKRECIEVE PROC
 
-     MOV  DX,3FDH
-     IN   AL,DX
+    MOV  DX,3FDH
+    IN   AL,DX
     AND  AL,1
     JZ   NoRecieve
     mov RecieveFlag,1
@@ -21,7 +21,7 @@ CHECKRECIEVE PROC
     mov RecieveFlag,0
 donerecieve:
     ret
-    CHECKRECIEVE ENDP
+CHECKRECIEVE ENDP
 
 RecieveByte  proc
     MOV  DX,03F8H

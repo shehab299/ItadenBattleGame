@@ -9,19 +9,25 @@ MAIN_LOOP PROC
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
+
+    CALL Generate
+
     CHK_IN:
     MOV AH,0
     INT 16H
 
+
     CMP AH,W
     JNE RECIEVE
-    CALL Generate
+    CALL sendPathLength
     CALL SendTrack
+
     jmp draw_path
 
     RECIEVE:
-    CMP AH,S
+    CMP AH,s
     JNE CHK_IN
+    call RecievePathLength
     CALL RecieveTrack
 
     draw_path:
@@ -68,7 +74,32 @@ ENDCHK:
     RET
 MAIN_LOOP ENDP
 
+sendPathLength PROC
 
+    call CHECKSEND
+    MOV AX,Path_Length
+    MOV DataOut,AL
+    CALL sendByte
+
+    RET
+
+sendPathLength ENDP
+
+RecievePathLength PROC
+
+    RecievePath:
+    call CHECKRECIEVE
+    CMP RecieveFlag,0
+    JE RecievePath
+
+    CALL RecieveByte
+    MOV AL,DataIn
+    MOV AH,0
+    MOV Path_Length,AX
+
+    RET
+
+RecievePathLength ENDP
 
  
 SendTrack PROC
@@ -87,6 +118,10 @@ SendTrack PROC
     inc bx
     inc bx
 
+    call WaitSomeTime
+    ; mov waittime,1
+    ; call Wait_Sec
+
     Loop xloop
 
     mov bx,0
@@ -103,7 +138,30 @@ SendTrack PROC
     inc bx
     inc bx
 
+    call WaitSomeTime    
+    ; mov waittime,1
+    ; call Wait_Sec
+
     Loop y_loop
+
+    mov bx,0
+    mov cx,Path_Length
+
+    tile_loop:
+
+    call CHECKSEND
+    mov ax,Path_Tile[bx]
+    mov DataOut,al
+    CALL sendByte
+
+    inc bx
+    inc bx
+
+    call WaitSomeTime
+    ; mov waittime,1
+    ; call Wait_Sec
+
+    Loop tile_loop
 
     RET
 
@@ -120,18 +178,19 @@ RecieveTrack PROC
     xLoop_R:
 
     check_recieve_again:
-
     call CHECKRECIEVE
-    cmp RecieveFlag,1
-    jne check_recieve_again
-
+    cmp RecieveFlag,0
+    JE check_recieve_again
     CALL RecieveByte
+
     mov al,DataIn
     mov ah,0
     mov PathX[bx],ax
 
     inc bx
     inc bx
+
+    skipx:
 
     Loop xLoop_R
 
@@ -143,8 +202,9 @@ RecieveTrack PROC
 
     check_recieve_again2:
     call CHECKRECIEVE
-    cmp RecieveFlag,1
-    jne check_recieve_again2
+    cmp RecieveFlag,0
+    JE check_recieve_again2
+    
     CALL RecieveByte
     mov al,DataIn
     mov ah,0
@@ -153,12 +213,46 @@ RecieveTrack PROC
     inc bx
     inc bx
 
+    skipme:
+
     Loop y_loop_R
+
+    mov bx,0
+    mov cx,Path_Length
+
+    tile_loop_R:
+
+    call CHECKRECIEVE
+    cmp RecieveFlag,0
+    JE tile_loop_R
+    
+    CALL RecieveByte
+    mov al,DataIn
+    mov ah,0
+    mov Path_Tile[bx],ax
+
+    inc bx
+    inc bx
+
+    Loop tile_loop_R
 
     RET
 
 RecieveTrack ENDP
 
+WaitSomeTime Proc
+
+    push ax bx cx dx
+
+    mov cx,60000
+    loop1wait:
+    loop loop1wait
+
+    pop dx cx bx ax
+
+    ret
+
+WaitSomeTime ENDP
 
 
 
@@ -166,13 +260,33 @@ RecieveTrack ENDP
 
 
 
+Wait_Sec PROC
 
+; in memory
+	pusha
+	mov ah, 2Ch
+	int 21H    ; puts the millseconds in dl
+	add dh,waittime
+	mov al, dh ; contain hundreds of seconds
+	mov bl,60
+	mov ah,0
+	xor dx,dx
+	div bl
+    mov goaltime,ah
 
-
-
-
-
-
+    wait_loop:
+	mov ah, 2Ch
+	int 21H    ; puts the millseconds in dl
+	mov al, dh ; contain hundreds of seconds
+	mov bl,60
+	mov ah,0
+	xor dx,dx
+	div bl
+	cmp ah,goaltime
+	jnz wait_loop
+	popa
+	ret
+Wait_Sec ENDP
 
 
 

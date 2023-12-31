@@ -300,3 +300,7 @@ END_END_X DW ?
 END_END_Y DW ?
 END_START_X DW ?
 END_START_Y DW ?
+
+;WAIT
+waittime db ?
+goaltime db ?
