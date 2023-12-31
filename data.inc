@@ -349,7 +349,7 @@ END_START_Y DW ?
 
 
 sendChatInviteMes db "You sent a chat invitation to $"
-recChatInviteMes db " send you a chat invitation, to accept press F1$"
+recChatInviteMes db " sent you a chat invitation, to accept press F1$"
 
 invitedChat db 0
 receivedInviteToChat db 
@@ -365,3 +365,13 @@ INITIAL_X_POS DW ?
 INITIAL_Y_POS_1 DW ?
 INITIAL_Y_POS_2 DW ? 
 
+
+receivedInviteToChat db 0
+
+sendGameInviteMes db "You sent a game invitation to $"
+recGameInviteMes db " sent you a chat invitation, to accept press F2$"
+
+invitedGame db 0
+receivedInviteToGame db 0
+
+bypassMenuLoop db 0

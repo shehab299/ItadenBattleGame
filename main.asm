@@ -102,10 +102,12 @@ MAIN PROC FAR
     ;jmp Names
 
     chat:
-    
+    mov bypassMenuLoop,0
     ;call displaychat
     call inviteToChat
-    jmp mainmenu
+
+    cmp bypassMenuLoop,0
+    jz mainmenu
 
 
     ;ENTER NAMES
@@ -837,9 +839,14 @@ inviteToChat proc
     mov ah,1    
     int 16h   
     jnz readKeyInviteToChat
+    
     cmp receivedInviteToChat,1
-    jnz receive_inviteToChat
-    jmp mainLoop_inviteToChat
+    jz mainLoop_inviteToChat
+
+    cmp receivedInviteToGame,1
+    jz mainLoop_inviteToChat
+
+    jmp receive_inviteToChat
 
     readKeyInviteToChat:
 
@@ -847,8 +854,13 @@ inviteToChat proc
     INT 16H
 
         cmp ah,F1 
-    jz continue_send_inviteToChat
-    ret 
+        jz continue_send_inviteToChat
+        cmp ah,F2    
+        jz continue_send_inviteToChat
+        CMP AH,EscKey
+        ; send it then terminate
+        jnz mainLoop_inviteToChat
+        ;enno now its none of the three options
     continue_send_inviteToChat:
     ;Check that Transmitter Holding Register is Empty
     mov         dx , 3FDH         ; Line Status Register
@@ -859,8 +871,11 @@ inviteToChat proc
 
     ;If empty put the VALUE in Transmit data register
     mov         dx , 3F8H         ; Transmit data register
-    mov         al, F1
+    mov         al, ah            ; is it safe to use ah here?
     out         dx , al
+
+    cmp ah,F1 
+    jne inviteGame_after_send
 
     cmp invitedChat,1 
     jne not_invited_send
@@ -868,6 +883,21 @@ inviteToChat proc
         mov invitedChat,0
         mov receivedInviteToChat,0
         ret
+
+    inviteGame_after_send:
+    cmp ah,F2   
+    jne esc_terminate_send
+    ; invite game 
+    cmp invitedGame,1
+    jne not_invited_game_send
+        mov bypassMenuLoop,1
+        ret
+
+
+
+    esc_terminate_send:
+    call ExitProg ;terminate after sending that byte
+    ret        
 
     not_invited_send:
 
@@ -886,6 +916,18 @@ inviteToChat proc
     int 21h
 
     mov invitedChat,1
+    jmp receive_inviteToChat
+
+    not_invited_game_send:
+    mov ah,9    
+    mov dx,offset sendGameInviteMes
+    int 21h  
+    mov dx,offset player2_name_text
+    int 21h  
+
+    mov invitedGame,1
+    ;jmp receive_inviteToChat
+
 
 
     receive_inviteToChat:
@@ -900,15 +942,26 @@ inviteToChat proc
 
     cmp invitedChat,1
     jz          receive_inviteToChat
+
+    cmp invitedGame,1
+    jz receive_inviteToChat
+    
     Jmp          mainLoop_inviteToChat        ;jump untill it recive data
 
     ;If Ready read the VALUE in Receive data register
     readValue_inviteToChat:
         mov         dx , 03F8H
         in          al , dx
+
     cmp al,F1   
     je continue_receive_inviteToChat
-
+    cmp al,F2   
+    je continue_receive_inviteToGame
+    cmp al,EscKey
+    jnz continue_receive_return
+        call ExitProg
+        ret
+    continue_receive_return:
     ret     
 
     mainLoop_inviteToChat_bridge_1: jmp mainLoop_inviteToChat   
@@ -920,6 +973,13 @@ inviteToChat proc
         call displaychat
         mov invitedChat,0
         mov receivedInviteToChat,0
+        ret
+
+    continue_receive_inviteToGame:
+
+    cmp invitedGame,1
+    jne not_invited_game_receive
+        mov bypassMenuLoop,1
         ret
 
     not_invited_receive:
@@ -940,6 +1000,18 @@ inviteToChat proc
     mov invitedChat,1
     mov receivedInviteToChat,1
     jmp mainLoop_inviteToChat_bridge_1
+
+    not_invited_game_receive:
+    mov ah,9 
+    mov dx,offset player2_name_text
+    int 21h 
+    mov dx,offset recGameInviteMes
+    int 21h 
+
+    mov invitedGame,1
+    mov receivedInviteToGame,1
+    jmp mainLoop_inviteToChat_bridge_1
+
 
     ret
 inviteToChat ENDP
