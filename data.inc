@@ -1,3 +1,7 @@
+ENDCHAT1      DB   0
+ENDCHAT2      DB   0
+
+
 waittime db 4
 goaltime db ?
 

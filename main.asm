@@ -663,6 +663,14 @@ HorizonQ: int 10h
             JNZ HorizonQ3
 
 AGAIN:
+            CMP ENDCHAT1,1
+            JNE DONTQUIT
+            CMP ENDCHAT2,1
+            JNE DONTQUIT
+            MOV ENDCHAT1,0
+            MOV ENDCHAT2,0
+            JMP ENDINGCHAT
+            DONTQUIT:
 
              mov  dl,SRX
              mov  dh,SRY
@@ -679,6 +687,11 @@ AGAIN:
              MOV  DL,DataIn
              MOV  AH,2
              INT  21H
+             
+             CMP DL,0   
+             JNE NOQUIT2
+            MOV ENDCHAT2,1
+             NOQUIT2:
 
 
              MOV  AH,3
@@ -712,6 +725,8 @@ AGAIN:
             SKIP1111:
 
              JMP  AGAIN
+             KOBRY:
+             JMP AGAIN
 
     SENDLOP:
 
@@ -722,12 +737,18 @@ AGAIN:
 
              mov  ah,01h
              int  16h
-             jz   AGAIN
+             jz   KOBRY
 
              mov  ah,00H
              int  16h
              mov  bl,al
              MOV DataOut,AL
+
+             CMP AH,F3
+             JNE NOQUIT
+             MOV ENDCHAT1,1
+
+             NOQUIT:
 
              mov  dl,bl
              mov  ah,2
@@ -769,6 +790,8 @@ AGAIN:
 
             SKIPppp:
              JMP  SENDLOP
+
+    ENDINGCHAT:
 ret
 displaychat endp
 
