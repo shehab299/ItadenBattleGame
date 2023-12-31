@@ -1,17 +1,23 @@
 ;KEYBOARD KEYS
 
-EnterKey EQU 1CH
-EscKey EQU 01H
+EnterKey    EQU 1CH
+EscKey      EQU 01H
+F1          EQU 3BH
+F2          EQU 3CH
+F3          EQU 3DH
+F4          EQU 3EH
+
 
 ;Player1Keys
-W EQU 11h
-s EQU 1Fh
-d EQU 20h
-a EQU 1Eh
-q EQU 10H
-e equ 12H
-z equ 2ch
-xkey equ 2dh
+W       EQU 11h
+s       EQU 1Fh
+d       EQU 20h
+a       EQU 1Eh
+q       EQU 10H
+e       equ 12H
+z       equ 2ch
+
+xkey    equ 2Bh
 ;-----------
 
 ;Player2Keys

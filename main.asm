@@ -109,13 +109,13 @@ MAIN PROC FAR
 
     ;START THE GAME
 
-    call ConfigKeyboard
+    ; call ConfigKeyboard
 
     call MAIN_LOOP
     call wait5sec
+    CALL ResetKeyboard
     JMP BEGIN
 
-    CALL ResetKeyboard
 
     HLT
 
