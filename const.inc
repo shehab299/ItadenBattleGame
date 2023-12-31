@@ -6,6 +6,21 @@ F1  EQU   3Bh
 F2  EQU   3CH
 F3  EQU   3DH
 F    EQU  21h
+G    EQU  22H
+Mkey    EQU   32h
+Nkey    EQU   31h        
+Rkey EQU  13h  
+Tkey EQU  14h         
+Ykey EQU  15h       
+Ukey EQU  16h         
+Ikey EQU  17h    
+
+Hkey  EQU  23h
+Jkey  EQU  24h       
+Ckey  EQU  2Eh                      
+Vkey  EQU  2Fh                      
+Bkey  EQU  30h        
+SpaceKey   EQU   39H
 
 ;Player1Keys
 W EQU 11h
