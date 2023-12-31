@@ -346,3 +346,9 @@ END_END_X DW ?
 END_END_Y DW ?
 END_START_X DW ?
 END_START_Y DW ?
+
+sendChatInviteMes db "You sent a chat invitation to $"
+recChatInviteMes db " send you a chat invitation, to accept press F1$"
+
+invitedChat db 0
+receivedInviteToChat db 0
