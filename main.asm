@@ -60,12 +60,42 @@ MAIN PROC FAR
 
 
     BEGIN:
+    MOV  DX,3FBH
+     MOV  AL,10000000B
+     OUT  DX,AL
+
+     MOV  DX,3F8H
+     MOV  AL,0CH
+     OUT  DX,AL
+
+    MOV  DX,3F9H
+    MOV  AL,00H
+    OUT  DX,AL
+
+     MOV  DX,3FBH
+     MOV  AL,00011011B
+     OUT  DX,AL
     call setBackgroundColor
     
     ;WELCOME PAGE
     call loadLogo
 
     call drawWelcomePage
+    call clearUnderOwl
+    call drawpPlayerInfo
+    ; call getInfo
+    call getplayer1name
+
+
+    call setBackgroundColor
+    
+    ;WELCOME PAGE
+    call loadLogo
+
+    call drawWelcomePage
+    call Wait_Sec
+    call getplayer2name
+
 
 
     ;TAKE KEY FROM USER
@@ -82,9 +112,7 @@ MAIN PROC FAR
     ;ENTER NAMES
     Names:
 
-    call clearUnderOwl
-    call drawpPlayerInfo
-    call getInfo
+    
 
     ;To display the names
     ; mov ah, 9
@@ -127,6 +155,81 @@ MAIN PROC FAR
     INT 21H
 
 MAIN ENDP
+
+getplayer1name proc
+; CHECK_PLAYER1_NAME:
+namegetting:
+    mov dh, player1_y/CharHeight + 2    ;ROW
+    mov dl, player1_x/CharWidth     ;COLUMN
+    mov bh, 0      ; Page = 0
+    mov bl, BackgroundColor
+    mov ah, 02h    ; BIOS.SetCursorPosition
+    int 10h  
+
+    mov cx,0
+    mov bx, offset player1_name+2
+    mov di,offset player2_name+2
+
+   namelop:
+    mov ah,1
+    int 21h
+    cmp al,0dh
+    je doneee
+    mov byte ptr [bx],al
+    add bx,1
+    inc cx
+    cmp cx,15
+    jne namelop
+
+    doneee:
+
+    mov player1_name+1,cl
+
+    cmp cx,0
+    jne nameexist
+
+    call emptyNameMsg
+    call clear_input1
+    wait_for_Enterr1:
+    MOV AH, 0
+    INT 16H
+    CMP AH, EnterKey
+    JNE wait_for_Enterr1
+    call clear_warnings
+    JMP namegetting
+
+    nameexist:
+
+    ;  CHECK_first_characterr:
+    MOV AL, player1_name + 2
+    CMP AL, UPPERCASE_MIN_ASCII
+    JB INVALIDname
+    CMP AL, LOWERCASE_MAX_ASCII
+    JA INVALIDname
+    CMP AL, UPPERCASE_MAX_ASCII
+    JA CHECKk_IF_LESS_97
+    JMP safename
+    CHECKk_IF_LESS_97:
+        CMP AL, LOWERCASE_MIN_ASCII
+        JB INVALID_NAME
+        JMP safename
+    
+    INVALIDname:
+    call clear_input1
+    Call invalid_Msg
+    wait_for_Enter_:
+    MOV AH, 0
+    INT 16H
+    CMP AH, EnterKey
+    JNE wait_for_Enter_
+    call clear_warnings
+
+    JMP namegetting
+    safename:
+
+
+ret
+getplayer1name endp
 
 getInfo PROC
 ;PLAYER 1 NAME
@@ -185,56 +288,56 @@ getInfo PROC
 
     ;PLAYER 2 NAME
     CHECK_PLAYER2_name:
-    mov dh, player2_y/CharHeight + 2    ;ROW
-    mov dl, player2_x/CharWidth         ;COLUMN
-    mov bh, 0                           ;Page = 0
-    mov bl, BackgroundColor
-    mov ah, 02h                         ;BIOS.SetCursorPosition
-    int 10h
+    ; mov dh, player2_y/CharHeight + 2    ;ROW
+    ; mov dl, player2_x/CharWidth         ;COLUMN
+    ; mov bh, 0                           ;Page = 0
+    ; mov bl, BackgroundColor
+    ; mov ah, 02h                         ;BIOS.SetCursorPosition
+    ; int 10h
 
-    ;take input form the user
-    mov ah, 0AH
-    mov dx, offset player2_name
-    int 21h
+    ; ;take input form the user
+    ; mov ah, 0AH
+    ; mov dx, offset player2_name
+    ; int 21h
 
-    MOV AL, player2_name + 1
-    CMP AL, 0
-    JNE CHECK_first_character2
+    ; MOV AL, player2_name + 1
+    ; CMP AL, 0
+    ; JNE CHECK_first_character2
 
-    call clear_input2
-    call emptyNameMsg
-    wait_for_Enterr2:
-    MOV AH, 0
-    INT 16H
-    CMP AH, EnterKey
-    JNE wait_for_Enterr2
-    call clear_warnings
-    JMP CHECK_PLAYER2_NAME
+    ; call clear_input2
+    ; call emptyNameMsg
+    ; wait_for_Enterr2:
+    ; MOV AH, 0
+    ; INT 16H
+    ; CMP AH, EnterKey
+    ; JNE wait_for_Enterr2
+    ; call clear_warnings
+    ; JMP CHECK_PLAYER2_NAME
 
-    CHECK_first_character2:
-    MOV AL, player2_name + 2
-    CMP AL, UPPERCASE_MIN_ASCII
-    JB INVALID_NAME2
-    CMP AL, LOWERCASE_MAX_ASCII
-    JA INVALID_NAME2
-    CMP AL, UPPERCASE_MAX_ASCII
-    JA CHECK2_IF_LESS_97
-    JMP EXTI_GET_INFO
-    CHECK2_IF_LESS_97:
-        CMP AL, LOWERCASE_MIN_ASCII
-        JB INVALID_NAME2
-        JMP EXTI_GET_INFO
+    ; CHECK_first_character2:
+    ; MOV AL, player2_name + 2
+    ; CMP AL, UPPERCASE_MIN_ASCII
+    ; JB INVALID_NAME2
+    ; CMP AL, LOWERCASE_MAX_ASCII
+    ; JA INVALID_NAME2
+    ; CMP AL, UPPERCASE_MAX_ASCII
+    ; JA CHECK2_IF_LESS_97
+    ; JMP EXTI_GET_INFO
+    ; CHECK2_IF_LESS_97:
+    ;     CMP AL, LOWERCASE_MIN_ASCII
+    ;     JB INVALID_NAME2
+    ;     JMP EXTI_GET_INFO
     
-    INVALID_NAME2:
-    call clear_input2
-    call invalid_Msg
-    wait_for_Enter2:
-    MOV AH, 0
-    INT 16H
-    CMP AH, EnterKey
-    JNE wait_for_Enter2
-    call clear_warnings
-    JMP CHECK_PLAYER2_NAME
+    ; INVALID_NAME2:
+    ; call clear_input2
+    ; call invalid_Msg
+    ; wait_for_Enter2:
+    ; MOV AH, 0
+    ; INT 16H
+    ; CMP AH, EnterKey
+    ; JNE wait_for_Enter2
+    ; call clear_warnings
+    ; JMP CHECK_PLAYER2_NAME
 
     
     EXTI_GET_INFO:
@@ -387,5 +490,122 @@ findCarRemSteps proc ;DI -> X_POS ; SI -> Y_POS
     jl search_findcarindex
     ret
 findCarRemSteps endp
+
+CHECKSEND PROC
+    PUSHA
+    MOV  DX,3FDH
+    LOP1:    IN   AL,DX
+             AND  AL,00100000B
+             JZ   LOP1
+    POPA
+    ret
+    CHECKSEND ENDP
+
+CHECKRECIEVE PROC
+    PUSHA
+
+     MOV  DX,3FDH
+     IN   AL,DX
+    AND  AL,1
+    JZ   NoRecieve
+    mov RecieveFlag,1
+    jmp donerecieve
+
+
+    NoRecieve:
+    mov RecieveFlag,0
+donerecieve:
+POPA
+    ret
+    CHECKRECIEVE ENDP
+
+RecieveByte  proc
+PUSHA
+MOV  DX,03F8H
+IN   AL,DX
+MOV  DataIn,AL
+POPA
+ret
+RecieveByte endp
+
+sendbyte proc
+PUSHA
+MOV  DX,3F8H
+ MOV  AL,DataOut
+ OUT  DX,AL
+ POPA
+ret
+sendbyte endp
+
+getplayer2name proc
+PUSHA
+mov si,offset player1_name+2
+mov di,offset player2_name +2
+mov cl,15
+
+namesloop:
+
+call CHECKRECIEVE
+cmp RecieveFlag,1
+jne trysend
+call RecieveByte
+mov al,DataIn
+mov ah,0
+mov byte ptr [di],al
+add di,1 
+
+trysend:
+mov al,byte ptr [si]
+mov DataOut,al
+call CHECKSEND
+call sendbyte
+add si,1
+
+call Wait_Sec
+; trysend2:
+; call CHECKRECIEVE
+; cmp RecieveFlag,1
+; jne trysend2
+; call RecieveByte
+; mov al,DataIn
+; mov ah,0
+; mov byte ptr [di],al
+; add di,1 
+
+dec cl
+cmp cl,0
+jne namesloop
+
+POPA
+ret
+getplayer2name endp
+
+Wait_Sec PROC
+
+; in memory
+	pusha
+	mov ah, 2Ch
+	int 21H    ; puts the millseconds in dl
+	add dh,waittime
+	mov al, dh ; contain hundreds of seconds
+	mov bl,60
+	mov ah,0
+	xor dx,dx
+	div bl
+    mov goaltime,ah
+
+    wait_loop:
+	mov ah, 2Ch
+	int 21H    ; puts the millseconds in dl
+	mov al, dh ; contain hundreds of seconds
+	mov bl,60
+	mov ah,0
+	xor dx,dx
+	div bl
+	cmp ah,goaltime
+	jnz wait_loop
+	popa
+	ret
+Wait_Sec ENDP
 
 END MAIN

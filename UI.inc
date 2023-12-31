@@ -659,21 +659,21 @@ drawpPlayerInfo PROC
     MOV [AUX_IMAGE_WIDTH], player1_width
     CALL drawImage
 
-    MOV DX, offset player2_file_name
-    MOV DI, offset file_handle
-    call openFile
+    ; MOV DX, offset player2_file_name
+    ; MOV DI, offset file_handle
+    ; call openFile
 
-    MOV CX, player2_file_size
-    MOV DX, offset file_buffer
-    MOV BX, [file_handle]
-    call ReadFileToMemory
+    ; MOV CX, player2_file_size
+    ; MOV DX, offset file_buffer
+    ; MOV BX, [file_handle]
+    ; call ReadFileToMemory
 
-    MOV SI, offset file_buffer
-    MOV [START_ROW], player2_y                      
-    MOV [START_COLUMN], player2_x
-    MOV [AUX_IMAGE_HEIGHT], player2_height
-    MOV [AUX_IMAGE_WIDTH], player2_width
-    CALL drawImage
+    ; MOV SI, offset file_buffer
+    ; MOV [START_ROW], player2_y                      
+    ; MOV [START_COLUMN], player2_x
+    ; MOV [AUX_IMAGE_HEIGHT], player2_height
+    ; MOV [AUX_IMAGE_WIDTH], player2_width
+    ; CALL drawImage
 
     RET
 

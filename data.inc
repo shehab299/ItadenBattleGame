@@ -1,3 +1,15 @@
+waittime db 3
+goaltime db ?
+
+DataOut DB ?
+DataIn  DB '8'
+SRX     db 0
+SRY     db 13
+SSendX  db 0
+SSendY  db 0
+RecieveFlag  db    0
+sendflag     db    0
+
 TimeRow     dw      0
 TimeCol     dw      0
 TimeMin     dw      0
