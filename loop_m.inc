@@ -1,30 +1,46 @@
 MAIN_LOOP PROC 
-    MOV AX,@DATA
-    MOV DS,AX
 
-    CALL ConfigKeyboard
 
-    MOV AX,VIDEO_MODE
-    MOV BX,VIDEO_MODE_BX
-    INT 10H
+    CALL Generate
+
+    CHK_IN:
+    MOV AH,0
+    INT 16H
+
+    CMP AH,W
+    JNE RECIEVE
+    CALL sendPathLength
+    CALL SendTrack
+
+
+    jmp draw_path
+
+    RECIEVE:
+    CMP AH,s
+    JNE CHK_IN
+    call RecievePathLength
+    CALL RecieveTrack
+
+
+    draw_path:
+
+    call DrawPath_
+    call drawFinishLine
+
+    call WaitSomeTime
+
+    call genPowerUps
+    CALL genObstacles
+    ; CALL ConfigKeyboard
+ 
+    CALL CalcEnd
+    CALL intiPos
 
     call load_players_cars
-    call Generate
 
     call display_Player1_name
     call display_Player2_name
   
-
-   
-
-    call DrawPath_
-    call genPowerUps
-    ; CALL genObstacles
-
-    call drawFinishLine
-
-    CALL CalcEnd
-    CALL intiPos
 
     call drawEvilPowerUp
     call drawRedPowerUp
@@ -158,6 +174,190 @@ MAIN_LOOP PROC
 ENDCHK:
     RET
 MAIN_LOOP ENDP
+
+sendPathLength PROC
+
+    call CHECKSEND
+    MOV AX,Path_Length
+    MOV DataOut,AL
+    CALL sendByte
+
+    RET
+
+sendPathLength ENDP
+
+RecievePathLength PROC
+
+    RecievePath:
+    call CHECKRECIEVE
+    CMP RecieveFlag,0
+    JE RecievePath
+
+    CALL RecieveByte
+    MOV AL,DataIn
+    MOV AH,0
+    MOV Path_Length,AX
+
+    RET
+
+RecievePathLength ENDP
+ 
+SendTrack PROC
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE X's
+    xLoop:
+
+    call CHECKSEND
+    mov ax,PathX[bx]
+    mov DataOut,al
+    CALL sendByte
+
+    inc bx
+    inc bx
+
+    call WaitSomeTime
+    ; mov waittime,1
+    ; call Wait_Sec
+
+    Loop xloop
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE Y's
+    y_loop:
+
+    call CHECKSEND
+    mov ax,PathY[bx]
+    mov DataOut,al
+    CALL sendByte
+
+    inc bx
+    inc bx
+
+    call WaitSomeTime    
+    ; mov waittime,1
+    ; call Wait_Sec
+
+    Loop y_loop
+
+    mov bx,0
+    mov cx,Path_Length
+
+    tile_loop:
+
+    call CHECKSEND
+    mov ax,Path_Tile[bx]
+    mov DataOut,al
+    CALL sendByte
+
+    inc bx
+    inc bx
+
+    call WaitSomeTime
+    ; mov waittime,1
+    ; call Wait_Sec
+
+    Loop tile_loop
+
+
+    call WaitSomeTime
+
+    RET
+
+    
+SendTrack ENDP
+
+
+RecieveTrack PROC
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE X's
+    xLoop_R:
+
+    check_recieve_again:
+    call CHECKRECIEVE
+    cmp RecieveFlag,0
+    JE check_recieve_again
+    CALL RecieveByte
+
+    mov al,DataIn
+    mov ah,0
+    mov PathX[bx],ax
+
+    inc bx
+    inc bx
+
+    skipx:
+
+    Loop xLoop_R
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE Y's
+    y_loop_R:
+
+    check_recieve_again2:
+    call CHECKRECIEVE
+    cmp RecieveFlag,0
+    JE check_recieve_again2
+    
+    CALL RecieveByte
+    mov al,DataIn
+    mov ah,0
+    mov PathY[bx],ax
+
+    inc bx
+    inc bx
+
+    skipme:
+
+    Loop y_loop_R
+
+    mov bx,0
+    mov cx,Path_Length
+
+    tile_loop_R:
+
+    call CHECKRECIEVE
+    cmp RecieveFlag,0
+    JE tile_loop_R
+    
+    CALL RecieveByte
+    mov al,DataIn
+    mov ah,0
+    mov Path_Tile[bx],ax
+
+    inc bx
+    inc bx
+
+    Loop tile_loop_R
+
+    RET
+
+RecieveTrack ENDP
+
+WaitSomeTime Proc
+
+    pusha
+
+    mov cx,50000
+    loop1wait:
+    loop loop1wait
+
+
+    popa
+
+    ret
+
+WaitSomeTime ENDP
+
 
 
 WIN_1 PROC

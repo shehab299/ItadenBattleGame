@@ -52,7 +52,7 @@ MAIN PROC FAR
     MOV AX,@DATA
     MOV DS,AX
 
-    ;SET VIDEO MODE
+    ; ;SET VIDEO MODE
 
     MOV AX,VIDEO_MODE
     MOV BX,VIDEO_MODE_BX
@@ -69,21 +69,6 @@ MAIN PROC FAR
     MOV IN2,1
 
     BEGIN:
-    MOV  DX,3FBH
-     MOV  AL,10000000B
-     OUT  DX,AL
-
-     MOV  DX,3F8H
-     MOV  AL,0CH
-     OUT  DX,AL
-
-    MOV  DX,3F9H
-    MOV  AL,00H
-    OUT  DX,AL
-
-     MOV  DX,3FBH
-     MOV  AL,00011011B
-     OUT  DX,AL
     call setBackgroundColor
     
     ;WELCOME PAGE
@@ -131,7 +116,9 @@ MAIN PROC FAR
 
 
     ;ENTER NAMES
-    Names:
+
+    Names:   
+
     ;To display the names
     ; mov ah, 9
     ; mov dx, offset player1_name + 2
@@ -151,14 +138,16 @@ MAIN PROC FAR
 
     CALL Choose
    
-    ;TAKE CHARACTERS AND STORE THEM
+    ; TAKE CHARACTERS AND STORE THEM
 
-    ; call setBackgroundColor
+    call setBackgroundColor
 
     ;START THE GAME
 
-    call ConfigKeyboard
+    ; call ConfigKeyboard
 
+
+    CALL SetConfig
 
     call MAIN_LOOP
 
@@ -578,7 +567,7 @@ call CHECKSEND
 call sendbyte
 add si,1
 
-call Wait_Sec
+; call Wait_Sec
 ; trysend2:
 ; call CHECKRECIEVE
 ; cmp RecieveFlag,1
@@ -820,5 +809,25 @@ int 21h
 popa
 ret
 displayplayernames endp
+
+
+SetConfig PROC
+              MOV  DX,3FBH
+              MOV  AL,10000000B
+              OUT  DX,AL
+
+              MOV  DX,3F8H
+              MOV  AL,0CH
+              OUT  DX,AL
+
+              MOV  DX,3F9H
+              MOV  AL,00H
+              OUT  DX,AL
+
+              MOV  DX,3FBH
+              MOV  AL,00011011B
+              OUT  DX,AL
+              RET
+SetConfig ENDP
 
 END MAIN
