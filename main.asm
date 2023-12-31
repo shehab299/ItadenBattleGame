@@ -87,6 +87,8 @@ MAIN PROC FAR
     call getplayer1name
 
 
+    mainmenu:
+
     call setBackgroundColor
     
     ;WELCOME PAGE
@@ -95,19 +97,29 @@ MAIN PROC FAR
     call drawWelcomePage
     call Wait_Sec
     call getplayer2name
-
-
+    mov waittime,2
+    call Wait_Sec
 
     ;TAKE KEY FROM USER
     CHK_KEY:
     MOV AH,0
     INT 16H
 
+    CMP AH,F1
+    JE CHAT
+
     CMP AH,EscKey
     JE CLOSE
 
     CMP AH,EnterKey
     JNE CHK_KEY
+
+    jmp Names
+
+    chat:
+    call displaychat
+    jmp mainmenu
+
 
     ;ENTER NAMES
     Names:
@@ -607,5 +619,178 @@ Wait_Sec PROC
 	popa
 	ret
 Wait_Sec ENDP
+
+displaychat proc
+
+mov cx, 0           ;Column
+    mov dx, 0           ;Row
+    mov al, 0         ;Pixel color
+    mov ah, 0ch         ;Draw Pixel Command
+HorizonQ: int 10h
+    INC CX
+    CMP CX, 640
+    JNZ HorizonQ
+
+    MOV CX, 0
+    INC DX
+    CMP DX, 480
+    JNZ HorizonQ
+
+     mov  ah,0CH
+             mov  al,01
+             mov  cx,0
+             mov  dx,240
+    LL1:
+             int  10h
+             inc  cx
+             cmp  cx,640
+             jnz  LL1
+
+    call displayplayernames
+
+    mov cx, 0           ;Column
+            mov dx, 270           ;Row
+            mov al, 0         ;Pixel color
+            mov ah, 0ch         ;Draw Pixel Command
+       HorizonQ3: int 10h
+            INC CX
+            CMP CX, 640
+            JNZ HorizonQ3
+        
+            MOV CX, 0
+            INC DX
+            CMP DX, 480
+            JNZ HorizonQ3
+
+AGAIN:
+
+             mov  dl,SRX
+             mov  dh,SRY
+             mov  ah,2
+             int  10h
+
+             CALL CHECKRECIEVE
+
+             CMP RecieveFlag,1
+             JNE SENDLOP
+
+             call RecieveByte
+
+             MOV  DL,DataIn
+             MOV  AH,2
+             INT  21H
+
+
+             MOV  AH,3
+             INT  10h
+             MOV  SRX,DL
+             MOV  SRY,DH
+
+            CMP DataIn,0DH
+            JNZ NEX
+            INC SRY
+            NEX:
+
+            CMP SRY,30
+            JNZ SKIP1111
+            mov cx, 0           ;Column
+            mov dx, 270           ;Row
+            mov al, 0         ;Pixel color
+            mov ah, 0ch         ;Draw Pixel Command
+       HorizonQ23: int 10h
+            INC CX
+            CMP CX, 640
+            JNZ HorizonQ23
+        
+            MOV CX, 0
+            INC DX
+            CMP DX, 480
+            JNZ HorizonQ23
+            MOV SRY,17
+            MOV SRX,0
+
+            SKIP1111:
+
+             JMP  AGAIN
+
+    SENDLOP:
+
+             mov  ah,2
+             mov  dl,SSendX
+             mov  dh,SSendY
+             int  10h
+
+             mov  ah,01h
+             int  16h
+             jz   AGAIN
+
+             mov  ah,00H
+             int  16h
+             mov  bl,al
+             MOV DataOut,AL
+
+             mov  dl,bl
+             mov  ah,2
+             INT  21H
+
+             CALL CHECKSEND
+
+             
+             call sendbyte
+
+
+             MOV  AH,3
+             INT  10h
+             MOV  SSendX,DL
+             MOV  SSendY,dh
+
+             CMP BL,0DH
+            JNZ NEX1
+            INC SSendY
+            NEX1:
+
+            CMP SSendY,14
+            JNZ SKIPppp
+            mov cx, 0           ;Column
+            mov dx, 15           ;Row
+            mov al, 0         ;Pixel color
+            mov ah, 0ch         ;Draw Pixel Command
+       HorizonQ2: int 10h
+            INC CX
+            CMP CX, 640
+            JNZ HorizonQ2
+        
+            MOV CX, 0
+            INC DX
+            CMP DX, 222
+            JNZ HorizonQ2
+            MOV SSendX,0
+            MOV SSendY,1
+
+            SKIPppp:
+             JMP  SENDLOP
+ret
+displaychat endp
+
+displayplayernames proc
+PUSHA
+mov ah,2        
+mov dx,0 
+int 10h  
+mov dx, offset player1_name + 2
+mov ah, 9
+int 21h
+
+mov ah,2                                        
+mov dl,0  
+mov dh,16 
+int 10h 
+
+mov dx, offset player2_name+2
+mov ah, 9
+int 21h
+popa
+ret
+displayplayernames endp
 
 END MAIN

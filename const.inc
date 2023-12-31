@@ -2,6 +2,8 @@
 
 EnterKey EQU 1CH
 EscKey EQU 01H
+F1  EQU   3Bh
+F2  EQU   3CH
 
 ;Player1Keys
 W EQU 11h
