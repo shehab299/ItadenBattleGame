@@ -58,16 +58,6 @@ MAIN PROC FAR
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
-    mov ah,0
-    int 16h
-    CMP AL,'w'
-    JNE RE
-    MOV IN1,1
-    JMP BEGIN
-
-    RE:
-    MOV IN2,1
-
     BEGIN:
     call setBackgroundColor
     

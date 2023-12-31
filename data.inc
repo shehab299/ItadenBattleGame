@@ -1,6 +1,6 @@
 ENDCHAT1      DB   0
 ENDCHAT2      DB   0
-RandomNumberForPowerUp   DB   0
+RandomNumberForPowerUp   DB   40
 PrevColor    DB      0
 IN1    DB    0 
 IN2    DB    0

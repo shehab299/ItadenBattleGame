@@ -9,6 +9,7 @@ MAIN_LOOP PROC
 
     CMP AH,W
     JNE RECIEVE
+    MOV IN1,1
     CALL sendPathLength
     CALL SendTrack
 
@@ -18,6 +19,7 @@ MAIN_LOOP PROC
     RECIEVE:
     CMP AH,s
     JNE CHK_IN
+    MOV IN1,0  
     call RecievePathLength
     CALL RecieveTrack
 
@@ -869,6 +871,7 @@ Controls1:
     CheckStartInline:
     CMP [KeyList + F],1
     JNE CHANGE_DIRECTION_1
+
     CALL DisplayInlineChat
 
 
@@ -2525,7 +2528,7 @@ draw_All_Powers ENDP
 Chat_Box_asmaa PROC
         mov cx, chat_starting_column        ;Column
         mov dx, chat_starting_row           ;Row
-        mov al, BackgroundColor             ;Pixel color
+        mov al, 00             ;Pixel color
         mov ah, 0CH                         ;Draw Pixel Command
 
         chat_horizontal: int 10H
@@ -2544,7 +2547,7 @@ Chat_Box_asmaa PROC
         RET
 Chat_Box_asmaa ENDP
 
-DisplayInlineChat proc
+DisplayInlineChat PROC
     pusha
      mov  ah,2
      mov  dl,20   ;col
@@ -2576,7 +2579,7 @@ DisplayInlineChat proc
     call Chat_Box_asmaa
     popa
 ret
-DisplayInlineChat endp
+DisplayInlineChat ENDP
 
 regularcheck proc
 pusha
