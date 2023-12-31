@@ -61,7 +61,7 @@ MAIN_LOOP PROC
     call Chat_Box_asmaa
 
 
-    
+    call ConfigKeyboard
     ;MAIN LOOP
     CHECK_TIME:
     Mov AH, 2CH
@@ -2587,7 +2587,7 @@ DisplayInlineChat PROC
     INT  21H
     call CHECKSEND
     call sendbyte
-    call Wait_Sec
+    call WaitSomeTime
     jmp inlinelop
 
     endinline:
