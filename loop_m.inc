@@ -32,7 +32,7 @@ MAIN_LOOP PROC
     call WaitSomeTime
 
     call genPowerUps
-    ; CALL ConfigKeyboard
+    CALL ConfigKeyboard
  
     CALL CalcEnd
     CALL intiPos
@@ -61,7 +61,6 @@ MAIN_LOOP PROC
     call Chat_Box_asmaa
 
 
-    call ConfigKeyboard
     ;MAIN LOOP
     CHECK_TIME:
     Mov AH, 2CH

@@ -4,6 +4,8 @@ RandomNumberForPowerUp   DB   0
 PrevColor    DB      2
 IN1    DB    0 
 IN2    DB    0
+finish1    db     0
+finish2    db     0
 
 ;Chat positions
 chat_starting_row dw 413

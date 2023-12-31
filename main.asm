@@ -534,11 +534,16 @@ sendbyte endp
 
 getplayer2name proc
 PUSHA
-mov si,offset player1_name+2
-mov di,offset player2_name +2
+mov si,offset player1_name + 2
+mov di,offset player2_name + 2
 mov cl,15
 
 namesloop:
+cmp finish1,1
+jne trysend
+cmp finish2,1
+jne trysend2
+jmp akhertany
 
 ; call CHECKRECIEVE
 ; cmp RecieveFlag,1
@@ -550,26 +555,42 @@ namesloop:
 ; add di,1 
 
 trysend:
+
 mov al,byte ptr [si]
+cmp al,'$'
+jnz tany
+mov finish1,1
+tany:
 mov DataOut,al
 call CHECKSEND
 call sendbyte
 add si,1
 call WaitSomeTime
+call WaitSomeTime
+
 
 trysend2:
+cmp finish2,1
+je namesloop
 call CHECKRECIEVE
 cmp RecieveFlag,1
 jne trysend2
 call RecieveByte
 mov al,DataIn
+cmp al,'$'
+jnz tany2
+mov finish2,1
+jmp namesloop
+tany2:
 mov ah,0
 mov byte ptr [di],al
 add di,1 
 nnnnnn:
 dec cl
 cmp cl,0
-jne namesloop
+jmp namesloop
+
+akhertany:
 
 POPA
 ret
