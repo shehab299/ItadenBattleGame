@@ -648,7 +648,13 @@ HorizonQ: int 10h
 
 AGAIN:
             CMP ENDCHAT1,1
-            JNE DONTQUIT
+            JNE DONTQUIT1
+            MOV ENDCHAT1,0
+            MOV ENDCHAT2,0
+            JMP ENDINGCHAT
+
+
+            DONTQUIT1:
             CMP ENDCHAT2,1
             JNE DONTQUIT
             MOV ENDCHAT1,0
