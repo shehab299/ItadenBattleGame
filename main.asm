@@ -79,10 +79,9 @@ MAIN PROC FAR
     call loadLogo
 
     call drawWelcomePage
-    ; call Wait_Sec
-    ; call getplayer2name
-    ; mov waittime,2
-    ; call Wait_Sec
+    call WaitSomeTime
+    call getplayer2name
+    call WaitSomeTime
 
     ;TAKE KEY FROM USER
     CHK_KEY:
@@ -541,14 +540,14 @@ mov cl,15
 
 namesloop:
 
-call CHECKRECIEVE
-cmp RecieveFlag,1
-jne trysend
-call RecieveByte
-mov al,DataIn
-mov ah,0
-mov byte ptr [di],al
-add di,1 
+; call CHECKRECIEVE
+; cmp RecieveFlag,1
+; jne trysend
+; call RecieveByte
+; mov al,DataIn
+; mov ah,0
+; mov byte ptr [di],al
+; add di,1 
 
 trysend:
 mov al,byte ptr [si]
@@ -556,18 +555,18 @@ mov DataOut,al
 call CHECKSEND
 call sendbyte
 add si,1
+call WaitSomeTime
 
-; call Wait_Sec
-; trysend2:
-; call CHECKRECIEVE
-; cmp RecieveFlag,1
-; jne trysend2
-; call RecieveByte
-; mov al,DataIn
-; mov ah,0
-; mov byte ptr [di],al
-; add di,1 
-
+trysend2:
+call CHECKRECIEVE
+cmp RecieveFlag,1
+jne trysend2
+call RecieveByte
+mov al,DataIn
+mov ah,0
+mov byte ptr [di],al
+add di,1 
+nnnnnn:
 dec cl
 cmp cl,0
 jne namesloop
