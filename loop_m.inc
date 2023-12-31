@@ -2,29 +2,50 @@ MAIN_LOOP PROC
     MOV AX,@DATA
     MOV DS,AX
 
-    CALL ConfigKeyboard
+
 
     MOV AX,VIDEO_MODE
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
     call load_players_cars
-    call Generate
+    ; call Generate
 
     call display_Player1_name
     call display_Player2_name
   
+    CALL Generate
+    ; CALL intiPos
 
-   
+    CHK_IN:
+    MOV AH,0
+    INT 16H
 
+    CMP AH,W
+    JNE RECIEVE
+    CALL setXpos
+    CALL SetYpos1
+    CALL sendPathLength
+    CALL SendTrack
+
+    jmp draw_path
+
+    RECIEVE:
+    CMP AH,s
+    JNE CHK_IN
+    CALL setXpos
+    CALL SetYpos2
+    call RecievePathLength
+    CALL RecieveTrack
+
+    draw_path:
     call DrawPath_
-    call genPowerUps
+    ; call genPowerUps
     ; CALL genObstacles
-
     call drawFinishLine
-
+   
     CALL CalcEnd
-    CALL intiPos
+
 
     call drawEvilPowerUp
     call drawRedPowerUp
@@ -41,6 +62,7 @@ MAIN_LOOP PROC
     call drawBluePowerUp
     call drawGreenPowerUp
 
+    CALL ConfigKeyboard
     
     ;MAIN LOOP
     CHECK_TIME:
@@ -155,6 +177,303 @@ MAIN_LOOP PROC
 ENDCHK:
     RET
 MAIN_LOOP ENDP
+
+
+
+
+sendPathLength PROC
+
+    call CHECKSEND
+    MOV AX,Path_Length
+    MOV DataOut,AL
+    CALL sendByte
+
+    RET
+
+sendPathLength ENDP
+
+
+
+RecievePathLength PROC
+
+    RecievePath:
+    call CHECKRECIEVE
+    CMP RecieveFlag,0
+    JE RecievePath
+
+    CALL RecieveByte
+    MOV AL,DataIn
+    MOV AH,0
+    MOV Path_Length,AX
+
+    RET
+
+RecievePathLength ENDP
+
+ 
+SendTrack PROC
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE X's
+    xLoop:
+
+    call CHECKSEND
+    mov ax,PathX[bx]
+    mov DataOut,al
+    CALL sendByte
+
+    inc bx
+    inc bx
+
+    call WaitSomeTime
+    ; mov waittime,1
+    ; call Wait_Sec
+
+    Loop xloop
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE Y's
+    y_loop:
+
+    call CHECKSEND
+    mov ax,PathY[bx]
+    mov DataOut,al
+    CALL sendByte
+
+    inc bx
+    inc bx
+
+    call WaitSomeTime    
+    ; mov waittime,1
+    ; call Wait_Sec
+
+    Loop y_loop
+
+    mov bx,0
+    mov cx,Path_Length
+
+    tile_loop:
+
+    call CHECKSEND
+    mov ax,Path_Tile[bx]
+    mov DataOut,al
+    CALL sendByte
+
+    inc bx
+    inc bx
+
+    call WaitSomeTime
+    ; mov waittime,1
+    ; call Wait_Sec
+
+    Loop tile_loop
+
+    RET
+
+    
+SendTrack ENDP
+
+
+RecieveTrack PROC
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE X's
+    xLoop_R:
+
+    check_recieve_again:
+    call CHECKRECIEVE
+    cmp RecieveFlag,0
+    JE check_recieve_again
+    CALL RecieveByte
+
+    mov al,DataIn
+    mov ah,0
+    mov PathX[bx],ax
+
+    inc bx
+    inc bx
+
+    skipx:
+
+    Loop xLoop_R
+
+    mov bx,0
+    mov cx,Path_Length
+
+    ;SEND THE Y's
+    y_loop_R:
+
+    check_recieve_again2:
+    call CHECKRECIEVE
+    cmp RecieveFlag,0
+    JE check_recieve_again2
+    
+    CALL RecieveByte
+    mov al,DataIn
+    mov ah,0
+    mov PathY[bx],ax
+
+    inc bx
+    inc bx
+
+    skipme:
+
+    Loop y_loop_R
+
+    mov bx,0
+    mov cx,Path_Length
+
+    tile_loop_R:
+
+    call CHECKRECIEVE
+    cmp RecieveFlag,0
+    JE tile_loop_R
+    
+    CALL RecieveByte
+    mov al,DataIn
+    mov ah,0
+    mov Path_Tile[bx],ax
+
+    inc bx
+    inc bx
+
+    Loop tile_loop_R
+
+    RET
+
+RecieveTrack ENDP
+
+WaitSomeTime Proc
+
+    push ax bx cx dx
+
+    mov cx,60000
+    loop1wait:
+    loop loop1wait
+
+    pop dx cx bx ax
+
+    ret
+
+WaitSomeTime ENDP
+
+
+
+intiPos PROC 
+
+    PUSH BX DX AX DX
+
+    MOV BX,[pathx+0]
+    MOV DX,[pathy+0]
+
+    PUSH dx
+
+    ;CALCULATE X POSITION AND PUT IT IN AX
+    MOV AX,BX
+    MOV BX,CELL_W 
+    MUL BX
+    ADD AX,CELL_W/2
+
+    MOV INITIAL_X_POS,AX
+
+    ;CALCULATE Y POSITION OF THE FISRST CAR AND PUT IT IN AX
+    POP DX
+    MOV AX,DX
+    MOV DX,CELL_H
+    MUL DX
+    ADD AX,CELL_H/4
+
+    MOV INITIAL_Y_POS_1,AX
+    
+    ;CALCULATE Y POSITION OF THE SECOND CAR AND PUT IT IN AX
+    ADD AX,CELL_H/2
+
+    MOV INITIAL_Y_POS_2,AX
+
+    POP DX AX DX BX
+
+    RET
+
+intiPos ENDP
+
+
+setXpos PROC 
+
+    PUSH AX
+
+    MOV AX,INITIAL_X_POS
+    ;MOV THE X POSITION AND PUT IN THE STATES
+    MOV X_POS,AX
+    MOV AUX_X,AX
+    MOV X_POS_2,AX
+    MOV AUX_X_2,AX
+
+    POP AX
+
+    RET
+
+setXpos ENDP
+
+SetYpos1 PROC 
+
+    PUSH AX
+
+    MOV AX,INITIAL_Y_POS_1
+
+    MOV Y_POS,AX
+    MOV AUX_Y,AX
+
+    MOV AX,INITIAL_Y_POS_2
+
+    MOV Y_POS_2,AX
+    MOV AUX_Y_2,AX
+
+    POP AX
+
+    RET
+SetYpos1 ENDP
+
+
+SetYpos2 PROC 
+
+    PUSH AX
+
+    MOV AX,INITIAL_Y_POS_2
+
+    MOV Y_POS,AX
+    MOV AUX_Y,AX
+
+    MOV AX,INITIAL_Y_POS_1
+
+    MOV Y_POS_2,AX
+    MOV AUX_Y_2,AX
+
+    POP AX
+    RET
+SetYpos2 ENDP
+
+
+
+
+
+    ;MOV THE Y POSITION AND PUT IN THE STATES OF THE FIRST CAR
+
+
+    ;CALCULATE Y POSITION OF THE SECOND CAR AND PUT IT IN AX
+    ;MOV THE Y POSITION AND PUT IN THE STATES OF THE SECOND CAR
+
+
+
+
+
+
+
 
 
 WIN_1 PROC
@@ -350,58 +669,6 @@ display_CreationPower2 PROC
     RET
 display_CreationPower2 ENDP
 
-intiPos PROC 
-
-
-    PUSH BX DX AX DX
-
-    MOV BX,[pathx+0]
-    MOV DX,[pathy+0]
-
-    PUSH dx
-
-    ;CALCULATE X POSITION AND PUT IT IN AX
-    MOV AX,BX
-    MOV BX,CELL_W 
-    MUL BX
-    ADD AX,CELL_W/2
-
-    MOV INITIAL_X_POS,AX
-
-    ;MOV THE X POSITION AND PUT IN THE STATES
-    MOV X_POS,INTIAL_X_POS
-    MOV AUX_X,INTIAL_X_POS
-    MOV X_POS_2,INTIAL_X_POS
-    MOV AUX_X_2,INTIAL_X_POS
-
-    ;CALCULATE Y POSITION OF THE FISRST CAR AND PUT IT IN AX
-    POP DX
-    MOV AX,DX
-    MOV DX,CELL_H
-    MUL DX
-    ADD AX,CELL_H/4
-
-    MOV INITIAL_Y_POS_1,AX
-    
-    ;MOV THE Y POSITION AND PUT IN THE STATES OF THE FIRST CAR
-    MOV Y_POS,INITIAL_Y_POS_1
-    MOV AUX_Y,INITIAL_Y_POS_1
-
-    ;CALCULATE Y POSITION OF THE SECOND CAR AND PUT IT IN AX
-    ADD AX,CELL_H/2
-
-    MOV INITIAL_Y_POS_2,AX
-
-    ;MOV THE Y POSITION AND PUT IN THE STATES OF THE SECOND CAR
-    MOV Y_POS_2,INITIAL_Y_POS_2
-    MOV AUX_Y_2,INITIAL_Y_POS_2
-
-
-    POP DX AX DX BX
-
-    RET
-
-intiPos ENDP
 
 clearPos PROC
 

@@ -46,6 +46,7 @@ include keyboard.inc ;FOR KEYBOARD CONFIGURATION
 include loadCars.inc
 include grid.inc
 include loop_m.inc
+include Comm.inc
 
 
 MAIN PROC FAR
@@ -59,67 +60,66 @@ MAIN PROC FAR
     INT 10H
 
 
-    BEGIN:
-    call setBackgroundColor
+    ; BEGIN:
+    ; call setBackgroundColor
     
-    ;WELCOME PAGE
-    call loadLogo
+    ; ;WELCOME PAGE
+    ; call loadLogo
 
-    call drawWelcomePage
-
-
-    ;TAKE KEY FROM USER
-    CHK_KEY:
-    MOV AH,0
-    INT 16H
-
-    CMP AH,EscKey
-    JE CLOSE
-
-    CMP AH,EnterKey
-    JNE CHK_KEY
-
-    ;ENTER NAMES
-    Names:
-
-    call clearUnderOwl
-    call drawpPlayerInfo
-    call getInfo
-
-    ;To display the names
-    ; mov ah, 9
-    ; mov dx, offset player1_name + 2
-    ; int 21h
-
-    ; mov ah, 9
-    ; mov dx, offset player2_name + 2
-    ; int 21h
+    ; call drawWelcomePage
 
 
-    ;CHOOSE CHARACTER
-    CHOOSE_LBL:
+    ; ;TAKE KEY FROM USER
+    ; CHK_KEY:
+    ; MOV AH,0
+    ; INT 16H
 
-    CALL loadSmallOwl
+    ; CMP AH,EscKey
+    ; JE CLOSE
 
-    MOV BX, owl_current_row
+    ; CMP AH,EnterKey
+    ; JNE CHK_KEY
+
+    ; ;ENTER NAMES
+    ; Names:
+
+    ; call clearUnderOwl
+    ; call drawpPlayerInfo
+    ; call getInfo
+
+    ; ;To display the names
+    ; ; mov ah, 9
+    ; ; mov dx, offset player1_name + 2
+    ; ; int 21h
+
+    ; ; mov ah, 9
+    ; ; mov dx, offset player2_name + 2
+    ; ; int 21h
+
+
+    ; ;CHOOSE CHARACTER
+    ; CHOOSE_LBL:
+
+    ; CALL loadSmallOwl
+
+    ; MOV BX, owl_current_row
     
-    CALL drawPage
+    ; CALL drawPage
 
-    CALL Choose
+    ; CALL Choose
    
     ;TAKE CHARACTERS AND STORE THEM
 
     ; call setBackgroundColor
 
     ;START THE GAME
-
-    call ConfigKeyboard
+    call SetConfig
 
     call MAIN_LOOP
 
     CALL ResetKeyboard
 
-    JMP BEGIN
+    ; JMP BEGIN
     HLT
 
     CLOSE:
