@@ -57,19 +57,28 @@ MAIN PROC FAR
 
     ;SET VIDEO MODE
 
-    BEGIN:
    
     MOV AX,VIDEO_MODE
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
 
+    ; call clearUnderOwl
    
+    ;ENTER NAMES
+    Names:
+
+    
     call setBackgroundColor
+    call loadLogo
+    call drawpPlayerInfo
+    call getInfo
     
     ;WELCOME PAGE
+    BEGIN:
+    
+    call setBackgroundColor
     call loadLogo
-
     call drawWelcomePage
 
 
@@ -81,15 +90,9 @@ MAIN PROC FAR
     CMP AH,EscKey
     JE CLOSE
 
-    CMP AH,EnterKey
+    CMP AH, F2
     JNE CHK_KEY
 
-    ;ENTER NAMES
-    Names:
-
-    call clearUnderOwl
-    call drawpPlayerInfo
-    call getInfo
 
 
     ;CHOOSE CHARACTER

@@ -551,7 +551,6 @@ selectCharUP ENDP
 
 
 drawWelcomePage PROC
-
     CALL drawLogo
 
 
@@ -570,7 +569,6 @@ drawWelcomePage PROC
     MOV [AUX_IMAGE_HEIGHT], owl_height
     MOV [AUX_IMAGE_WIDTH], owl_width
     CALL drawImage
-
 
     MOV DX, offset hey_file_name
     MOV DI, offset file_handle
@@ -642,6 +640,25 @@ drawWelcomePage PROC
 drawWelcomePage ENDP
 
 drawpPlayerInfo PROC
+    CALL drawLogo
+
+
+    MOV DX, offset owl_file_name
+    MOV DI, offset file_handle
+    call openFile
+
+    MOV CX, owl_file_size
+    MOV DX, offset file_buffer
+    MOV BX, [file_handle]
+    call ReadFileToMemory
+
+    MOV SI, offset file_buffer
+    MOV [START_ROW], 91                           
+    MOV [START_COLUMN], 265
+    MOV [AUX_IMAGE_HEIGHT], owl_height
+    MOV [AUX_IMAGE_WIDTH], owl_width
+    CALL drawImage
+
 
     MOV DX, offset player1_file_name
     MOV DI, offset file_handle
