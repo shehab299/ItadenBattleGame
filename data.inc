@@ -238,11 +238,19 @@ percentage_Text      DB     '0', '$'
 WIN_1_TEXT DB 'WINNER IS ',  '$'
 WIN_2_TEXT DB 'WINNER IS ',  '$'
 TIE_TEXT DB 'YOU BOTH LOSE', '$'
-SCORE_TEXT DB 'SCORE:'    , '$'
+SCORE_TEXT DB 'SCORE:'    ,  '$'
+dummy_chat_msg DB 'huirvhuirvhoierhvierivreivcoievnsdlncfd vfbvjebvbec wjucwbucbwubce jerbvuberu uurewovbeour jbecjsdncjsdcu bvubu', '$'
 ; SCORE1_row DB 
 
 PLAYER1_WIN DB 0
 PLAYER2_WIN DB 0
+
+
+;Chat positions
+chat_starting_row dw 413
+chat_starting_column dw 160
+chat_length dw 60
+chat_width dw 335
 
 num dw ?
 

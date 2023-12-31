@@ -41,6 +41,8 @@ MAIN_LOOP PROC
     call drawBluePowerUp
     call drawGreenPowerUp
 
+
+    call Chat_Box
     
     ;MAIN LOOP
     CHECK_TIME:
@@ -2404,3 +2406,76 @@ drawGreenPowerUp PROC
     CALL drawImage
     RET
 drawEvilPowerUp ENDP
+
+Chat_Box PROC
+        mov cx, chat_starting_column        ;Column
+        mov dx, chat_starting_row           ;Row
+        mov al, BackgroundColor             ;Pixel color
+        mov ah, 0CH                         ;Draw Pixel Command
+
+        chat: int 10H
+        INC CX
+        MOV BX, CX
+        SUB BX, chat_starting_column
+        CMP BX, chat_width
+        JNZ chat
+
+        MOV CX, chat_starting_column
+        INC DX
+        MOV BX, DX
+        SUB BX, chat_starting_row
+        CMP BX, chat_length
+        JNZ chat
+        RET
+Chat_Box ENDP
+
+; Chat_Box PROC
+;     ; Draw top border
+;     mov cx, chat_starting_column        ; Column
+;     mov dx, chat_starting_row           ; Row
+;     mov al, BackgroundColor             ; Pixel color
+;     mov ah, 0CH                         ; Draw Pixel Command
+
+;     chat_top: 
+;         int 10H
+;         INC CX
+;         MOV BX, CX
+;         SUB BX, chat_starting_column
+;         CMP BX, chat_width
+;         JNZ chat_top
+
+;     ; Draw right border
+;     MOV CX, chat_starting_column + chat_width - 1
+;     MOV DX, chat_starting_row + 1
+;     mov al, BackgroundColor
+
+;     chat_right:
+;         int 10H
+;         DEC DX
+;         CMP DX, chat_starting_row
+;         JGE chat_right
+
+;     ; Draw bottom border
+;     MOV CX, chat_starting_column + chat_width - 2
+;     MOV DX, chat_starting_row + chat_length - 1
+;     mov al, BackgroundColor
+
+;     chat_bottom:
+;         int 10H
+;         DEC CX
+;         CMP CX, chat_starting_column
+;         JGE chat_bottom
+
+;     ; Draw left border
+;     MOV CX, chat_starting_column
+;     MOV DX, chat_starting_row + chat_length - 2
+;     mov al, BackgroundColor
+
+;     chat_left:
+;         int 10H
+;         INC DX
+;         CMP DX, chat_starting_row + 1
+;         JNE chat_left
+
+;     RET
+; Chat_Box ENDP
