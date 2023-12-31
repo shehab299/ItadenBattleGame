@@ -58,6 +58,16 @@ MAIN PROC FAR
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
+    mov ah,0
+    int 16h
+    CMP AL,'w'
+    JNE RE
+    MOV IN1,1
+    JMP BEGIN
+
+    RE:
+    MOV IN2,1
+
     BEGIN:
     call setBackgroundColor
     
@@ -79,10 +89,10 @@ MAIN PROC FAR
     call loadLogo
 
     call drawWelcomePage
-    call Wait_Sec
-    call getplayer2name
-    mov waittime,2
-    call Wait_Sec
+    ; call Wait_Sec
+    ; call getplayer2name
+    ; mov waittime,2
+    ; call Wait_Sec
 
     ;TAKE KEY FROM USER
     CHK_KEY:
@@ -106,7 +116,9 @@ MAIN PROC FAR
 
 
     ;ENTER NAMES
+
     Names:   
+
     ;To display the names
     ; mov ah, 9
     ; mov dx, offset player1_name + 2
@@ -115,8 +127,6 @@ MAIN PROC FAR
     ; mov ah, 9
     ; mov dx, offset player2_name + 2
     ; int 21h
-
-
     ;CHOOSE CHARACTER
     CHOOSE_LBL:
 
@@ -136,7 +146,9 @@ MAIN PROC FAR
 
     ; call ConfigKeyboard
 
+
     CALL SetConfig
+
     call MAIN_LOOP
 
     CALL ResetKeyboard
@@ -682,9 +694,9 @@ AGAIN:
              MOV  SRY,DH
 
             CMP DataIn,0DH
-            JNZ NEX
+            JNZ NEXmain
             INC SRY
-            NEX:
+            NEXmain:
 
             CMP SRY,30
             JNZ SKIP1111

@@ -1,6 +1,17 @@
 ENDCHAT1      DB   0
 ENDCHAT2      DB   0
+RandomNumberForPowerUp   DB   0
+PrevColor    DB      0
+IN1    DB    0 
+IN2    DB    0
 
+;Chat positions
+chat_starting_row dw 413
+chat_starting_column dw 160
+chat_length dw 60
+chat_width dw 335
+chat_end_row dw 473  
+chat_end_col dw 495
 
 waittime db 4
 goaltime db ?
