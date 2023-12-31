@@ -1,7 +1,8 @@
 MAIN_LOOP PROC 
 
-
+    CALL CalcInit
     CALL Generate
+    CALL setXpos
 
     CHK_IN:
     MOV AH,0
@@ -9,6 +10,7 @@ MAIN_LOOP PROC
 
     CMP AH,W
     JNE RECIEVE
+    call SetYpos1
     MOV IN1,1
     CALL sendPathLength
     CALL SendTrack
@@ -19,6 +21,7 @@ MAIN_LOOP PROC
     RECIEVE:
     CMP AH,s
     JNE CHK_IN
+    call setYpos2
     MOV IN1,0  
     call RecievePathLength
     CALL RecieveTrack
@@ -35,7 +38,7 @@ MAIN_LOOP PROC
     CALL ConfigKeyboard
  
     CALL CalcEnd
-    CALL intiPos
+
 
     call load_players_cars
 
@@ -376,7 +379,96 @@ WaitSomeTime Proc
 
 WaitSomeTime ENDP
 
+CalcInit PROC 
 
+    PUSH BX DX AX DX
+
+    MOV BX,[pathx+0]
+    MOV DX,[pathy+0]
+
+    PUSH dx
+
+    ;CALCULATE X POSITION AND PUT IT IN AX
+    MOV AX,BX
+    MOV BX,CELL_W 
+    MUL BX
+    ADD AX,CELL_W/2
+
+    MOV INITIAL_X_POS,AX
+
+    ;CALCULATE Y POSITION OF THE FISRST CAR AND PUT IT IN AX
+    POP DX
+    MOV AX,DX
+    MOV DX,CELL_H
+    MUL DX
+    ADD AX,CELL_H/4
+
+    MOV INITIAL_Y_POS_1,AX
+    
+    ;CALCULATE Y POSITION OF THE SECOND CAR AND PUT IT IN AX
+    ADD AX,CELL_H/2
+
+    MOV INITIAL_Y_POS_2,AX
+
+    POP DX AX DX BX
+
+    RET
+
+CalcInit ENDP
+
+setXpos PROC 
+
+    PUSH AX
+
+    MOV AX,INITIAL_X_POS
+
+    MOV X_POS,AX
+    MOV AUX_X,AX
+    MOV X_POS_2,AX
+    MOV AUX_X_2,AX
+
+    POP AX
+
+    RET
+
+setXpos ENDP
+
+SetYpos1 PROC 
+
+    PUSH AX
+
+    MOV AX,INITIAL_Y_POS_1
+
+    MOV Y_POS,AX
+    MOV AUX_Y,AX
+
+    MOV AX,INITIAL_Y_POS_2
+
+    MOV Y_POS_2,AX
+    MOV AUX_Y_2,AX
+
+    POP AX
+
+    RET
+SetYpos1 ENDP
+
+SetYpos2 PROC 
+
+    PUSH AX
+
+    MOV AX,INITIAL_Y_POS_2
+
+    MOV Y_POS,AX
+    MOV AUX_Y,AX
+
+    MOV AX,INITIAL_Y_POS_1
+
+    MOV Y_POS_2,AX
+    MOV AUX_Y_2,AX
+
+    POP AX
+    RET
+SetYpos2 ENDP
 
 WIN_1 PROC
     mov ah, 2
@@ -570,46 +662,6 @@ display_CreationPower2 PROC
     call OUTPUT_NUM
     RET
 display_CreationPower2 ENDP
-
-intiPos PROC 
-
-    PUSH BX DX AX DX
-
-    MOV BX,[pathx+0]
-    MOV DX,[pathy+0]
-
-    PUSH dx
-
-    MOV AX,BX
-    MOV BX,CELL_W 
-    MUL BX
-    ADD AX,CELL_W/2
-
-    MOV X_POS,AX
-    MOV AUX_X,AX
-    MOV X_POS_2,AX
-    MOV AUX_X_2,AX
-
-    POP DX
-    MOV AX,DX
-    MOV DX,CELL_H
-    MUL DX
-    ADD AX,CELL_H/4
-
-    MOV Y_POS,AX
-    MOV AUX_Y,AX
-
-    ADD AX,CELL_H/2
-
-    MOV Y_POS_2,AX
-    MOV AUX_Y_2,AX
-
-
-    POP DX AX DX BX
-
-    RET
-
-intiPos ENDP
 
 clearPos PROC
 
@@ -1169,12 +1221,6 @@ Controls1:
     XnotPressed:
     AND STATE1,11111110B
 
-    TransimtAgain:
-    CALL CHECKSEND
-    MOV AL,STATE1
-    MOV DataOut,AL
-    CALL sendByte
-
 CHANGE_DIRECTION_1:
     
     MOV AL,PrevState
@@ -1187,6 +1233,13 @@ CHANGE_DIRECTION_1:
     call CheckOutOfRange ;CHECK OUT OF PATH AND OUT OF SCREEN
 
     pop DX BX
+
+    TransimtAgain:
+    CALL CHECKSEND
+    MOV AL,STATE1
+    MOV DataOut,AL
+    CALL sendByte
+
     RET
 
 movePlayer1 ENDP
@@ -1198,7 +1251,7 @@ movePlayer2 PROC
     RecieveAgain:
     CALL CHECKRECIEVE
     CMP RecieveFlag,1
-    JNE NoState
+    JNE RecieveAgain
     CALL RecieveByte
     MOV AL,DataIn
     MOV STATE2,AL
@@ -1335,16 +1388,6 @@ CHANGE_DIRECTION_2:
     RET
 
 movePlayer2 ENDP
-
-
-
-
-
-
-
-
-
-
 
 
 
