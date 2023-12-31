@@ -810,22 +810,22 @@ displayplayernames endp
 
 
 SetConfig PROC
-              MOV  DX,3FBH
-              MOV  AL,10000000B
-              OUT  DX,AL
+    MOV  DX,3FBH
+    MOV  AL,10000000B
+    OUT  DX,AL
 
-              MOV  DX,3F8H
-              MOV  AL,0CH
-              OUT  DX,AL
+    MOV  DX,3F8H
+    MOV  AL,0CH
+    OUT  DX,AL
 
-              MOV  DX,3F9H
-              MOV  AL,00H
-              OUT  DX,AL
+    MOV  DX,3F9H
+    MOV  AL,00H
+    OUT  DX,AL
 
-              MOV  DX,3FBH
-              MOV  AL,00011011B
-              OUT  DX,AL
-              RET
+    MOV  DX,3FBH
+    MOV  AL,00011011B
+    OUT  DX,AL
+    RET
 SetConfig ENDP
 
 inviteToChat proc
@@ -849,16 +849,16 @@ inviteToChat proc
     ret 
     continue_send_inviteToChat:
     ;Check that Transmitter Holding Register is Empty
-                  mov         dx , 3FDH         ; Line Status Register
+    mov         dx , 3FDH         ; Line Status Register
 
-                  In          al , dx           ;Read Line Status
-                  AND         al , 00100000b
-                  JZ          receive_inviteToChat             ;jump untill it is empty
+    In          al , dx           ;Read Line Status
+    AND         al , 00100000b
+    JZ          receive_inviteToChat             ;jump untill it is empty
 
     ;If empty put the VALUE in Transmit data register
-                  mov         dx , 3F8H         ; Transmit data register
-                  mov         al, F1
-                  out         dx , al
+    mov         dx , 3F8H         ; Transmit data register
+    mov         al, F1
+    out         dx , al
 
     cmp invitedChat,1 
     jne not_invited_send
@@ -880,21 +880,21 @@ inviteToChat proc
     receive_inviteToChat:
 
     ;Check that Data Ready
-                  mov         dx , 3FDH         ; Line Status Register
-          
-                  in          al , dx
-                  AND         al , 00000001b
+    mov         dx , 3FDH         ; Line Status Register
 
-                  jnz          readValue_inviteToChat
+    in          al , dx
+    AND         al , 00000001b
 
-                  cmp invitedChat,1
-                  jz          receive_inviteToChat
-                  Jmp          mainLoop_inviteToChat        ;jump untill it recive data
+    jnz          readValue_inviteToChat
+
+    cmp invitedChat,1
+    jz          receive_inviteToChat
+    Jmp          mainLoop_inviteToChat        ;jump untill it recive data
 
     ;If Ready read the VALUE in Receive data register
     readValue_inviteToChat:
-                  mov         dx , 03F8H
-                  in          al , dx
+        mov         dx , 03F8H
+        in          al , dx
     cmp al,F1   
     je continue_receive_inviteToChat
 
