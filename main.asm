@@ -58,16 +58,6 @@ MAIN PROC FAR
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
-    mov ah,0
-    int 16h
-    CMP AL,'w'
-    JNE RE
-    MOV IN1,1
-    JMP BEGIN
-
-    RE:
-    MOV IN2,1
-
     BEGIN:
     call setBackgroundColor
     
@@ -660,7 +650,13 @@ HorizonQ: int 10h
 
 AGAIN:
             CMP ENDCHAT1,1
-            JNE DONTQUIT
+            JNE DONTQUIT1
+            MOV ENDCHAT1,0
+            MOV ENDCHAT2,0
+            JMP ENDINGCHAT
+
+
+            DONTQUIT1:
             CMP ENDCHAT2,1
             JNE DONTQUIT
             MOV ENDCHAT1,0
