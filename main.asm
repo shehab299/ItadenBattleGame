@@ -708,7 +708,7 @@ AGAIN:
              MOV  AH,2
              INT  21H
              
-             CMP DL,0   
+             CMP DL,F3   
              JNE NOQUIT2
             MOV ENDCHAT2,1
              NOQUIT2:
@@ -767,6 +767,7 @@ AGAIN:
              CMP AH,F3
              JNE NOQUIT
              MOV ENDCHAT1,1
+             mov DataOut,F3
 
              NOQUIT:
 
