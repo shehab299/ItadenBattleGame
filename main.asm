@@ -70,6 +70,20 @@ MAIN PROC FAR
     ; call getInfo
     call getplayer1name
 
+   
+
+    call setBackgroundColor
+    
+    ;WELCOME PAGE
+    call loadLogo
+
+    call drawWelcomePage
+
+     call WaitSomeTime
+    call WaitSomeTime
+
+    call getplayer2name
+    call WaitSomeTime
 
     mainmenu:
 
@@ -79,11 +93,6 @@ MAIN PROC FAR
     call loadLogo
 
     call drawWelcomePage
-    call WaitSomeTime
-    call WaitSomeTime
-
-    call getplayer2name
-    call WaitSomeTime
 
     ;TAKE KEY FROM USER
 
@@ -907,6 +916,9 @@ inviteToChat proc
         call displaychat
         mov invitedChat,0
         mov receivedInviteToChat,0
+        mov invitedGame,0
+        mov receivedInviteToGame,0
+        mov ah,0
         ret
 
     inviteGame_after_send:
@@ -944,10 +956,18 @@ inviteToChat proc
     jmp receive_inviteToChat
 
     not_invited_game_send:
+
+    mov ah, 2h
+    mov dh, 310/CharHeight + 2    ;ROW
+    mov dl, 130/CharWidth        ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
     mov ah,9    
     mov dx,offset sendGameInviteMes
     int 21h  
-    mov dx,offset player2_name_text
+    mov dx,offset player2_name + 2
     int 21h  
 
     mov invitedGame,1
@@ -956,6 +976,7 @@ inviteToChat proc
 
 
     receive_inviteToChat:
+    CLI
 
     ;Check that Data Ready
     mov         dx , 3FDH         ; Line Status Register
@@ -977,6 +998,7 @@ inviteToChat proc
     readValue_inviteToChat:
         mov         dx , 03F8H
         in          al , dx
+        STI
 
     cmp al,F1   
     je continue_receive_inviteToChat
@@ -998,6 +1020,9 @@ inviteToChat proc
         call displaychat
         mov invitedChat,0
         mov receivedInviteToChat,0
+        mov invitedGame,0
+        mov receivedInviteToGame,0
+        mov ah,0
         ret
 
     continue_receive_inviteToGame:
@@ -1027,8 +1052,16 @@ inviteToChat proc
     jmp mainLoop_inviteToChat_bridge_1
 
     not_invited_game_receive:
+
+    mov ah, 2h
+    mov dh, 310/CharHeight + 2    ;ROW
+    mov dl, 130/CharWidth        ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
     mov ah,9 
-    mov dx,offset player2_name_text
+    mov dx,offset player2_name + 2
     int 21h 
     mov dx,offset recGameInviteMes
     int 21h 

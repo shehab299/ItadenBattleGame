@@ -357,7 +357,7 @@ sendChatInviteMes db "You sent a chat invitation to $"
 recChatInviteMes db " sent you a chat invitation, to accept press F1$"
 
 invitedChat db 0
-receivedInviteToChat db 
+receivedInviteToChat db 0
 
 ;STATES
 
@@ -371,7 +371,7 @@ INITIAL_Y_POS_1 DW ?
 INITIAL_Y_POS_2 DW ? 
 
 sendGameInviteMes db "You sent a game invitation to $"
-recGameInviteMes db " sent you a chat invitation, to accept press F2$"
+recGameInviteMes db " sent you a game invitation, to accept press F2$"
 
 invitedGame db 0
 receivedInviteToGame db 0

@@ -5,13 +5,17 @@ MAIN_LOOP PROC
 
 
     CHK_IN:
-    MOV AH,0
-    INT 16H
+    ;MOV AH,0
+    ;INT 16H
 
-    CMP AH,W
-    JNE RECIEVE
+    ;CMP AH,W
+    cmp receivedInviteToGame,1
+    JE RECIEVE
     Mov mode,1
     MOV IN1,1
+    call WaitSomeTime
+    call WaitSomeTime
+    call WaitSomeTime
     CALL sendPathLength
     CALL SendTrack
 
@@ -19,8 +23,8 @@ MAIN_LOOP PROC
     jmp draw_path
 
     RECIEVE:
-    CMP AH,s
-    JNE CHK_IN
+    ;CMP AH,s
+    ;JNE CHK_IN
     mov mode,0
     MOV IN1,0  
     call RecievePathLength
@@ -379,6 +383,10 @@ RecieveTrack PROC
     call RecieveByte
     mov al,DataIn
     MOV RandomNumberForPowerUp,AL
+
+    mov ax,Path_Length
+    sub ax,2
+    mov Path_Length_dec,ax
 
     RET
 
