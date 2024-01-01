@@ -71,10 +71,9 @@ MAIN PROC FAR
     call loadLogo
     call drawWelcomePage
 
-    ; call WaitSomeTime
-
-    ; call getplayer2name
-    ; call WaitSomeTime
+    call WaitSomeTime
+    call getplayer2name
+    call WaitSomeTime
 
     ;TAKE KEY FROM USER
 
@@ -525,7 +524,8 @@ jmp akhertany
 ; add di,1 
 
 trysend:
-
+; CMP finish1,1
+; JE trysend2
 mov al,byte ptr [si]
 cmp al,'$'
 jnz tany
@@ -534,10 +534,9 @@ tany:
 mov DataOut,al
 call CHECKSEND
 call sendbyte
+call WaitSomeTime
+call WaitSomeTime
 add si,1
-call WaitSomeTime
-call WaitSomeTime
-
 
 trysend2:
 cmp finish2,1
@@ -550,14 +549,16 @@ mov al,DataIn
 cmp al,'$'
 jnz tany2
 mov finish2,1
-jmp namesloop
+; jmp namesloop
 tany2:
 mov ah,0
 mov byte ptr [di],al
 add di,1 
+
+
 nnnnnn:
-dec cl
-cmp cl,0
+; dec cl
+; cmp cl,0
 jmp namesloop
 
 akhertany:
