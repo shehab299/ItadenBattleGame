@@ -77,7 +77,6 @@ MAIN_LOOP PROC
     call Chat_Box_asmaa
 
 
-    call ConfigKeyboard
     ;MAIN LOOP
     CHECK_TIME:
     Mov AH, 2CH
@@ -1224,15 +1223,36 @@ Controls1:
 
     CheckCreate:
     CMP [KeyList + xkey],1
-    JNE XnotPressed
-    OR STATE1,00000001B
-    CMP CreationPower1,1
-    JNE CHANGE_DIRECTION_1
+
+    JNE CheckStartInline
+    CMP CreationPower1,0
+    JE CheckStartInline
     CALL DrawObstaclePower
-    MOV CreationPower1,0
-    JMP CHANGE_DIRECTION_1
-    XnotPressed:
-    AND STATE1,11111110B
+    DEC CreationPower1
+    MOV [KeyList + xkey],0
+
+    CheckStartInline:
+    CMP [KeyList + F],1
+    JNE CheckStartInline2
+    MOV [KeyList +F],0
+    CALL DisplayInlineChat
+
+    CheckStartInline2:
+    CMP [KeyList + G],1
+    JNE CHANGE_DIRECTION_1
+
+    CALL DisplayInlineChatRR
+
+    ;JNE Xno;tPressed
+    ;OR ST;;ATE1,00000001B
+    ;CMP ;CreationPower1,1
+    ;JNE; CHANGE_DIRECTION_1
+    ;CALL DrawObstaclePower
+    ;MOV CreationPower1,0
+    ;JMP CHANGE_DIRECTION_1
+    ;XnotPressed:
+    ;AND STATE1,11111110B
+
 
 CHANGE_DIRECTION_1:
     
@@ -2952,10 +2972,210 @@ DisplayInlineChat PROC
      int  10h
  inlinelop:
 
-    cmp [KeyList + q],1
-    jne nextkey
-    mov DataOut,'q'
+ mov ah,3h
+ mov bh,0h
+ int 10h
+
+ CMP DL,60
+ JL SENDING
+ CMP DH,28
+ JNE CON
+ CALL Chat_Box_asmaa
+ mov  ah,2
+ mov  dl,20   ;col
+ mov  dh,26
+ int  10h
+ JMP SENDING
+ CON:
+ mov  ah,2
+ mov  dl,20   ;col
+ mov  dh,28
+ int  10h
+
+    SENDING:
+    CMP [KeyList + a],1
+    JNE NEXTKEY1
+    MOV DataOut,'a'
+    mov [KeyList + a],0
+    jmp display
+    NEXTKEY1:
+
+    CMP [KeyList+ Bkey],1
+    JNE NEXTKEY2
+    MOV DataOut,'b'
+    mov [KeyList + Bkey],0
+    jmp display
+    NEXTKEY2:
+
+    CMP [KeyList+ Ckey],1
+    JNE NEXTKEYc
+    MOV DataOut,'c'
+    mov [KeyList + Ckey],0
+    jmp display
+    NEXTKEYc:
+
+    CMP [KeyList+ d],1
+    JNE NEXTKEYd
+    MOV DataOut,'d'
+    mov [KeyList + d],0
+    jmp display
+    NEXTKEYd:
+
+    CMP [KeyList+ e],1
+    JNE NEXTKEYe
+    MOV DataOut,'e'
+    mov [KeyList + e],0
+    jmp display
+    NEXTKEYe:
+
+    CMP [KeyList+ F],1
+    JNE NEXTKEYf
+    MOV DataOut,'f'
+    mov [KeyList + F],0
+    jmp display
+    NEXTKEYf:
+
+    CMP [KeyList+ G],1
+    JNE NEXTKEYg
+    MOV DataOut,'g'
+    mov [KeyList + G],0
+    jmp display
+    NEXTKEYg:
+
+    CMP [KeyList+ Hkey],1
+    JNE NEXTKEYh
+    MOV DataOut,'h'
+    mov [KeyList + Hkey],0
+    jmp display
+    NEXTKEYh:
+
+    CMP [KeyList+ Ikey],1
+    JNE NEXTKEYi
+    MOV DataOut,'i'
+    mov [KeyList + Ikey],0
+    jmp display
+    NEXTKEYi:
+
+    CMP [KeyList+ Jkey],1
+    JNE NEXTKEYj
+    MOV DataOut,'j'
+    mov [KeyList + Jkey],0
+    jmp display
+    NEXTKEYj:
+
+    CMP [KeyList+ Kkey],1
+    JNE NEXTKEYk
+    MOV DataOut,'k'
+    mov [KeyList + Kkey],0
+    jmp display
+    NEXTKEYk:
+
+    CMP [KeyList+ l],1
+    JNE NEXTKEYl
+    MOV DataOut,'l'
+    mov [KeyList + l],0
+    jmp display
+    NEXTKEYl:
+
+    CMP [KeyList+ Mkey],1
+    JNE NEXTKEYm
+    MOV DataOut,'m'
+    mov [KeyList + Mkey],0
+    jmp display
+    NEXTKEYm:
+
+    CMP [KeyList+ Nkey],1
+    JNE NEXTKEYn
+    MOV DataOut,'n'
+    mov [KeyList + Nkey],0
+    jmp display
+    NEXTKEYn:
+
+    CMP [KeyList+ o],1
+    JNE NEXTKEYo
+    MOV DataOut,'o'
+    mov [KeyList + o],0
+    jmp display
+    NEXTKEYo:
+
+    CMP [KeyList+ p],1
+    JNE NEXTKEYp
+    MOV DataOut,'p'
+    mov [KeyList + p],0
+    jmp display
+    NEXTKEYp:
+
+    CMP [KeyList+ q],1
+    JNE NEXTKEYq
+    MOV DataOut,'q'
     mov [KeyList + q],0
+    jmp display
+    NEXTKEYq:
+
+    CMP [KeyList+ Rkey],1
+    JNE NEXTKEYr
+    MOV DataOut,'r'
+    mov [KeyList + Rkey],0
+    jmp display
+    NEXTKEYr:
+
+    CMP [KeyList+ s],1
+    JNE NEXTKEYs
+    MOV DataOut,'s'
+    mov [KeyList + s],0
+    jmp display
+    NEXTKEYs:
+
+    CMP [KeyList+ Tkey],1
+    JNE NEXTKEYt
+    MOV DataOut,'t'
+    mov [KeyList + Tkey],0
+    jmp display
+    NEXTKEYt:
+
+    CMP [KeyList+ Ukey],1
+    JNE NEXTKEYu
+    MOV DataOut,'u'
+    mov [KeyList + Ukey],0
+    jmp display
+    NEXTKEYu:
+
+    CMP [KeyList+ Vkey],1
+    JNE NEXTKEYv
+    MOV DataOut,'v'
+    mov [KeyList + Vkey],0
+    jmp display
+    NEXTKEYv:
+
+    CMP [KeyList+ W],1
+    JNE NEXTKEYw
+    MOV DataOut,'w'
+    mov [KeyList + W],0
+    jmp display
+   NEXTKEYw:
+    cmp [KeyList + xkey],1
+    jne nextkeyx
+    mov DataOut,'x'
+    mov [KeyList + xkey],0
+    jmp display
+    nextkeyx:
+    cmp [KeyList + Ykey],1
+    jne nextkeyy
+    mov DataOut,'y'
+    mov [KeyList + Ykey],0
+    jmp display
+    nextkeyy:
+
+    cmp [KeyList + z],1
+    jne nextkeyz
+    mov DataOut,'z'
+    mov [KeyList + z],0
+    jmp display
+    nextkeyz:
+    CMP [KeyList + SpaceKey],1
+    JNE NEXTKEY
+    MOV DataOut,20h
+    MOV [KeyList + SpaceKey],0
     jmp display
 
     nextkey:
@@ -2977,6 +3197,52 @@ DisplayInlineChat PROC
     popa
 ret
 DisplayInlineChat ENDP
+
+DisplayInlineChatRR PROC
+    PUSHA
+    mov  ah,2
+     mov  dl,20   ;col
+     mov  dh,26
+     int  10h
+
+     LOOOPPP:
+     mov ah,3h
+ mov bh,0h
+ int 10h
+
+ CMP DL,60
+ JL RECIEVEING
+ CMP DH,28
+ JNE CON2
+ CALL Chat_Box_asmaa
+ mov  ah,2
+ mov  dl,20   ;col
+ mov  dh,26
+ int  10h
+ JMP RECIEVEING
+ CON2:
+ mov  ah,2
+ mov  dl,20   ;col
+ mov  dh,28
+ int  10h
+RECIEVEING:
+     cmp [KeyList + 1ch],1
+    jz endinlineRR
+     CALL CHECKRECIEVE
+    CMP RecieveFlag,1
+    JNE LOOOPPP
+    call RecieveByte
+    mov DL,DataIn
+    mov  ah,2
+    INT  21H
+    jmp LOOOPPP
+
+    endinlineRR:
+    CALL Chat_Box_asmaa
+    POPA
+
+    RET
+    DisplayInlineChatRR ENDP
 
 regularcheck proc
 pusha
