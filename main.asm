@@ -27,6 +27,8 @@ AUX_IMAGE_WIDTH dw ?
 AUX_IMAGE_HEIGHT dw ? 
 START_ROW dw ?
 
+FiveSecondsCount DB 0
+SECONDS DB 0
 
 ;GENERAL FILES
 
@@ -57,6 +59,8 @@ MAIN PROC FAR
     MOV AX,VIDEO_MODE
     MOV BX,VIDEO_MODE_BX
     INT 10H
+
+    CALL Generate
 
     BEGIN:
     call setBackgroundColor
@@ -153,12 +157,12 @@ MAIN PROC FAR
 
 
     CALL SetConfig
-
+    mov end_now,0
     call MAIN_LOOP
-
+    call wait5sec
     CALL ResetKeyboard
 
-    JMP BEGIN
+    JMP mainmenu
     HLT
 
     CLOSE:
@@ -1073,5 +1077,31 @@ inviteToChat proc
 
     ret
 inviteToChat ENDP
+
+
+wait5sec PROC
+    PUSHA
+    Mov AH, 2CH
+    INT 21H
+    MOV SECONDS, DH
+
+    CHECK_TIME2:
+        Mov AH, 2CH
+        INT 21H     ;DH => SECONDS
+
+        CMP DH, SECONDS
+        JE CHECK_TIME2
+
+        MOV SECONDS, DH
+        INC FiveSecondsCount
+        CMP  FiveSecondsCount, 5
+        JE EXIT_WAITING
+    JMP CHECK_TIME2
+
+    EXIT_WAITING:
+    POPA
+    RET
+wait5sec ENDP 
+
 
 END MAIN

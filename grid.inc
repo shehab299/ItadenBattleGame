@@ -898,7 +898,7 @@ chooseDirection proc
         cmp forceDirectionChange,1
         jz chooseDirection_innerBlock
 
-        cmp currCount,3
+        cmp currCount,2
         jge chooseDirection_innerBlock
 
         jmp chooseDirection_skipInnerBlock

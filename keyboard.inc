@@ -16,12 +16,16 @@ ConfigKeyboard PROC
 ConfigKeyboard ENDP
 
 ResetKeyboard PROC
-
+    push ds 
+    push dx
     mov dx,INT09_BX
     MOV DS,INT09_ES
 
     mov  ax, 2509h         ; DOS.SetInterruptVector
     int  21h
+
+    pop DX
+    pop ds
 
     RET
 ResetKeyboard ENDP

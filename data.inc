@@ -360,6 +360,8 @@ invitedChat db 0
 receivedInviteToChat db 0
 
 ;STATES
+end_now db 0
+
 
 ;WSDAQEZX
 STATE1   DB    0

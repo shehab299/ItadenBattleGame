@@ -1,7 +1,7 @@
 MAIN_LOOP PROC 
 
 
-    CALL Generate
+    ;CALL Generate
 
 
     CHK_IN:
@@ -123,8 +123,14 @@ MAIN_LOOP PROC
     ;If it is different, draw and move
     MOV TIME_AUX, DL
 
+
+    F44:
     CMP [KeyList + F4], 1 ;to add
     JNE CHECK_FOR_WINNER ;to add 
+
+    MOV DataOut,F4
+    CALL CHECKSEND
+    CALL sendByte
 
     call display_scores ; to add
     JMP ENDCHK ;to add
@@ -176,7 +182,12 @@ MAIN_LOOP PROC
 
     call movePlayer1
     call movePlayer2
+    cmp end_now,1
+    jne nexttttt
+    call display_scores
+    JMP ENDCHK
 
+    nexttttt:
     CALL FinalValidation
 
 
@@ -690,8 +701,6 @@ display_CreationPower2 PROC
     RET
 display_CreationPower2 ENDP
 
-
-
 displayTime     PROC
     PUSHA
     ; MOV DX,TimeRow
@@ -918,9 +927,6 @@ display_scores2 PROC
     RET
 display_scores2 ENDP
 
-
-
-
 clearPos PROC
 
     ;CLEAR CAR 1
@@ -942,8 +948,6 @@ clearPos PROC
     RET
 
 clearPos ENDP
-
-
 
 ; THE POSITION WILL BE CALCULATED FROM THE CENTER OF THE IMAGE
 drawCar PROC  ;CX => ROW / DX => COLUMN /AX => DIR 
@@ -1086,9 +1090,6 @@ drawCar PROC  ;CX => ROW / DX => COLUMN /AX => DIR
         CALL drawImage
     RET
 drawCar ENDP
-
-
-
 
 
 movePlayer1 PROC
@@ -1291,6 +1292,13 @@ movePlayer2 PROC
     JNE RecieveAgain
     CALL RecieveByte
     MOV AL,DataIn
+    CMP al,F4
+    JNE FFLAG
+    POPA
+    MOV end_now,1
+    ret
+
+    FFLAG:
     cmp al,'f'
     jne sk
     call DisplayInlineChatRR
@@ -2609,9 +2617,11 @@ checkEndGame PROC
 
     FIRST_WIN:
     MOV PLAYER1_WIN,1
+    RET
 
     SECOND_WIN:
     MOV PLAYER2_WIN,1
+    RET
 
     JUST_END:
     RET
