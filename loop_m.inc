@@ -3,12 +3,14 @@ MAIN_LOOP PROC
 
     CALL Generate
 
+
     CHK_IN:
     MOV AH,0
     INT 16H
 
     CMP AH,W
     JNE RECIEVE
+    Mov mode,1
     MOV IN1,1
     CALL sendPathLength
     CALL SendTrack
@@ -19,6 +21,7 @@ MAIN_LOOP PROC
     RECIEVE:
     CMP AH,s
     JNE CHK_IN
+    mov mode,0
     MOV IN1,0  
     call RecievePathLength
     CALL RecieveTrack
@@ -31,11 +34,24 @@ MAIN_LOOP PROC
 
     call WaitSomeTime
 
+    call CalcInit
+    call setXpos
+
+    cmp mode,1
+    jne mod0
+    call SetYpos1
+    jmp endinit
+
+    mod0:
+    call SetYpos2
+
+    endinit:
+
     call genPowerUps
     CALL ConfigKeyboard
  
     CALL CalcEnd
-    CALL intiPos
+
 
     call load_players_cars
 
@@ -375,7 +391,96 @@ WaitSomeTime Proc
 
 WaitSomeTime ENDP
 
+CalcInit PROC 
 
+    PUSH BX DX AX DX
+
+    MOV BX,[pathx+0]
+    MOV DX,[pathy+0]
+
+    PUSH dx
+
+    ;CALCULATE X POSITION AND PUT IT IN AX
+    MOV AX,BX
+    MOV BX,CELL_W 
+    MUL BX
+    ADD AX,CELL_W/2
+
+    MOV INITIAL_X_POS,AX
+
+    ;CALCULATE Y POSITION OF THE FISRST CAR AND PUT IT IN AX
+    POP DX
+    MOV AX,DX
+    MOV DX,CELL_H
+    MUL DX
+    ADD AX,CELL_H/4
+
+    MOV INITIAL_Y_POS_1,AX
+    
+    ;CALCULATE Y POSITION OF THE SECOND CAR AND PUT IT IN AX
+    ADD AX,CELL_H/2
+
+    MOV INITIAL_Y_POS_2,AX
+
+    POP DX AX DX BX
+
+    RET
+
+CalcInit ENDP
+
+setXpos PROC 
+
+    PUSH AX
+
+    MOV AX,INITIAL_X_POS
+
+    MOV X_POS,AX
+    MOV AUX_X,AX
+    MOV X_POS_2,AX
+    MOV AUX_X_2,AX
+
+    POP AX
+
+    RET
+
+setXpos ENDP
+
+SetYpos1 PROC 
+
+    PUSH AX
+
+    MOV AX,INITIAL_Y_POS_1
+
+    MOV Y_POS,AX
+    MOV AUX_Y,AX
+
+    MOV AX,INITIAL_Y_POS_2
+
+    MOV Y_POS_2,AX
+    MOV AUX_Y_2,AX
+
+    POP AX
+
+    RET
+SetYpos1 ENDP
+
+SetYpos2 PROC 
+
+    PUSH AX
+
+    MOV AX,INITIAL_Y_POS_2
+
+    MOV Y_POS,AX
+    MOV AUX_Y,AX
+
+    MOV AX,INITIAL_Y_POS_1
+
+    MOV Y_POS_2,AX
+    MOV AUX_Y_2,AX
+
+    POP AX
+    RET
+SetYpos2 ENDP
 
 WIN_1 PROC
     mov ah, 2
@@ -570,46 +675,6 @@ display_CreationPower2 PROC
     RET
 display_CreationPower2 ENDP
 
-intiPos PROC 
-
-    PUSH BX DX AX DX
-
-    MOV BX,[pathx+0]
-    MOV DX,[pathy+0]
-
-    PUSH dx
-
-    MOV AX,BX
-    MOV BX,CELL_W 
-    MUL BX
-    ADD AX,CELL_W/2
-
-    MOV X_POS,AX
-    MOV AUX_X,AX
-    MOV X_POS_2,AX
-    MOV AUX_X_2,AX
-
-    POP DX
-    MOV AX,DX
-    MOV DX,CELL_H
-    MUL DX
-    ADD AX,CELL_H/4
-
-    MOV Y_POS,AX
-    MOV AUX_Y,AX
-
-    ADD AX,CELL_H/2
-
-    MOV Y_POS_2,AX
-    MOV AUX_Y_2,AX
-
-
-    POP DX AX DX BX
-
-    RET
-
-intiPos ENDP
-
 clearPos PROC
 
     ;CLEAR CAR 1
@@ -774,6 +839,263 @@ drawCar PROC  ;CX => ROW / DX => COLUMN /AX => DIR
     RET
 drawCar ENDP
     ;Move Squares
+; movePlayer1 PROC
+
+;     PUSH BX DX
+
+;     MOV BX,speed1_X
+;     MOV DX,speed1_Y
+
+;     MOV AL,CurrentState
+;     MOV PrevState,al
+;     MOV CurrentState,0
+
+; Controls1:
+;     checkUp:    
+;     ;if 'w' is pressed, move up
+;     CMP [KeyList + w], 1
+;     JNE checkDown
+;     mov MovingCar,1
+;     SUB AUX_Y,DX
+;     ADD CurrentState,2
+
+;     checkDown:
+;     ;if 's' is pressed, move down
+;     CMP [KeyList + s], 1
+;     JNE checkRight
+;     mov MovingCar,1
+;     ADD AUX_Y,DX
+;     ADD CurrentState,4
+
+;     checkRight:
+;     ;if 'd' is pressed, move right
+;     CMP [KeyList + d], 1
+;     JNE checkLeft
+;     mov MovingCar,1
+;     ADD AUX_X,BX
+;     ADD CurrentState,8
+
+;    ;if 'a' is pressed, move left
+;     checkLeft:
+;     CMP [KeyList + a], 1
+;     JNE checkSpeedingUp
+;     mov MovingCar,1
+;     SUB AUX_X,BX
+;     ADD CurrentState,16
+
+;     checkSpeedingUp:
+;     CMP [KeyList+q],1
+;     JNE checkSpeedingDown
+
+;     CMP SpeedUp1,0
+;     JE checkSpeedingDown
+;     CMP UseSpeedUp1,1
+;     JE checkSpeedingDown
+
+;     DEC SpeedUp1
+
+;     MOV UseSpeedUp1,1
+
+;     PUSHA
+;     MOV AH,2CH
+;     INT 21H
+;     MOV starttimeUP1,DH
+;     MOV counterup1,0
+;     POPA
+
+;     MOV speed1_X,IncreasedSpeed
+;     MOV speed1_Y,IncreasedSpeed
+
+;     checkSpeedingDown:
+;     CMP [KeyList + e],1
+;     JNE CheckAvoid
+
+;     CMP SpeedDown1,0
+;     JE CheckAvoid
+;     CMP UseSpeedDown1,1
+;     JE CheckAvoid
+
+;     DEC SpeedDown1
+;     MOV UseSpeedDown1,1
+;     PUSHA
+
+;     MOV AH,2CH
+;     INT 21H
+;     MOV starttimeDown1,DH
+;     MOV counterDown1,0
+;     POPA
+;     MOV speed2_X,DecreasedSpeed
+;     MOV speed2_Y,DecreasedSpeed
+
+;     CheckAvoid:
+;     CMP [KeyList + z],1
+;     JNE CheckCreate
+;     CMP Avoid1,0
+;     JE CheckCreate
+;     CMP UseAvoid1,1
+;     JE CheckCreate
+
+;     MOV UseAvoid1, 1
+;     DEC Avoid1
+
+;     CheckCreate:
+;     CMP [KeyList + xkey],1
+;     JNE CheckStartInline
+;     CMP CreationPower1,0
+;     JE CheckStartInline
+;     CALL DrawObstaclePower
+;     DEC CreationPower1
+;     MOV [KeyList + xkey],0
+
+;     CheckStartInline:
+;     CMP [KeyList + F],1
+;     JNE CHANGE_DIRECTION_1
+
+;     CALL DisplayInlineChat
+
+
+; CHANGE_DIRECTION_1:
+    
+;     MOV AL,PrevState
+;     CMP AL,CurrentState
+;     JE VALIDATE1
+;     MOV AH,1
+;     CALL ChangeDirection_STATE
+
+;     VALIDATE1:
+;     call CheckOutOfRange ;CHECK OUT OF PATH AND OUT OF SCREEN
+
+;     pop DX BX
+;     RET
+
+; movePlayer1 ENDP
+
+; movePlayer2 PROC
+
+;     PUSH BX DX
+
+;     MOV BX,speed2_X
+;     MOV DX,speed2_Y
+
+;     MOV AL,CurrentState2
+;     MOV PrevState2,al
+;     MOV CurrentState2,0
+
+; Controls2:
+;     checkUp2:    
+;     ;if 'up' is pressed, move up
+;     CMP [KeyList + upArrow], 1
+;     JNE checkDown2
+;     mov MovingCar,2
+;     SUB AUX_Y_2,DX
+;     ADD CurrentState2,2
+
+;     checkDown2:
+;     ;if 'down' is pressed, move down
+;     CMP [KeyList + downArrow], 1
+;     JNE checkRight2
+;     mov MovingCar,2
+;     ADD AUX_Y_2,DX
+;     ADD CurrentState2,4
+
+;     checkRight2:
+;     ;if 'right' is pressed, move right
+;     CMP [KeyList + rightArrow], 1
+;     JNE checkLeft2
+;     mov MovingCar,2
+;     ADD AUX_X_2,BX
+;     ADD CurrentState2,8
+
+;     ;if 'left' is pressed, move left
+;     checkLeft2:
+;     CMP [KeyList + leftArrow], 1
+;     JNE checkSpeedingUp2
+;     mov MovingCar,2
+;     SUB AUX_X_2,BX
+;     ADD CurrentState2,16
+
+;     checkSpeedingUp2:
+;     CMP [KeyList+p],1
+;     JNE checkSpeedingDown2
+
+;     CMP SpeedUp2,0
+;     JE checkSpeedingDown2
+;     CMP UseSpeedUp2,1
+;     JE checkSpeedingDown2
+;     DEC SpeedUp2
+
+;     MOV UseSpeedUp2,1
+;     PUSHA
+;     MOV AH,2CH
+;     INT 21H
+;     MOV starttimeUP2,DH
+;     ; MOV counterup1,0
+;     POPA
+
+;     MOV speed2_X,IncreasedSpeed
+;     MOV speed2_Y,IncreasedSpeed
+
+;     checkSpeedingDown2:
+;     CMP [KeyList + o],1
+;     JNE CheckAvoid2
+
+;     CMP SpeedDown2,0
+;     JE CheckAvoid2
+;     CMP UseSpeedDown2,1
+;     JE CheckAvoid2
+;     DEC SpeedDown2
+;     MOV UseSpeedDown2,1
+;     PUSHA
+
+;     MOV AH,2CH
+;     INT 21H
+;     MOV starttimeDown2,DH
+;     POPA
+
+;     MOV speed1_X,DecreasedSpeed
+;     MOV speed1_Y,DecreasedSpeed
+
+;     CheckAvoid2:
+;     CMP [KeyList + Kkey],1
+;     JNE CheckCreate2
+
+;     CMP Avoid2,0
+;     JE CheckCreate2
+;     CMP UseAvoid2,1
+;     JE CheckCreate2
+;     MOV UseAvoid2,1
+;     DEC Avoid2
+
+;     CheckCreate2:
+;     CMP [KeyList + l],1
+;     JNE CHANGE_DIRECTION_2
+
+;     CMP CreationPower2,0
+;     JE CHANGE_DIRECTION_2
+;     CALL DrawObstaclePower2 
+;     DEC CreationPower2
+;     MOV [KeyList+l],0
+
+; CHANGE_DIRECTION_2:
+    
+;     MOV AL,PrevState2
+;     CMP AL,CurrentState2
+;     JE VALIDATE2
+;     MOV AH,2
+;     CALL ChangeDirection_STATE
+
+;     VALIDATE2:
+;     call CheckOutOfRange2 ;CHECK OUT OF PATH AND OUT OF SCREEN AND OBSTACLES
+
+;     pop DX BX
+;     RET
+
+; movePlayer2 ENDP
+
+
+
+
+
 movePlayer1 PROC
 
     PUSH BX DX
@@ -785,48 +1107,69 @@ movePlayer1 PROC
     MOV PrevState,al
     MOV CurrentState,0
 
+;WSDAQEZX  -> STATE1
+
+
 Controls1:
     checkUp:    
     ;if 'w' is pressed, move up
     CMP [KeyList + w], 1
-    JNE checkDown
+    JNE WnotPressed
+    OR STATE1,10000000B
     mov MovingCar,1
     SUB AUX_Y,DX
     ADD CurrentState,2
+    JMP checkDown
+
+    WnotPressed:
+    AND STATE1,01111111B
 
     checkDown:
     ;if 's' is pressed, move down
     CMP [KeyList + s], 1
-    JNE checkRight
+    JNE SnotPressed
+    OR STATE1,01000000B
     mov MovingCar,1
     ADD AUX_Y,DX
     ADD CurrentState,4
+    JMP checkRight
+
+    SnotPressed:
+    AND STATE1,10111111B
 
     checkRight:
     ;if 'd' is pressed, move right
     CMP [KeyList + d], 1
-    JNE checkLeft
+    JNE DnotPressed
+    OR STATE1,00100000B
     mov MovingCar,1
     ADD AUX_X,BX
     ADD CurrentState,8
+    JMP checkLeft
+
+    DnotPressed:
+    AND STATE1,11011111B
 
    ;if 'a' is pressed, move left
     checkLeft:
     CMP [KeyList + a], 1
-    JNE checkSpeedingUp
+    JNE AnotPressed
+    OR STATE1,00010000B
     mov MovingCar,1
     SUB AUX_X,BX
     ADD CurrentState,16
+    JMP checkSpeedingUp
+
+    AnotPressed:
+
+    AND STATE1,11101111B
 
     checkSpeedingUp:
     CMP [KeyList+q],1
-    JNE checkSpeedingDown
-
+    JNE QnotPressed
+    OR STATE1,00001000B
     CMP SpeedUp1,0
     JE checkSpeedingDown
-    CMP UseSpeedUp1,1
-    JE checkSpeedingDown
-
     DEC SpeedUp1
 
     MOV UseSpeedUp1,1
@@ -835,21 +1178,23 @@ Controls1:
     MOV AH,2CH
     INT 21H
     MOV starttimeUP1,DH
-    MOV counterup1,0
+    ; MOV counterup1,0
     POPA
 
     MOV speed1_X,IncreasedSpeed
     MOV speed1_Y,IncreasedSpeed
+    JMP checkSpeedingDown
+    QnotPressed:
+    AND STATE1,11110111B
+
 
     checkSpeedingDown:
     CMP [KeyList + e],1
-    JNE CheckAvoid
+    JNE EnotPressed
+    OR STATE1,00000100B
 
     CMP SpeedDown1,0
     JE CheckAvoid
-    CMP UseSpeedDown1,1
-    JE CheckAvoid
-
     DEC SpeedDown1
     MOV UseSpeedDown1,1
     PUSHA
@@ -857,24 +1202,28 @@ Controls1:
     MOV AH,2CH
     INT 21H
     MOV starttimeDown1,DH
-    MOV counterDown1,0
     POPA
     MOV speed2_X,DecreasedSpeed
     MOV speed2_Y,DecreasedSpeed
+    JMP CheckAvoid
+    EnotPressed:
+    AND STATE1,11111011B
 
     CheckAvoid:
     CMP [KeyList + z],1
+    JNE ZnotPressed
+    OR STATE1,00000010B
+    CMP Avoid1,1
     JNE CheckCreate
-    CMP Avoid1,0
-    JE CheckCreate
-    CMP UseAvoid1,1
-    JE CheckCreate
-
-    MOV UseAvoid1, 1
-    DEC Avoid1
+    MOV UseAvoid1,1
+    MOV Avoid1,0
+    JMP CheckCreate
+    ZnotPressed:
+    AND STATE1,11111101B
 
     CheckCreate:
     CMP [KeyList + xkey],1
+
     JNE CheckStartInline
     CMP CreationPower1,0
     JE CheckStartInline
@@ -894,7 +1243,15 @@ Controls1:
 
     CALL DisplayInlineChatRR
 
-
+    ;JNE Xno;tPressed
+    ;OR ST;;ATE1,00000001B
+    ;CMP ;CreationPower1,1
+    ;JNE; CHANGE_DIRECTION_1
+    ;CALL DrawObstaclePower
+    ;MOV CreationPower1,0
+    ;JMP CHANGE_DIRECTION_1
+    ;XnotPressed:
+    ;AND STATE1,11111110B
 
 
 CHANGE_DIRECTION_1:
@@ -909,13 +1266,28 @@ CHANGE_DIRECTION_1:
     call CheckOutOfRange ;CHECK OUT OF PATH AND OUT OF SCREEN
 
     pop DX BX
+
+    TransimtAgain:
+    CALL CHECKSEND
+    MOV AL,STATE1
+    MOV DataOut,AL
+    CALL sendByte
+
     RET
 
 movePlayer1 ENDP
 
 movePlayer2 PROC
 
-    PUSH BX DX
+    PUSHA
+
+    RecieveAgain:
+    CALL CHECKRECIEVE
+    CMP RecieveFlag,1
+    JNE RecieveAgain
+    CALL RecieveByte
+    MOV AL,DataIn
+    MOV STATE2,AL
 
     MOV BX,speed2_X
     MOV DX,speed2_Y
@@ -924,18 +1296,24 @@ movePlayer2 PROC
     MOV PrevState2,al
     MOV CurrentState2,0
 
+    ;WSDAQEZX
+
 Controls2:
     checkUp2:    
     ;if 'up' is pressed, move up
-    CMP [KeyList + upArrow], 1
+    mov al,STATE2
+    and al,10000000B
+    CMP AL, 10000000B
     JNE checkDown2
     mov MovingCar,2
     SUB AUX_Y_2,DX
     ADD CurrentState2,2
 
     checkDown2:
+    MOV AL,STATE2
+    AND AL,01000000B
     ;if 'down' is pressed, move down
-    CMP [KeyList + downArrow], 1
+    CMP AL, 01000000B
     JNE checkRight2
     mov MovingCar,2
     ADD AUX_Y_2,DX
@@ -943,7 +1321,9 @@ Controls2:
 
     checkRight2:
     ;if 'right' is pressed, move right
-    CMP [KeyList + rightArrow], 1
+    MOV AL,STATE2
+    AND AL,00100000B
+    CMP AL, 00100000B
     JNE checkLeft2
     mov MovingCar,2
     ADD AUX_X_2,BX
@@ -951,19 +1331,25 @@ Controls2:
 
     ;if 'left' is pressed, move left
     checkLeft2:
-    CMP [KeyList + leftArrow], 1
+    MOV AL,STATE2
+    AND AL,00010000B
+    CMP AL,00010000B
     JNE checkSpeedingUp2
     mov MovingCar,2
     SUB AUX_X_2,BX
     ADD CurrentState2,16
 
+    JMP checkSpeedingUp2
+    NoState:
+    JMP CHANGE_DIRECTION_2
+
     checkSpeedingUp2:
-    CMP [KeyList+p],1
+    MOV AL,STATE2
+    AND AL,00001000B
+    CMP AL,00001000B
     JNE checkSpeedingDown2
 
     CMP SpeedUp2,0
-    JE checkSpeedingDown2
-    CMP UseSpeedUp2,1
     JE checkSpeedingDown2
     DEC SpeedUp2
 
@@ -979,12 +1365,12 @@ Controls2:
     MOV speed2_Y,IncreasedSpeed
 
     checkSpeedingDown2:
-    CMP [KeyList + o],1
+    MOV AL,STATE2
+    AND AL,00000100B
+    CMP AL,00000100B
     JNE CheckAvoid2
 
     CMP SpeedDown2,0
-    JE CheckAvoid2
-    CMP UseSpeedDown2,1
     JE CheckAvoid2
     DEC SpeedDown2
     MOV UseSpeedDown2,1
@@ -999,25 +1385,26 @@ Controls2:
     MOV speed1_Y,DecreasedSpeed
 
     CheckAvoid2:
-    CMP [KeyList + Kkey],1
+    MOV AL,STATE2
+    AND AL,00000010B
+    CMP AL,00000010B
     JNE CheckCreate2
 
-    CMP Avoid2,0
-    JE CheckCreate2
-    CMP UseAvoid2,1
-    JE CheckCreate2
+    CMP Avoid2,1
+    JNE CheckCreate2
     MOV UseAvoid2,1
-    DEC Avoid2
+    MOV Avoid2,0
 
     CheckCreate2:
-    CMP [KeyList + l],1
+    MOV AL,STATE2
+    AND AL,00000001B
+    CMP AL,00000001B
     JNE CHANGE_DIRECTION_2
 
-    CMP CreationPower2,0
-    JE CHANGE_DIRECTION_2
+    CMP CreationPower2,1
+    JNE CHANGE_DIRECTION_2
     CALL DrawObstaclePower2 
-    DEC CreationPower2
-    MOV [KeyList+l],0
+    MOV CreationPower2,0
 
 CHANGE_DIRECTION_2:
     
@@ -1030,10 +1417,18 @@ CHANGE_DIRECTION_2:
     VALIDATE2:
     call CheckOutOfRange2 ;CHECK OUT OF PATH AND OUT OF SCREEN AND OBSTACLES
 
-    pop DX BX
+    POPA
     RET
 
 movePlayer2 ENDP
+
+
+
+
+
+
+
+
 
 ChangeDirection_STATE PROC 
 
