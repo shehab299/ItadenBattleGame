@@ -14,6 +14,9 @@ include img.inc
 include data.inc
 
 
+FiveSecondsCount DB 0
+SECONDS DB 0
+
 ;ADDRESS VECTOR FOR INTERRUPTS
 INT09_BX DW ?
 INT09_ES DW ?
@@ -54,32 +57,27 @@ MAIN PROC FAR
 
     ; ;SET VIDEO MODE
 
+   
     MOV AX,VIDEO_MODE
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
     BEGIN:
-    call setBackgroundColor
-    
-    ;WELCOME PAGE
-    call loadLogo
 
-    call drawWelcomePage
-    call clearUnderOwl
+    call setBackgroundColor
+    call loadLogo
     call drawpPlayerInfo
-    ; call getInfo
     call getplayer1name
+    ; call getInfo
 
-
-    mainmenu:
-
-    call setBackgroundColor
-    
+    BEGIN:
     ;WELCOME PAGE
+    call setBackgroundColor
     call loadLogo
-
     call drawWelcomePage
+
     call WaitSomeTime
+
     call getplayer2name
     call WaitSomeTime
 
@@ -95,12 +93,12 @@ MAIN PROC FAR
     ;CMP AH,EscKey
     ;JE CLOSE
 
+
     ;CMP AH,EnterKey
     ;JNE CHK_KEY
-
     ;jmp Names
 
-    chat:
+  
     mov bypassMenuLoop,0
     ;call displaychat
     call inviteToChat
@@ -121,6 +119,7 @@ MAIN PROC FAR
     ; mov ah, 9
     ; mov dx, offset player2_name + 2
     ; int 21h
+
     ;CHOOSE CHARACTER
     CHOOSE_LBL:
 
@@ -132,6 +131,7 @@ MAIN PROC FAR
 
     CALL Choose
    
+
     ; TAKE CHARACTERS AND STORE THEM
 
     call setBackgroundColor
@@ -143,11 +143,13 @@ MAIN PROC FAR
 
     CALL SetConfig
 
+
     call MAIN_LOOP
-
+    call wait5sec
     CALL ResetKeyboard
-
     JMP BEGIN
+
+
     HLT
 
     CLOSE:
@@ -478,9 +480,9 @@ findCarRemSteps proc ;DI -> X_POS ; SI -> Y_POS
         cmp [pathy+BX],DX
         jnz skip_search_findcarindex
             ;found
-            mov bx,2 
+            mov bx, 2 
             mov ax,cx 
-            mov dx,0          
+            mov dx, 0          
             div bx      
             mov carIndex,ax
             ret 
@@ -491,6 +493,30 @@ findCarRemSteps proc ;DI -> X_POS ; SI -> Y_POS
     jl search_findcarindex
     ret
 findCarRemSteps endp
+
+wait5sec PROC
+    PUSHA
+    Mov AH, 2CH
+    INT 21H
+    MOV SECONDS, DH
+
+    CHECK_TIME2:
+        Mov AH, 2CH
+        INT 21H     ;DH => SECONDS
+
+        CMP DH, SECONDS
+        JE CHECK_TIME2
+
+        MOV SECONDS, DH
+        INC FiveSecondsCount
+        CMP  FiveSecondsCount, 5
+        JE EXIT_WAITING
+    JMP CHECK_TIME2
+
+    EXIT_WAITING:
+    POPA
+    RET
+wait5sec ENDP 
 
 CHECKSEND PROC
     PUSHA

@@ -119,6 +119,13 @@ MAIN_LOOP PROC
     ;If it is different, draw and move
     MOV TIME_AUX, DL
 
+    CMP [KeyList + F4], 1
+    JNE CHECK_FOR_WINNER
+
+    call display_scores
+    JMP ENDCHK
+
+    CHECK_FOR_WINNER:
     CMP PLAYER1_WIN,1
     JNE CHECK_WIN_2
     CALL WIN_1
@@ -484,8 +491,8 @@ SetYpos2 ENDP
 
 WIN_1 PROC
     mov ah, 2
-    mov dh, SCREEN_HEIGHT/CharHeight - 12     ;ROW
-    mov dl, 40                               ;COLUMN
+    mov dh, 220/CharHeight             ;ROW
+    mov dl, 30                         ;COLUMN
     mov bh, 0         
     int 10h
 
@@ -504,8 +511,8 @@ WIN_1 ENDP
 
 WIN_2 PROC
     mov ah, 2
-    mov dh, SCREEN_HEIGHT/CharHeight - 12     ;ROW
-    mov dl, 40                               ;COLUMN
+    mov dh, 230/CharHeight                   ;ROW
+    mov dl, 30                               ;COLUMN
     mov bh, 0         
     int 10h
 
@@ -521,8 +528,8 @@ WIN_2 ENDP
 
 TIE PROC
     mov ah, 2
-    mov dh, SCREEN_HEIGHT/CharHeight - 12     ;ROW
-    mov dl, 40                               ;COLUMN
+    mov dh, 230/CharHeight                   ;ROW
+    mov dl, 30                               ;COLUMN
     mov bh, 0         
     int 10h
 
@@ -2613,7 +2620,7 @@ display_percentage PROC
     DIV Path_Length_dec
     
     mov ah, 2
-    mov dh, 470/CharHeight    ;ROW
+    mov dh, 470/CharHeight                   ;ROW
     mov dl, 70                               ;COLUMN
     mov bh, 0         
     int 10h
@@ -2650,6 +2657,58 @@ display_percentage PROC
     RET
 display_percentage ENDP
 
+display_scores2 PROC
+    PUSHA
+
+    MOV DI,X_POS
+    MOV SI,Y_POS
+    CALL findCarRemSteps
+
+    MOV BX,100
+    MOV AX,carIndex
+    MUL BX
+    ;DIV Path_Length
+    DIV Path_Length_dec
+    
+    mov ah, 2
+    mov dh, 220/CharHeight                   ;ROW
+    mov dl, 50                               ;COLUMN
+    mov bh, 0         
+    int 10h
+    ;Al IS THE PERCENTAGE OF THE PATH OF PLAYER 1
+    MOV AH,0
+
+    MOV num,AX
+    CALL OUTPUT_NUM
+    
+
+    MOV DI,X_POS_2
+    MOV SI,Y_POS_2
+    CALL findCarRemSteps
+
+    MOV BX,100
+    MOV AX,carIndex
+    MUL BX
+    DIV Path_Length_dec
+
+
+    mov ah, 2
+    mov dh, 260/CharHeight    ;ROW
+    mov dl, 50                               ;COLUMN
+    mov bh, 0         
+    int 10h
+    ;AL IS THE PERCENTAGE OF THE PATH OF PLAYER2
+    MOV AH,0
+
+    MOV num,AX
+    CALL OUTPUT_NUM
+
+    POPA
+
+    RET
+display_scores2 ENDP
+
+
 OUTPUT_NUM PROC
     mov bl,100
     div bl
@@ -2678,6 +2737,52 @@ OUTPUT_NUM ENDP
 
 
 
+display_scores PROC
+    mov ah, 2
+    mov dh, 220/CharHeight             ;ROW
+    mov dl, 25                         ;COLUMN
+    mov bh, 0         
+    int 10h
+
+    mov ah, 9
+    mov dx, offset player1_name + 2
+    int 21h
+
+    mov ah, 2
+    mov dh, 220/CharHeight             ;ROW
+    mov dl, 36                         ;COLUMN
+    mov bh, 0         
+    int 10h
+
+    mov ah, 9
+    mov dx, offset SCORE_TEXT
+    int 21h
+
+    mov ah, 2
+    mov dh, 260/CharHeight             ;ROW
+    mov dl, 25                         ;COLUMN
+    mov bh, 0         
+    int 10h
+
+
+    mov ah, 9
+    mov dx, offset player2_name + 2
+    int 21h
+
+    mov ah, 2
+    mov dh, 260/CharHeight             ;ROW
+    mov dl, 36                         ;COLUMN
+    mov bh, 0         
+    int 10h
+
+    mov ah, 9
+    mov dx, offset SCORE_TEXT
+    int 21h
+
+    call display_scores2
+    
+    RET
+display_scores ENDP
 
 
 checkEndGame PROC 
@@ -3282,3 +3387,4 @@ call Chat_Box_asmaa
 popa
 ret
 regularcheck endp
+
