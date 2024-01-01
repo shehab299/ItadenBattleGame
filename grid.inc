@@ -961,6 +961,18 @@ updateMap proc
     ret 
 updateMap endp 
 
+RecievePowerUp PROC
+    PUSHA
+    Ragain:
+    call CHECKRECIEVE
+    cmp RecieveFlag,1
+    JNE Ragain
+    mov al,DataIn
+    MOV RandomNumberForPowerUp,AL
+    ; CALL RandPowerUp
+    POPA
+    RET
+    RecievePowerUp ENDP
 
 genPowerUps PROC
     PUSH AX
@@ -969,7 +981,7 @@ genPowerUps PROC
     PUSH DI 
     PUSH CX
 
-     MOV CX,Path_Length
+    MOV CX,Path_Length
     ; SUB CX,1
     MOV AX,CX
     MOV BL,4
@@ -981,7 +993,6 @@ genPowerUps PROC
     ADD DI,2
     MOV BX,offset PathY
     ADD BX,2
-   
 
 
     LoopOnPath:
@@ -997,14 +1008,40 @@ genPowerUps PROC
     MOV EndY,AX
     ADD EndY,CELL_H
 
+    ; CMP IN1,1
+    ; JNE RECIEVING
+
+    ; PUSHA
+    ; Mov AH, 2CH
+    ; INT 21H
+    ; MOV RandomNumberForPowerUp,DL
+    ; POPA
+
+    ; CALL CHECKSEND
+    ; MOV AL,RandomNumberForPowerUp
+    ; MOV DataOut,AL
+    ; CALL sendbyte
+
+    ; PUSH CX
+    ; MOV CX,50000 
+    ; TIMER:
+    ; LOOP TIMER
+    ; POP CX
+
+    ; JMP WEWE
+
+    ; RECIEVING:
+    ; CALL RecievePowerUp
+
+    WEWE:
     CALL RandPowerUp
 
     ADD DI,8
-    ADD BX,8  
+    ADD BX,8
 
     DEC CX
     CMP CX,0
-    JNZ LoopOnPath
+    JA LoopOnPath
 
     POP CX
     POP DI
@@ -1148,57 +1185,35 @@ RandPowerUp PROC
     PUSH Bx
     PUSH DI
 
-    AGAINN: Mov AH, 2CH
-    INT 21H
-    MOV DH,0
-    CMP DL,60
+    AGAINN: 
+    MOV DL,RandomNumberForPowerUp
+    CMP DL,50
     JC LAB1
-    SUB DL,50
+    SUB DL,30
     LAB1:
-    CMP DL,0
-    JNZ LAB2
-    ADD DL,10
+    ; CMP DL,0
+    ; JNZ LAB2
+    ; ADD DL,10
     LAB2:
-    CMP DX,Prev
-    JZ AGAINN
-    MOV Prev,DX
     MOV CH,0
     MOV CL,dL
-
-
 
     MOV DX,StartY
     ADD DX,CX
 
-    MOV BX,EndY
-    SUB BX,dx
-    CMP BX,6  
-    JC Skip
+    ; MOV BX,EndY
+    ; SUB BX,dx
+    ; CMP BX,6  
+    ; JC Skip
 
-
-    ADD CX,10
     MOV AX,CX
     MOV CX,StartX
     ADD CX,AX
 
-    MOV BX,EndX
-    SUB BX,CX
-    CMP BX,6  
-    JC Skip
-
-    MOV DI,DX
-    SUB DI,PrevRow
-    CMP DI,20
-    JNC NoSkip
-    MOV BX,CX
-    SUB BX,PrevCol
-    CMP BX,20
-    JNC NoSkip
-    JMP Skip 
-
-    NoSkip:
-    MOV PrevRow,DX
-    MOV PrevCol,CX
+    ; MOV BX,EndX
+    ; SUB BX,CX
+    ; CMP BX,6  
+    ; JC Skip
 
     CALL ChooseColor
 
@@ -1219,34 +1234,60 @@ ChooseColor proc
     PUSH DI 
     PUSH CX
     
-    Mov AH, 2CH
-    INT 21H
-    MOV BL,5
-    MOV DH,0
-    MOV AX,DX
-    DIV bl
+    ; MOV BL,5
+    ; MOV DH,0
+    ; MOV AL,RandomNumberForPowerUp
+    ; MOV AH,0
+    ; DIV bl
 
-    CMP AH,0
-    JNE NextColor
-    MOV AL,SpeedUpColor
+    ; CMP AH,0
+    ; JNE NextColor
+    ; MOV AL,SpeedUpColor
+    ; JMP EndColor
+    ; NextColor:
+    ; CMP AH,4
+    ; JNE NextColor1
+    ; MOV AL,AvoidObstaclColor  
+    ; JMP EndColor
+    ; NextColor1:
+    ; CMP AH,3
+    ; JNE NextColor2
+    ; MOV AL,CreateObstaclColor
+    ; JMP EndColor
+    ; NextColor2:
+    ; CMP AH,2  
+    ; JNE NextColor3
+    ; MOV AL,ObstacleColor
+    ; JMP EndColor
+    ; NextColor3:
+    ; MOV AL,SpeedDownColor
+
+    CMP PrevColor,SpeedUpColor
+    JNE NEXTCOL 
+    MOV AL,SpeedDownColor
+    MOV PrevColor,SpeedDownColor
     JMP EndColor
-    NextColor:
-    CMP AH,4
+NEXTCOL:
+    CMP PrevColor,SpeedDownColor
     JNE NextColor1
     MOV AL,AvoidObstaclColor  
+    MOV PrevColor,AvoidObstaclColor
     JMP EndColor
-    NextColor1:
-    CMP AH,3
+NextColor1:
+    CMP PrevColor,AvoidObstaclColor
     JNE NextColor2
     MOV AL,CreateObstaclColor
+    MOV PrevColor,CreateObstaclColor
     JMP EndColor
-    NextColor2:
-    CMP AH,2  
+NextColor2:
+    CMP PrevColor,CreateObstaclColor
     JNE NextColor3
     MOV AL,ObstacleColor
+    MOV PrevColor,ObstacleColor
     JMP EndColor
-    NextColor3:
-    MOV AL,SpeedDownColor
+NextColor3:
+    MOV AL,SpeedUpColor
+    MOV PrevColor,SpeedUpColor
     EndColor: 
     POP CX
     POP DI
