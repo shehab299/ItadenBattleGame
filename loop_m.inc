@@ -1,8 +1,8 @@
 MAIN_LOOP PROC 
 
-    CALL CalcInit
+
     CALL Generate
-    CALL setXpos
+
 
     CHK_IN:
     MOV AH,0
@@ -10,7 +10,7 @@ MAIN_LOOP PROC
 
     CMP AH,W
     JNE RECIEVE
-    call SetYpos1
+    Mov mode,1
     MOV IN1,1
     CALL sendPathLength
     CALL SendTrack
@@ -21,7 +21,7 @@ MAIN_LOOP PROC
     RECIEVE:
     CMP AH,s
     JNE CHK_IN
-    call setYpos2
+    mov mode,0
     MOV IN1,0  
     call RecievePathLength
     CALL RecieveTrack
@@ -33,6 +33,19 @@ MAIN_LOOP PROC
     call drawFinishLine
 
     call WaitSomeTime
+
+    call CalcInit
+    call setXpos
+
+    cmp mode,1
+    jne mod0
+    call SetYpos1
+    jmp endinit
+
+    mod0:
+    call SetYpos2
+
+    endinit:
 
     call genPowerUps
     CALL ConfigKeyboard

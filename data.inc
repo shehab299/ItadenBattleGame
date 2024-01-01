@@ -372,3 +372,7 @@ invitedGame db 0
 receivedInviteToGame db 0
 
 bypassMenuLoop db 0
+
+
+;INITIALIZE POSITION
+mode db ?
