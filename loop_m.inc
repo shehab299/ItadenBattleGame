@@ -105,7 +105,7 @@ MAIN_LOOP PROC
     JMP ENDCHK
 
     GAME:
-    call regularcheck
+    ; call regularcheck
 
     PUSHA
     CALL checkEndGame
@@ -1235,6 +1235,10 @@ Controls1:
     CMP [KeyList + F],1
     JNE CheckStartInline2
     MOV [KeyList +F],0
+    CALL CHECKSEND
+    MOV AL,'f'
+    MOV DataOut,AL
+    CALL sendByte
     CALL DisplayInlineChat
 
     CheckStartInline2:
@@ -1287,6 +1291,10 @@ movePlayer2 PROC
     JNE RecieveAgain
     CALL RecieveByte
     MOV AL,DataIn
+    cmp al,'f'
+    jne sk
+    call DisplayInlineChatRR
+    sk:
     MOV STATE2,AL
 
     MOV BX,speed2_X
@@ -1421,11 +1429,6 @@ CHANGE_DIRECTION_2:
     RET
 
 movePlayer2 ENDP
-
-
-
-
-
 
 
 
@@ -2993,6 +2996,17 @@ DisplayInlineChat PROC
  int  10h
 
     SENDING:
+
+    ; CALL CHECKRECIEVE
+    ; CMP RecieveFlag,1
+    ; JNE norrrr
+    ; call RecieveByte
+    ; mov DL,DataIn
+    ; mov  ah,2
+    ; INT  21H
+    ; jmp SENDING
+    ; norrrr:
+
     CMP [KeyList + a],1
     JNE NEXTKEY1
     MOV DataOut,'a'
@@ -3190,6 +3204,8 @@ DisplayInlineChat PROC
     call CHECKSEND
     call sendbyte
     call WaitSomeTime
+    call WaitSomeTime
+
     jmp inlinelop
 
     endinline:
