@@ -5,6 +5,7 @@ EscKey EQU 01H
 F1  EQU   3Bh
 F2  EQU   3CH
 F3  EQU   3DH
+F4  EQU   3EH
 F    EQU  21h
 G    EQU  22H
 Mkey    EQU   32h

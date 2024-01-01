@@ -27,7 +27,8 @@ AUX_IMAGE_WIDTH dw ?
 AUX_IMAGE_HEIGHT dw ? 
 START_ROW dw ?
 
-
+FiveSecondsCount DB 0
+SECONDS DB 0
 ;GENERAL FILES
 
 file_buffer db 20000 dup(?)
@@ -48,80 +49,43 @@ include grid.inc
 include loop_m.inc
 
 
+
+
 MAIN PROC FAR
     MOV AX,@DATA
     MOV DS,AX
-
-    ; ;SET VIDEO MODE
 
     MOV AX,VIDEO_MODE
     MOV BX,VIDEO_MODE_BX
     INT 10H
 
-    BEGIN:
     call setBackgroundColor
-    
-    ;WELCOME PAGE
     call loadLogo
-
-    call drawWelcomePage
-    call clearUnderOwl
     call drawpPlayerInfo
-    ; call getInfo
     call getplayer1name
+    ; call getInfo
 
-
-    mainmenu:
-
-    call setBackgroundColor
-    
+    BEGIN:
     ;WELCOME PAGE
+    call setBackgroundColor
     call loadLogo
-
     call drawWelcomePage
-    call WaitSomeTime
-    call getplayer2name
-    call WaitSomeTime
+
+    ; call WaitSomeTime
+
+    ; call getplayer2name
+    ; call WaitSomeTime
 
     ;TAKE KEY FROM USER
 
-    CHK_KEY:
-    ;MOV AH,0
-    ;INT 16H
-
-    ;CMP AH,F1
-    ;JE CHAT
-
-    ;CMP AH,EscKey
-    ;JE CLOSE
-
-    ;CMP AH,EnterKey
-    ;JNE CHK_KEY
-
-    ;jmp Names
-
-    chat:
     mov bypassMenuLoop,0
     ;call displaychat
     call inviteToChat
 
     cmp bypassMenuLoop,0
-    jz mainmenu
+    jz BEGIN
 
 
-    ;ENTER NAMES
-
-    Names:   
-
-    ;To display the names
-    ; mov ah, 9
-    ; mov dx, offset player1_name + 2
-    ; int 21h
-
-    ; mov ah, 9
-    ; mov dx, offset player2_name + 2
-    ; int 21h
-    ;CHOOSE CHARACTER
     CHOOSE_LBL:
 
     CALL loadSmallOwl
@@ -144,7 +108,7 @@ MAIN PROC FAR
     CALL SetConfig
 
     call MAIN_LOOP
-
+    call wait5sec
     CALL ResetKeyboard
 
     JMP BEGIN
@@ -902,6 +866,9 @@ inviteToChat proc
         call displaychat
         mov invitedChat,0
         mov receivedInviteToChat,0
+        mov invitedGame,0
+        mov receivedInviteToGame,0
+        mov ah,0
         ret
 
     inviteGame_after_send:
@@ -939,10 +906,18 @@ inviteToChat proc
     jmp receive_inviteToChat
 
     not_invited_game_send:
+
+    mov ah, 2h
+    mov dh, 310/CharHeight + 2    ;ROW
+    mov dl, 130/CharWidth        ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
     mov ah,9    
     mov dx,offset sendGameInviteMes
     int 21h  
-    mov dx,offset player2_name_text
+    mov dx,offset player2_name + 2
     int 21h  
 
     mov invitedGame,1
@@ -951,6 +926,7 @@ inviteToChat proc
 
 
     receive_inviteToChat:
+    CLI
 
     ;Check that Data Ready
     mov         dx , 3FDH         ; Line Status Register
@@ -972,6 +948,7 @@ inviteToChat proc
     readValue_inviteToChat:
         mov         dx , 03F8H
         in          al , dx
+        STI
 
     cmp al,F1   
     je continue_receive_inviteToChat
@@ -993,6 +970,9 @@ inviteToChat proc
         call displaychat
         mov invitedChat,0
         mov receivedInviteToChat,0
+        mov invitedGame,0
+        mov receivedInviteToGame,0
+        mov ah,0
         ret
 
     continue_receive_inviteToGame:
@@ -1022,8 +1002,16 @@ inviteToChat proc
     jmp mainLoop_inviteToChat_bridge_1
 
     not_invited_game_receive:
+
+    mov ah, 2h
+    mov dh, 310/CharHeight + 2    ;ROW
+    mov dl, 130/CharWidth        ;COLUMN
+    mov bh, 0         
+    mov bh, 00h
+    int 10h
+
     mov ah,9 
-    mov dx,offset player2_name_text
+    mov dx,offset player2_name + 2
     int 21h 
     mov dx,offset recGameInviteMes
     int 21h 
@@ -1035,5 +1023,31 @@ inviteToChat proc
 
     ret
 inviteToChat ENDP
+
+wait5sec PROC
+    PUSHA
+    Mov AH, 2CH
+    INT 21H
+    MOV SECONDS, DH
+
+    CHECK_TIME2:
+        Mov AH, 2CH
+        INT 21H     ;DH => SECONDS
+
+        CMP DH, SECONDS
+        JE CHECK_TIME2
+
+        MOV SECONDS, DH
+        INC FiveSecondsCount
+        CMP  FiveSecondsCount, 5
+        JE EXIT_WAITING
+    JMP CHECK_TIME2
+
+    EXIT_WAITING:
+    POPA
+    RET
+wait5sec ENDP 
+
+
 
 END MAIN

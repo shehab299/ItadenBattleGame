@@ -119,6 +119,14 @@ MAIN_LOOP PROC
     ;If it is different, draw and move
     MOV TIME_AUX, DL
 
+    CMP [KeyList + F4], 1 ;to add
+    JNE CHECK_FOR_WINNER ;to add 
+
+    call display_scores ; to add
+    JMP ENDCHK ;to add
+
+    CHECK_FOR_WINNER:
+
     CMP PLAYER1_WIN,1
     JNE CHECK_WIN_2
     CALL WIN_1
@@ -484,8 +492,8 @@ SetYpos2 ENDP
 
 WIN_1 PROC
     mov ah, 2
-    mov dh, SCREEN_HEIGHT/CharHeight - 12     ;ROW
-    mov dl, 40                               ;COLUMN
+    mov dh, 220/CharHeight             ;ROW
+    mov dl, 30                         ;COLUMN
     mov bh, 0         
     int 10h
 
@@ -501,11 +509,10 @@ WIN_1 PROC
     RET
 WIN_1 ENDP
 
-
 WIN_2 PROC
     mov ah, 2
-    mov dh, SCREEN_HEIGHT/CharHeight - 12     ;ROW
-    mov dl, 40                               ;COLUMN
+    mov dh, 230/CharHeight                   ;ROW
+    mov dl, 30                               ;COLUMN
     mov bh, 0         
     int 10h
 
@@ -521,8 +528,8 @@ WIN_2 ENDP
 
 TIE PROC
     mov ah, 2
-    mov dh, SCREEN_HEIGHT/CharHeight - 12     ;ROW
-    mov dl, 40                               ;COLUMN
+    mov dh, 230/CharHeight                   ;ROW
+    mov dl, 30                               ;COLUMN
     mov bh, 0         
     int 10h
 
@@ -675,6 +682,237 @@ display_CreationPower2 PROC
     RET
 display_CreationPower2 ENDP
 
+
+
+displayTime     PROC
+    PUSHA
+    ; MOV DX,TimeRow
+    ; MOV CX,TimeCol
+
+    MOV AH,2
+    MOV DX,0
+    INT 10H
+
+    MOV BL,10
+    MOV AX,TimeMin
+    DIV BL
+    MOV BH,AH
+
+    MOV DL,AL
+    ADD DL,30H
+    MOV AH,2 
+    INT 21H
+
+    MOV DL,BH
+    ADD DL,30H
+    MOV AH,2 
+    INT 21H
+
+    MOV DL,':'
+    MOV AH,2 
+    INT 21H
+
+    MOV BL,10
+    MOV AX,TimeSec
+    DIV BL
+    MOV BH,AH
+
+    MOV DL,AL
+    ADD DL,30H
+    MOV AH,2 
+    INT 21H
+
+    MOV DL,BH
+    ADD DL,30H
+    MOV AH,2 
+    INT 21H
+
+    POPA
+    RET
+    displayTime ENDP
+
+display_percentage PROC
+    PUSHA
+
+    MOV DI,X_POS
+    MOV SI,Y_POS
+    CALL findCarRemSteps
+
+    MOV BX,100
+    MOV AX,carIndex
+    MUL BX
+    ;DIV Path_Length
+    DIV Path_Length_dec
+    
+    mov ah, 2
+    mov dh, 470/CharHeight                   ;ROW
+    mov dl, 70                               ;COLUMN
+    mov bh, 0         
+    int 10h
+    ;Al IS THE PERCENTAGE OF THE PATH OF PLAYER 1
+    MOV AH,0
+
+    MOV num,AX
+    CALL OUTPUT_NUM
+    
+
+    MOV DI,X_POS_2
+    MOV SI,Y_POS_2
+    CALL findCarRemSteps
+
+    MOV BX,100
+    MOV AX,carIndex
+    MUL BX
+    DIV Path_Length_dec
+
+
+    mov ah, 2
+    mov dh, 470/CharHeight    ;ROW
+    mov dl, 5                               ;COLUMN
+    mov bh, 0         
+    int 10h
+    ;AL IS THE PERCENTAGE OF THE PATH OF PLAYER2
+    MOV AH,0
+
+    MOV num,AX
+    CALL OUTPUT_NUM
+
+    POPA
+
+    RET
+display_percentage ENDP
+
+
+
+OUTPUT_NUM PROC
+    mov bl,100
+    div bl
+    mov dl,al
+    push ax
+    add dl,30h
+    mov ah,02h
+    int 21h
+    pop ax
+    mov bl,10
+    mov al,ah
+    mov ah,0
+    div bl
+    mov dl,al
+    push ax
+    add dl,30h 
+    mov ah,02h
+    int 21h
+    pop ax
+    mov dl,ah 
+    add dl,30h 
+    mov ah,02h
+    int 21h
+    RET
+OUTPUT_NUM ENDP
+
+
+; to add 
+display_scores PROC
+    mov ah, 2
+    mov dh, 220/CharHeight             ;ROW
+    mov dl, 25                         ;COLUMN
+    mov bh, 0         
+    int 10h
+
+    mov ah, 9
+    mov dx, offset player1_name + 2
+    int 21h
+
+    mov ah, 2
+    mov dh, 220/CharHeight             ;ROW
+    mov dl, 36                         ;COLUMN
+    mov bh, 0         
+    int 10h
+
+    mov ah, 9
+    mov dx, offset SCORE_TEXT
+    int 21h
+
+    mov ah, 2
+    mov dh, 260/CharHeight             ;ROW
+    mov dl, 25                         ;COLUMN
+    mov bh, 0         
+    int 10h
+
+
+    mov ah, 9
+    mov dx, offset player2_name + 2
+    int 21h
+
+    mov ah, 2
+    mov dh, 260/CharHeight             ;ROW
+    mov dl, 36                         ;COLUMN
+    mov bh, 0         
+    int 10h
+
+    mov ah, 9
+    mov dx, offset SCORE_TEXT
+    int 21h
+
+    call display_scores2
+    
+    RET
+display_scores ENDP
+
+display_scores2 PROC
+    PUSHA
+
+    MOV DI,X_POS
+    MOV SI,Y_POS
+    CALL findCarRemSteps
+
+    MOV BX,100
+    MOV AX,carIndex
+    MUL BX
+    ;DIV Path_Length
+    DIV Path_Length_dec
+    
+    mov ah, 2
+    mov dh, 220/CharHeight                   ;ROW
+    mov dl, 50                               ;COLUMN
+    mov bh, 0         
+    int 10h
+    ;Al IS THE PERCENTAGE OF THE PATH OF PLAYER 1
+    MOV AH,0
+
+    MOV num,AX
+    CALL OUTPUT_NUM
+    
+
+    MOV DI,X_POS_2
+    MOV SI,Y_POS_2
+    CALL findCarRemSteps
+
+    MOV BX,100
+    MOV AX,carIndex
+    MUL BX
+    DIV Path_Length_dec
+
+
+    mov ah, 2
+    mov dh, 260/CharHeight    ;ROW
+    mov dl, 50                               ;COLUMN
+    mov bh, 0         
+    int 10h
+    ;AL IS THE PERCENTAGE OF THE PATH OF PLAYER2
+    MOV AH,0
+
+    MOV num,AX
+    CALL OUTPUT_NUM
+
+    POPA
+
+    RET
+display_scores2 ENDP
+
+
+
+
 clearPos PROC
 
     ;CLEAR CAR 1
@@ -696,6 +934,8 @@ clearPos PROC
     RET
 
 clearPos ENDP
+
+
 
 ; THE POSITION WILL BE CALCULATED FROM THE CENTER OF THE IMAGE
 drawCar PROC  ;CX => ROW / DX => COLUMN /AX => DIR 
@@ -838,259 +1078,6 @@ drawCar PROC  ;CX => ROW / DX => COLUMN /AX => DIR
         CALL drawImage
     RET
 drawCar ENDP
-    ;Move Squares
-; movePlayer1 PROC
-
-;     PUSH BX DX
-
-;     MOV BX,speed1_X
-;     MOV DX,speed1_Y
-
-;     MOV AL,CurrentState
-;     MOV PrevState,al
-;     MOV CurrentState,0
-
-; Controls1:
-;     checkUp:    
-;     ;if 'w' is pressed, move up
-;     CMP [KeyList + w], 1
-;     JNE checkDown
-;     mov MovingCar,1
-;     SUB AUX_Y,DX
-;     ADD CurrentState,2
-
-;     checkDown:
-;     ;if 's' is pressed, move down
-;     CMP [KeyList + s], 1
-;     JNE checkRight
-;     mov MovingCar,1
-;     ADD AUX_Y,DX
-;     ADD CurrentState,4
-
-;     checkRight:
-;     ;if 'd' is pressed, move right
-;     CMP [KeyList + d], 1
-;     JNE checkLeft
-;     mov MovingCar,1
-;     ADD AUX_X,BX
-;     ADD CurrentState,8
-
-;    ;if 'a' is pressed, move left
-;     checkLeft:
-;     CMP [KeyList + a], 1
-;     JNE checkSpeedingUp
-;     mov MovingCar,1
-;     SUB AUX_X,BX
-;     ADD CurrentState,16
-
-;     checkSpeedingUp:
-;     CMP [KeyList+q],1
-;     JNE checkSpeedingDown
-
-;     CMP SpeedUp1,0
-;     JE checkSpeedingDown
-;     CMP UseSpeedUp1,1
-;     JE checkSpeedingDown
-
-;     DEC SpeedUp1
-
-;     MOV UseSpeedUp1,1
-
-;     PUSHA
-;     MOV AH,2CH
-;     INT 21H
-;     MOV starttimeUP1,DH
-;     MOV counterup1,0
-;     POPA
-
-;     MOV speed1_X,IncreasedSpeed
-;     MOV speed1_Y,IncreasedSpeed
-
-;     checkSpeedingDown:
-;     CMP [KeyList + e],1
-;     JNE CheckAvoid
-
-;     CMP SpeedDown1,0
-;     JE CheckAvoid
-;     CMP UseSpeedDown1,1
-;     JE CheckAvoid
-
-;     DEC SpeedDown1
-;     MOV UseSpeedDown1,1
-;     PUSHA
-
-;     MOV AH,2CH
-;     INT 21H
-;     MOV starttimeDown1,DH
-;     MOV counterDown1,0
-;     POPA
-;     MOV speed2_X,DecreasedSpeed
-;     MOV speed2_Y,DecreasedSpeed
-
-;     CheckAvoid:
-;     CMP [KeyList + z],1
-;     JNE CheckCreate
-;     CMP Avoid1,0
-;     JE CheckCreate
-;     CMP UseAvoid1,1
-;     JE CheckCreate
-
-;     MOV UseAvoid1, 1
-;     DEC Avoid1
-
-;     CheckCreate:
-;     CMP [KeyList + xkey],1
-;     JNE CheckStartInline
-;     CMP CreationPower1,0
-;     JE CheckStartInline
-;     CALL DrawObstaclePower
-;     DEC CreationPower1
-;     MOV [KeyList + xkey],0
-
-;     CheckStartInline:
-;     CMP [KeyList + F],1
-;     JNE CHANGE_DIRECTION_1
-
-;     CALL DisplayInlineChat
-
-
-; CHANGE_DIRECTION_1:
-    
-;     MOV AL,PrevState
-;     CMP AL,CurrentState
-;     JE VALIDATE1
-;     MOV AH,1
-;     CALL ChangeDirection_STATE
-
-;     VALIDATE1:
-;     call CheckOutOfRange ;CHECK OUT OF PATH AND OUT OF SCREEN
-
-;     pop DX BX
-;     RET
-
-; movePlayer1 ENDP
-
-; movePlayer2 PROC
-
-;     PUSH BX DX
-
-;     MOV BX,speed2_X
-;     MOV DX,speed2_Y
-
-;     MOV AL,CurrentState2
-;     MOV PrevState2,al
-;     MOV CurrentState2,0
-
-; Controls2:
-;     checkUp2:    
-;     ;if 'up' is pressed, move up
-;     CMP [KeyList + upArrow], 1
-;     JNE checkDown2
-;     mov MovingCar,2
-;     SUB AUX_Y_2,DX
-;     ADD CurrentState2,2
-
-;     checkDown2:
-;     ;if 'down' is pressed, move down
-;     CMP [KeyList + downArrow], 1
-;     JNE checkRight2
-;     mov MovingCar,2
-;     ADD AUX_Y_2,DX
-;     ADD CurrentState2,4
-
-;     checkRight2:
-;     ;if 'right' is pressed, move right
-;     CMP [KeyList + rightArrow], 1
-;     JNE checkLeft2
-;     mov MovingCar,2
-;     ADD AUX_X_2,BX
-;     ADD CurrentState2,8
-
-;     ;if 'left' is pressed, move left
-;     checkLeft2:
-;     CMP [KeyList + leftArrow], 1
-;     JNE checkSpeedingUp2
-;     mov MovingCar,2
-;     SUB AUX_X_2,BX
-;     ADD CurrentState2,16
-
-;     checkSpeedingUp2:
-;     CMP [KeyList+p],1
-;     JNE checkSpeedingDown2
-
-;     CMP SpeedUp2,0
-;     JE checkSpeedingDown2
-;     CMP UseSpeedUp2,1
-;     JE checkSpeedingDown2
-;     DEC SpeedUp2
-
-;     MOV UseSpeedUp2,1
-;     PUSHA
-;     MOV AH,2CH
-;     INT 21H
-;     MOV starttimeUP2,DH
-;     ; MOV counterup1,0
-;     POPA
-
-;     MOV speed2_X,IncreasedSpeed
-;     MOV speed2_Y,IncreasedSpeed
-
-;     checkSpeedingDown2:
-;     CMP [KeyList + o],1
-;     JNE CheckAvoid2
-
-;     CMP SpeedDown2,0
-;     JE CheckAvoid2
-;     CMP UseSpeedDown2,1
-;     JE CheckAvoid2
-;     DEC SpeedDown2
-;     MOV UseSpeedDown2,1
-;     PUSHA
-
-;     MOV AH,2CH
-;     INT 21H
-;     MOV starttimeDown2,DH
-;     POPA
-
-;     MOV speed1_X,DecreasedSpeed
-;     MOV speed1_Y,DecreasedSpeed
-
-;     CheckAvoid2:
-;     CMP [KeyList + Kkey],1
-;     JNE CheckCreate2
-
-;     CMP Avoid2,0
-;     JE CheckCreate2
-;     CMP UseAvoid2,1
-;     JE CheckCreate2
-;     MOV UseAvoid2,1
-;     DEC Avoid2
-
-;     CheckCreate2:
-;     CMP [KeyList + l],1
-;     JNE CHANGE_DIRECTION_2
-
-;     CMP CreationPower2,0
-;     JE CHANGE_DIRECTION_2
-;     CALL DrawObstaclePower2 
-;     DEC CreationPower2
-;     MOV [KeyList+l],0
-
-; CHANGE_DIRECTION_2:
-    
-;     MOV AL,PrevState2
-;     CMP AL,CurrentState2
-;     JE VALIDATE2
-;     MOV AH,2
-;     CALL ChangeDirection_STATE
-
-;     VALIDATE2:
-;     call CheckOutOfRange2 ;CHECK OUT OF PATH AND OUT OF SCREEN AND OBSTACLES
-
-;     pop DX BX
-;     RET
-
-; movePlayer2 ENDP
 
 
 
@@ -2561,132 +2548,6 @@ ADD CornerBRCol2,17
 CALC2DONE:
 RET
 CalcCorners2FUN ENDP
-
-displayTime     PROC
-    PUSHA
-    ; MOV DX,TimeRow
-    ; MOV CX,TimeCol
-
-    MOV AH,2
-    MOV DX,0
-    INT 10H
-
-    MOV BL,10
-    MOV AX,TimeMin
-    DIV BL
-    MOV BH,AH
-
-    MOV DL,AL
-    ADD DL,30H
-    MOV AH,2 
-    INT 21H
-
-    MOV DL,BH
-    ADD DL,30H
-    MOV AH,2 
-    INT 21H
-
-    MOV DL,':'
-    MOV AH,2 
-    INT 21H
-
-    MOV BL,10
-    MOV AX,TimeSec
-    DIV BL
-    MOV BH,AH
-
-    MOV DL,AL
-    ADD DL,30H
-    MOV AH,2 
-    INT 21H
-
-    MOV DL,BH
-    ADD DL,30H
-    MOV AH,2 
-    INT 21H
-
-    POPA
-    RET
-    displayTime ENDP
-
-display_percentage PROC
-    PUSHA
-
-    MOV DI,X_POS
-    MOV SI,Y_POS
-    CALL findCarRemSteps
-
-    MOV BX,100
-    MOV AX,carIndex
-    MUL BX
-    ;DIV Path_Length
-    DIV Path_Length_dec
-    
-    mov ah, 2
-    mov dh, 470/CharHeight    ;ROW
-    mov dl, 70                               ;COLUMN
-    mov bh, 0         
-    int 10h
-    ;Al IS THE PERCENTAGE OF THE PATH OF PLAYER 1
-    MOV AH,0
-
-    MOV num,AX
-    CALL OUTPUT_NUM
-    
-
-    MOV DI,X_POS_2
-    MOV SI,Y_POS_2
-    CALL findCarRemSteps
-
-    MOV BX,100
-    MOV AX,carIndex
-    MUL BX
-    DIV Path_Length_dec
-
-
-    mov ah, 2
-    mov dh, 470/CharHeight    ;ROW
-    mov dl, 5                               ;COLUMN
-    mov bh, 0         
-    int 10h
-    ;AL IS THE PERCENTAGE OF THE PATH OF PLAYER2
-    MOV AH,0
-
-    MOV num,AX
-    CALL OUTPUT_NUM
-
-    POPA
-
-    RET
-display_percentage ENDP
-
-OUTPUT_NUM PROC
-    mov bl,100
-    div bl
-    mov dl,al
-    push ax
-    add dl,30h
-    mov ah,02h
-    int 21h
-    pop ax
-    mov bl,10
-    mov al,ah
-    mov ah,0
-    div bl
-    mov dl,al
-    push ax
-    add dl,30h 
-    mov ah,02h
-    int 21h
-    pop ax
-    mov dl,ah 
-    add dl,30h 
-    mov ah,02h
-    int 21h
-    RET
-OUTPUT_NUM ENDP
-
-
 
 
 

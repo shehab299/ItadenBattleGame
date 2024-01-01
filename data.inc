@@ -247,14 +247,17 @@ evil_powerup_starting_column dw 540
 
 
 ;Display players' names
+;Display players' names
 player1_name_text    DB     'player1', '$'
 player2_name_text    DB     'player2', '$'
 percentage_Text      DB     '0', '$'
 
 
-WIN_1_TEXT DB 'WINNER IS ', '$'
-WIN_2_TEXT DB 'WINNER IS ', '$'
+WIN_1_TEXT DB 'WINNER IS ',  '$'
+WIN_2_TEXT DB 'WINNER IS ',  '$'
 TIE_TEXT DB 'YOU BOTH LOSE', '$'
+SCORE_TEXT DB 'SCORE:'    , '$'
+; SCORE1_row DB 
 
 
 PLAYER1_WIN DB 0
