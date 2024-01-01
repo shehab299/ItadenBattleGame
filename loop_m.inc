@@ -1224,12 +1224,16 @@ Controls1:
     CheckCreate:
     CMP [KeyList + xkey],1
 
-    JNE CheckStartInline
+    JNE XnotPressed
+    OR STATE1,00000001B
     CMP CreationPower1,0
     JE CheckStartInline
     CALL DrawObstaclePower
     DEC CreationPower1
     MOV [KeyList + xkey],0
+    jmp CheckStartInline
+    XnotPressed:
+    and state1,11111110B
 
     CheckStartInline:
     CMP [KeyList + F],1
