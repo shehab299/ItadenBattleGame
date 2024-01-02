@@ -14,12 +14,11 @@ MAIN_LOOP PROC
     call display_Player1_name
     call display_Player2_name
   
-
-   
+    call setBackgroundColor
 
     call DrawPath_
     call genPowerUps
-    ; CALL genObstacles
+    CALL genObstacles
 
     call drawFinishLine
 
@@ -42,7 +41,7 @@ MAIN_LOOP PROC
     call drawGreenPowerUp
 
 
-    call Chat_Box
+    ; call Chat_Box
     
     ;MAIN LOOP
     CHECK_TIME:

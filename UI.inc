@@ -766,13 +766,13 @@ Choose PROC
         CAll setBackgroundColor
         JMP EXIT
         SELECT2:
-            CMP AH, downArrow 
+            CMP AH, s 
             JNE CHECK_UP2
             CALL P2_selectCharDown
             JMP LOOP_AGAIN2
 
             CHECK_UP2:
-            CMP AH, upArrow
+            CMP AH, W
             JNE LOOP_AGAIN2
             CALL P2_selectCharUP
 
