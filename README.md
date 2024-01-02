@@ -1,11 +1,23 @@
-# 🏁 Itaden Battle Game: Ready for the Challenge?
+<h1 align="center">🏁 Itaden Battle Game: Ready for the Challenge?</h1>
 
-Wanna fight in an **Itaden Battle Game**? The city's pulse quickens as the neon-lit streets become your battleground. Your racing suit hums with power, and the air crackles with anticipation. The holographic starting line materializes before you, and the countdown begins. As the digital numbers race to zero, adrenaline courses through your veins. The echoes of engines reverberate through the urban canyons as you accelerate into the heart of the competition. The cityscape transforms into a high-speed arena, and your opponents, both Runners and Purge Agents alike, become blurs in your peripheral vision.
+<p>Wanna fight in an <strong>Itaden Battle Game</strong>? The city's pulse quickens as the neon-lit streets become your battleground. Your racing suit hums with power, and the air crackles with anticipation. The holographic starting line materializes before you, and the countdown begins. As the digital numbers race to zero, adrenaline courses through your veins. The echoes of engines reverberate through the urban canyons as you accelerate into the heart of the competition. The cityscape transforms into a high-speed arena, and your opponents, both Runners and Purge Agents alike, become blurs in your peripheral vision.</p>
 
-🚀 It's a race for survival, where **strategy and speed** are your allies, and the path to freedom awaits the victor. The *Itaden Battle Game* has begun – may the fastest and most cunning prevail. 🏎️
+<p align="center">🚀 It's a race for survival, where <strong>strategy and speed</strong> are your allies, and the path to freedom awaits the victor. The <em>Itaden Battle Game</em> has begun – may the fastest and most cunning prevail. 🏎️</p>
 
-<h2 align='center'>💻 Technologies used 💻 </h2>
-<div align='center'>
-    <p> It's a microprocessors course project, so...</p>
-   <img  src="/assets/meme.png" title="All rights resrved. " >
- </div>
+<h2 align="center">💻 Technologies Used 💻</h2>
+
+<div align="center">
+    <p>It's a microprocessors course project, so...</p>
+    <img src="/assets/meme.png" alt="All rights reserved.">
+</div>
+
+<h2 align="center">💻 Game Art 💻</h2>
+
+<div>
+    <h3>Cars:</h3>
+    <img src="assets/cars.png" alt="Cars">
+    <h3>Obstacles:</h3>
+    <img src="assets/obstacles.png" alt="Obstacles">
+    <h3>Owl:</h3>
+    <img src="assets/owl.png" alt="Owl">
+</div>
