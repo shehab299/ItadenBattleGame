@@ -8,16 +8,14 @@
 
 <div align="center">
     <p>It's a microprocessors course project, so...</p>
-    <img src="/assets/meme.png" alt="All rights reserved.">
+    <img src="/assets/meme.png" alt="All rights reserved." style="width: 50%; max-width: 500px;">
 </div>
 
 <h2 align="center">💻 Game Art 💻</h2>
 
-<div>
+<div align="center">
     <h3>Cars:</h3>
-    <img src="assets/cars.png" alt="Cars">
+    <img src="/assets/cars2.png" alt="Cars" style="width: 50%; max-width: 500px;">
     <h3>Obstacles:</h3>
-    <img src="assets/obstacles.png" alt="Obstacles">
-    <h3>Owl:</h3>
-    <img src="assets/owl.png" alt="Owl">
+    <img src="/assets/obstacles.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
 </div>
