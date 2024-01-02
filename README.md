@@ -20,9 +20,9 @@
     <img src="/assets/obstacles.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
 </div>
 <div align="center">
-    <img src="/assets/names.png" alt="Cars">
-    <img src="/assets/characters.png" alt="Obstacles">
-    <img src="/assets/race_win.png" alt="Obstacles">
+    <img src="/assets/names.png" alt="Cars" style="width: 50%; max-width: 500px;">
+    <img src="/assets/characters.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
+    <img src="/assets/race_win.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
 </div>
 <h2 align='center'>⭐ Collaborators ⭐ </h2>
 <p aligb='center'>And for The Amazing Team, I am proud to work With</p>
