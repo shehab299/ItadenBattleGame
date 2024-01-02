@@ -19,3 +19,14 @@
     <h3>Obstacles:</h3>
     <img src="/assets/obstacles.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
 </div>
+
+<h2 align="center">💻 GamePlay 💻</h2>
+
+<div align="center">
+    <h3>1</h3>
+    <img src="/assets/names.png" alt="Cars" style="width: 50%; max-width: 500px;">
+    <h3>2</h3>
+    <img src="/assets/characters.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
+    <h3>3</h3>
+    <img src="/assets/race_win.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
+</div>
