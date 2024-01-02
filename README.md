@@ -8,7 +8,7 @@
 
 <div align="center">
     <p>It's a microprocessors course project, so...</p>
-    <img src="/assets/meme.png" alt="All rights reserved." style="width: 50%; max-width: 500px;">
+    <img src="/assets/meme.png" alt="All rights reserved.">
 </div>
 
 <h2 align="center">💻 Game Art 💻</h2>
@@ -29,7 +29,7 @@
 </div>
 <h2 align='center'>⭐ Collaborators ⭐ </h2>
 
-<table>
+<table align='center'>
 <tr>
     <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
         <a href=https://github.com/Asmaa-204>
