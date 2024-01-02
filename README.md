@@ -24,9 +24,9 @@
 
 <div align="center">
     <h3>1</h3>
-    <img src="/assets/names.png" alt="Cars" style="width: 50%; max-width: 500px;">
+    <img src="/assets/names.png" alt="Cars">
     <h3>2</h3>
-    <img src="/assets/characters.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
+    <img src="/assets/characters.png" alt="Obstacles">
     <h3>3</h3>
-    <img src="/assets/race_win.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
+    <img src="/assets/race_win.png" alt="Obstacles">
 </div>
