@@ -23,10 +23,39 @@
 <h2 align="center">💻 GamePlay 💻</h2>
 
 <div align="center">
-    <h3>1</h3>
     <img src="/assets/names.png" alt="Cars">
-    <h3>2</h3>
     <img src="/assets/characters.png" alt="Obstacles">
-    <h3>3</h3>
     <img src="/assets/race_win.png" alt="Obstacles">
 </div>
+<h2 align='center'>⭐ Collaborators ⭐ </h2>
+
+<table>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Asmaa-204>
+            <img src=https://avatars.githubusercontent.com/u/130288326?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Asmaa Aboziad/>
+            <br />
+            <sub style="font-size:14px"><b>Asmaa Aboziad</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/Aman5989>
+            <img src=https://avatars.githubusercontent.com/u/118307227?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Khaled Gammal/>
+            <br />
+            <sub style="font-size:14px"><b>Khaled Gammal</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/shehab299>
+            <img src=https://avatars.githubusercontent.com/u/89648315?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Shehab Khaled/>
+            <br />
+            <sub style="font-size:14px"><b>Shehab Khaled</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/adityyyy>
+            <img src=https://avatars.githubusercontent.com/u/118017527?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Adity Roy/>
+            <br />
+            <sub style="font-size:14px"><b>Fatma Zein</b></sub>
+        </a>
+    </td>
