@@ -53,7 +53,7 @@
         <a href=https://github.com/Fatmaz04>
             <img src=https://avatars.githubusercontent.com/u/118017527?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Adity Roy/>
             <br />
-            <sub style="font-size:14px"><b>Fatma Zein</b></sub>
+            <sub style="font-size:14px"><b>Fatma Zain</b></sub>
         </a>
     </td>
 </tr>
