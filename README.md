@@ -14,9 +14,9 @@
 <h2 align="center">💻 GamePlay 💻</h2>
 
 <div align="center">
-    <h3>Cars:</h3>
+    <h4>Cars:</h4>
     <img src="/assets/cars2.png" alt="Cars" style="width: 50%; max-width: 500px;">
-    <h3>Obstacles:</h3>
+    <h4>Obstacles:</h4>
     <img src="/assets/obstacles.png" alt="Obstacles" style="width: 50%; max-width: 500px;">
 </div>
 <div align="center">
